@@ -15,3 +15,23 @@ def listar_productos(request):
     )
 
     return Response(serializer.data) # Devuelve JSON 
+
+@api_view(["GET"])
+def obtener_producto(request, id_producto):
+
+    try: # Se intenta ejecutar el bloque de código
+
+        producto = Productos.objects.get( # Django internamente ejecuta: SELECT * FROM productos 
+            id_producto=id_producto # WHERE id_producto = ?
+        )
+
+    except Productos.DoesNotExist: # Si un producto no existe, Django lanzará una excepción y devolverá un error interno.
+
+        return Response(
+            {"error": "Producto no encontrado"},
+            status=404
+        )
+
+    serializer = ProductoSerializer(producto)
+
+    return Response(serializer.data)
