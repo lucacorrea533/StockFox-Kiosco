@@ -102,3 +102,32 @@ def actualizar_producto(request, id_producto): #Función que se ejecutará cuand
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
+
+#======================================================
+
+@api_view(["DELETE"]) #Función que acepta solamente peticiones DELETE
+def eliminar_producto(request, id_producto):
+
+
+    try:
+
+        producto = Productos.objects.get( #Internamente Django genera algo parecido a SELECT * FROM PRODUCTOS WHERE id_producto = ?;
+            id_producto=id_producto
+        )
+
+
+    except Productos.DoesNotExist: # Tenemos el manejo de errores
+
+        return Response(
+            {"error": "Producto no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
+    producto.delete() # Internamente Django genera DELETE FROM PRODUCTOS WHERE id_producto = ?;
+
+
+    return Response( #Nos devuelve una respuesta exitosa 
+        {"mensaje": "Producto eliminado correctamente"},
+        status=status.HTTP_200_OK
+    )
