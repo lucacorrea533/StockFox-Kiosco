@@ -1,8 +1,10 @@
-from rest_framework.decorators import api_view #Transforma una función común en endpoint REST.
+from rest_framework.decorators import api_view # Transforma una función común en endpoint REST.
 from rest_framework.response import Response #Devuelve JSON
+from rest_framework import status # Nos permite escribir status=status.HTTP_201_CREATED en lugar de memorizar números
 
 from .models import Productos #Consulta la base 
 from .serializers import ProductoSerializer #Convierte objetos en JSON
+
 
 @api_view(["GET"])
 def listar_productos(request):
@@ -15,6 +17,9 @@ def listar_productos(request):
     )
 
     return Response(serializer.data) # Devuelve JSON 
+
+
+#======================================================
 
 @api_view(["GET"])
 def obtener_producto(request, id_producto):
@@ -35,3 +40,65 @@ def obtener_producto(request, id_producto):
     serializer = ProductoSerializer(producto)
 
     return Response(serializer.data)
+
+
+#======================================================
+
+@api_view(["POST"])
+def crear_producto(request):
+
+    serializer = ProductoSerializer(
+        data=request.data # Tomá lo que envió el cliente y dáselo al serializer
+    )
+
+    if serializer.is_valid(): # ¿Los datos cumplen las reglas?
+
+        serializer.save() # Guarda y Django genera el INSERT 
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        ) # Respuesta exitosa devuelve el producto recién creado
+
+    return Response(
+        serializer.errors, # Devolerá cualquier aviso de error de algún campo invalido 
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+#======================================================
+
+@api_view(["PUT"]) #Esta función será un endpoint REST y solamente aceptará peticiones PUT
+def actualizar_producto(request, id_producto): #Función que se ejecutará cuando llegue la petición. Recibe os datos nuevos y el ID del prodocuto que se quiere modificar
+
+
+    try: # Python ejecuta un bloque que podría fallar, ya que el producto podría no existir
+
+        producto = Productos.objects.get( #Busca un único porducto en la base ded atos. Internamente Django genera algo parecido a SELECT * FROM PRODUCTOS WHERE id_prodcuto = 159;
+            id_producto=id_producto
+        )
+
+    except Productos.DoesNotExist: # En caso de no encontrar nada porque el producto no existe, entonces lanza una excepción avisando
+
+        return Response(
+            {"error": "Producto no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
+    serializer = ProductoSerializer( #Toma el producto existente y reemplazá sus datos con los que llegaron en la petición. El serialzier prepara la actualización pero todavía no lo guarda
+        producto,
+        data=request.data
+    )
+
+
+    if serializer.is_valid(): #¿Los datos cumplen todas las reglas?
+
+        serializer.save() #Se guardan los cambios y ocurre la verdadera actualización. Internamnete Django genera algo parecido a UPDATE PRODUCTOS SET nombre = "NuevoNombre", stock = 50 WHERE id_producto = 159 
+
+        return Response(serializer.data) #Respuesta exitosa que devuelve el producto actualizado
+
+
+    return Response( # Respuesta si existen errores. Se eejcuta únicamente cuando serialzier.is_valid() devuelve false, es decir, algún campo es invalido. Devolvienddo el aviso del campo invalido y el 400 Bad Request 
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )

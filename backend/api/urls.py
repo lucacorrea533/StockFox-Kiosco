@@ -1,6 +1,12 @@
 from django.urls import path
 
-from .views import listar_productos, obtener_producto
+from .views import (
+    listar_productos,
+    obtener_producto,
+    crear_producto,
+    actualizar_producto
+)
+
 
 urlpatterns = [
     path(
@@ -13,5 +19,17 @@ urlpatterns = [
         "productos/<int:id_producto>/",
         obtener_producto,
         name="obtener_producto"
+    ),
+
+    path(
+    "productos/crear/",
+    crear_producto,
+    name="crear_producto"
+    ),
+
+    path(
+    "productos/editar/<int:id_producto>/",
+    actualizar_producto,
+    name="actualizar_producto"
     ),
 ]
