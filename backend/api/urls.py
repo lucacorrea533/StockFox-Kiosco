@@ -6,7 +6,9 @@ from .views import (
     obtener_producto,
     crear_producto,
     actualizar_producto,
-    eliminar_producto
+    eliminar_producto,
+    listar_categorias,
+    obtener_categoria
 )
 
 
@@ -45,5 +47,17 @@ urlpatterns = [
     "productos/disponibles/",
     listar_productos_disponibles,
     name="listar_productos_disponibles"
+   ),
+
+   path(
+    "categorias/",
+    listar_categorias,
+    name="listar_categorias"
+   ),
+
+   path(
+    "categorias/<int:id_categoria>/",
+    obtener_categoria,
+    name="obtener_categoria"
    ),
 ]

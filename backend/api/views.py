@@ -2,8 +2,12 @@ from rest_framework.decorators import api_view # Transforma una función común 
 from rest_framework.response import Response #Devuelve JSON
 from rest_framework import status # Nos permite escribir status=status.HTTP_201_CREATED en lugar de memorizar números
 
-from .models import Productos #Consulta la base 
-from .serializers import ProductoSerializer #Convierte objetos en JSON
+from .models import Productos, CategoriaProducto #Consulta los modelos de la bbdd
+
+from .serializers import ( # Importamos los serializadores que convierten objetos a JSON
+    ProductoSerializer,
+    CategoriaProductoSerializer
+)
 
 
 @api_view(["GET"])
@@ -147,3 +151,41 @@ def eliminar_producto(request, id_producto):
         {"mensaje": "Producto eliminado correctamente"},
         status=status.HTTP_200_OK
     )
+
+#======================================================
+
+@api_view(["GET"]) # La función acepta el método HTTP GET
+def listar_categorias(request):
+
+    categorias = CategoriaProducto.objects.all() # Conseguimos todos las categorías 
+
+    serializer = CategoriaProductoSerializer( # Convertimos los objetos 
+        categorias,
+        many=True
+    )
+
+    return Response(serializer.data) # Devolvemos JSON
+
+#======================================================
+
+@api_view(["GET"])
+def obtener_categoria(request, id_categoria):
+
+    try: # Intenta este bloque de código
+
+        categoria = CategoriaProducto.objects.get( # Buscamos una categoría por su ID
+            id_categoria=id_categoria
+        )
+
+    except CategoriaProducto.DoesNotExist: # Si falla el bloque anterior
+
+        return Response( # Devolvemos un error informando 
+            {"error": "Categoría no encontrada"}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = CategoriaProductoSerializer( # Serializamos 
+        categoria 
+    )
+
+    return Response(serializer.data)
