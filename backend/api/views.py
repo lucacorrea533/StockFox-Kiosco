@@ -18,6 +18,22 @@ def listar_productos(request):
 
     return Response(serializer.data) # Devuelve JSON 
 
+#======================================================
+
+@api_view(["GET"])
+def listar_productos_disponibles(request):
+
+    productos = Productos.objects.filter( # Django genera una consulta parecida a SELECT * FROM productos WHERE disponible = 1 AND stock > 0;
+        disponible=1,
+        stock__gt=0
+    )
+
+    serializer = ProductoSerializer( # Serializamos. Convierte el QuerySet a JSON.
+        productos,
+        many=True
+    )
+
+    return Response(serializer.data) # Devuelve la lista filtrada 
 
 #======================================================
 
