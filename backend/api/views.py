@@ -189,3 +189,64 @@ def obtener_categoria(request, id_categoria):
     )
 
     return Response(serializer.data)
+
+#======================================================
+
+@api_view(["POST"])
+def crear_categoria(request):
+
+    serializer = CategoriaProductoSerializer( 
+        data=request.data # request.data contiene el JSON enviado por el cliente (React o en este caso ThunderClient)
+    )
+
+    if serializer.is_valid(): # Validamos los campos 
+
+        serializer.save() # Guardamos 
+
+        return Response( # Si sale bien mostramos la categoría creada 
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response( # Sino, mostramos los campos invalidos 
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+#======================================================
+
+@api_view(["PUT"])
+def actualizar_categoria(request, id_categoria):
+
+
+    try: # Intenta el bloque de código
+
+        categoria = CategoriaProducto.objects.get( # Busca la categoría por su id
+            id_categoria=id_categoria
+        )
+
+    except CategoriaProducto.DoesNotExist: # Si la categoría no existe 
+
+        return Response( # Nos informa del error
+            {"error": "Categoría no encontrada"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+
+    serializer = CategoriaProductoSerializer( # El serializer reemplaza los datos de la ctegoría existente por los nuevos dados 
+        categoria,
+        data=request.data
+    )
+
+
+    if serializer.is_valid(): # Valida los campos
+
+        serializer.save() # Actualiza los cambios 
+
+        return Response(serializer.data) # Muestre la categoría creada 
+
+
+    return Response( # Devuelve un error si algo salió mal con la actualización 
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
