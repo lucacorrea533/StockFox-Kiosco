@@ -1,6 +1,15 @@
 from rest_framework.decorators import api_view # Transforma una función común en endpoint REST.
 from rest_framework.response import Response #Devuelve JSON
-from rest_framework import status # Nos permite escribir status=status.HTTP_201_CREATED en lugar de memorizar números
+
+from rest_framework import status 
+# Nos permite escribir status=status.HTTP_201_CREATED en lugar de memorizar números
+
+from django.db import IntegrityError 
+
+"""
+ IntegrityError es una Excepción que Django lanza cuando una operación 
+ rompe alguna regla de integridad de la base de datos.
+"""
 
 from .models import Productos, CategoriaProducto #Consulta los modelos de la bbdd
 
@@ -250,3 +259,44 @@ def actualizar_categoria(request, id_categoria):
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
+
+#======================================================
+
+@api_view(["DELETE"])
+def eliminar_categoria(request, id_categoria):
+
+    try:
+
+        categoria = CategoriaProducto.objects.get(
+            id_categoria=id_categoria
+        )
+
+    except CategoriaProducto.DoesNotExist:
+
+        return Response(
+            {"error": "Categoría no encontrada"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    try:
+
+        categoria.delete()
+
+    except IntegrityError: # Este bloque maneja errores de violación de integridad
+        
+        """Los errores causados por romper la integridad de la bbdd en MySQL, 
+        Django los captura y los transforma en una excepción Python llamada IntegrityError"""
+
+        return Response(
+            {
+                "error": "No se puede eliminar la categoría porque tiene productos asociados"
+            },
+            status=status.HTTP_409_CONFLICT
+        )
+
+    return Response(
+        {"mensaje": "Categoría eliminada correctamente"},
+        status=status.HTTP_200_OK
+    )
+
+

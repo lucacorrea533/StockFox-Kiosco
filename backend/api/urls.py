@@ -10,7 +10,8 @@ from .views import (
     listar_categorias,
     obtener_categoria,
     crear_categoria,
-    actualizar_categoria
+    actualizar_categoria,
+    eliminar_categoria
 )
 
 
@@ -73,5 +74,11 @@ urlpatterns = [
     "categorias/editar/<int:id_categoria>/",
     actualizar_categoria,
     name="actualizar_categoria"
+   ),
+
+   path(
+    "categorias/eliminar/<int:id_categoria>/",
+    eliminar_categoria,
+    name="eliminar_categoria"
    ),
 ]
