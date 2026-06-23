@@ -4,18 +4,28 @@ from rest_framework.response import Response #Devuelve JSON
 from rest_framework import status 
 # Nos permite escribir status=status.HTTP_201_CREATED en lugar de memorizar números
 
+from django.utils import timezone # Para usar la función timezone.now() que devuelve fecha y hora actual
+
 from django.db import IntegrityError 
 
-"""
- IntegrityError es una Excepción que Django lanza cuando una operación 
- rompe alguna regla de integridad de la base de datos.
-"""
 
-from .models import Productos, CategoriaProducto #Consulta los modelos de la bbdd
+ #IntegrityError es una Excepción que Django lanza cuando una operación 
+ #rompe alguna regla de integridad de la base de datos.
 
-from .serializers import ( # Importamos los serializadores que convierten objetos a JSON
+
+from .models import (
+    Productos,
+    CategoriaProducto,
+    Pedidos,
+    DetallePedido,
+    Alumnos
+)#Consulta los modelos de la bbdd
+
+from .serializers import ( # Importamos los serializadores que convertirán objetos a JSON
     ProductoSerializer,
-    CategoriaProductoSerializer
+    CategoriaProductoSerializer,
+    PedidoSerializer,
+    DetallePedidoSerializer
 )
 
 
@@ -283,7 +293,7 @@ def eliminar_categoria(request, id_categoria):
         categoria.delete()
 
     except IntegrityError: # Este bloque maneja errores de violación de integridad
-        
+
         """Los errores causados por romper la integridad de la bbdd en MySQL, 
         Django los captura y los transforma en una excepción Python llamada IntegrityError"""
 
@@ -300,3 +310,240 @@ def eliminar_categoria(request, id_categoria):
     )
 
 
+#======================================================
+
+@api_view(["GET"])
+def listar_pedidos(request):
+
+    pedidos = Pedidos.objects.all()
+
+    serializer = PedidoSerializer(
+        pedidos,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+#======================================================
+
+#======================================================
+
+@api_view(["GET"])
+def obtener_pedido(request, id_pedido):
+
+    try:
+
+        pedido = Pedidos.objects.get(
+            id_pedido=id_pedido
+        )
+
+    except Pedidos.DoesNotExist:
+
+        return Response(
+            {"error": "Pedido no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = PedidoSerializer(
+        pedido
+    )
+
+    return Response(serializer.data)
+
+
+#======================================================
+
+@api_view(["POST"])
+def crear_pedido(request):
+
+    id_alumno = request.data.get("id_alumno")
+
+    horario_retiro = request.data.get("horario_retiro")
+
+    productos = request.data.get("productos")
+
+    try:
+
+        alumno = Alumnos.objects.get(
+            id_alumno=id_alumno
+        )
+
+    except Alumnos.DoesNotExist:
+
+        return Response(
+            {"error": "Alumno no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    total_pedido = 0
+
+    for item in productos:
+
+        id_producto = item["id_producto"]
+
+        try:
+
+            producto = Productos.objects.get(
+                id_producto=id_producto
+            )
+
+        except Productos.DoesNotExist:
+
+            return Response(
+                {
+                    "error": f"El producto {id_producto} no existe"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        cantidad = item["cantidad"]
+
+        if cantidad > producto.stock:
+
+            return Response(
+                {
+                    "error": f"Stock insuficiente para el producto {producto.nombre}"
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        subtotal = producto.precio_actual * cantidad
+
+        total_pedido += subtotal
+
+    pedido = Pedidos.objects.create(
+
+        id_alumno=alumno,
+
+        horario_retiro=horario_retiro,
+
+        estado="pendiente",
+
+        total=total_pedido,
+
+        fecha_creacion=timezone.now()
+    )
+
+    for item in productos:
+
+        producto = Productos.objects.get(
+            id_producto=item["id_producto"]
+        )
+
+        DetallePedido.objects.create(
+
+            id_pedido=pedido,
+
+            id_producto=producto,
+
+            cantidad=item["cantidad"],
+
+            precio_unitario=producto.precio_actual
+        )
+
+        producto.stock -= item["cantidad"]
+
+        if producto.stock == 0:
+
+            producto.disponible = 0
+
+        producto.save()
+
+    return Response(
+        {
+            "mensaje": "Pedido creado correctamente",
+            "id_pedido": pedido.id_pedido,
+            "total": total_pedido
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+#======================================================
+
+@api_view(["PUT"])
+def actualizar_estado_pedido(request, id_pedido):
+
+    try:
+
+        pedido = Pedidos.objects.get( # Buscamos el pedido
+            id_pedido=id_pedido
+        )
+
+    except Pedidos.DoesNotExist:
+
+        return Response(
+            {"error": "Pedido no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    nuevo_estado = request.data.get("estado") # Lee el nuevo estado y lo guarda en la variable 
+
+    estados_validos = [ # Validamos el estado (tienen que ser alguno de estos)
+        "pendiente",
+        "listo",
+        "entregado"
+    ]
+
+    if nuevo_estado not in estados_validos:
+
+        return Response(
+            {
+                "error": "Estado inválido"
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    pedido.estado = nuevo_estado # Guardamos los cambios 
+
+    pedido.save()
+
+    return Response(
+        {
+            "mensaje": "Estado actualizado correctamente",
+            "id_pedido": pedido.id_pedido,
+            "estado": pedido.estado
+        }
+    )
+
+#======================================================
+
+@api_view(["GET"])
+def detalle_pedido(request, id_pedido):
+
+    try:
+
+        pedido = Pedidos.objects.get(
+            id_pedido=id_pedido
+        )
+
+    except Pedidos.DoesNotExist:
+
+        return Response(
+            {"error": "Pedido no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    detalles = DetallePedido.objects.filter(
+        id_pedido=pedido
+    )
+
+    productos = []
+
+    for detalle in detalles:
+
+        productos.append(
+            {
+                "producto": detalle.id_producto.nombre,
+                "cantidad": detalle.cantidad,
+                "precio_unitario": detalle.precio_unitario
+            }
+        )
+
+    return Response(
+        {
+            "id_pedido": pedido.id_pedido,
+            "estado": pedido.estado,
+            "total": pedido.total,
+            "productos": productos
+        }
+    )

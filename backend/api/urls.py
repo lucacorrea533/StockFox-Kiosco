@@ -11,7 +11,12 @@ from .views import (
     obtener_categoria,
     crear_categoria,
     actualizar_categoria,
-    eliminar_categoria
+    eliminar_categoria,
+    listar_pedidos,
+    obtener_pedido,
+    crear_pedido,
+    actualizar_estado_pedido,
+    detalle_pedido
 )
 
 
@@ -81,4 +86,35 @@ urlpatterns = [
     eliminar_categoria,
     name="eliminar_categoria"
    ),
+
+   path(
+    "pedidos/",
+    listar_pedidos,
+    name="listar_pedidos"
+   ),
+
+   path(
+    "pedidos/<int:id_pedido>/",
+    obtener_pedido,
+    name="obtener_pedido"
+   ),
+
+   path(
+    "pedidos/crear/",
+    crear_pedido,
+    name="crear_pedido"
+   ),
+
+   path(
+    "pedidos/estado/<int:id_pedido>/",
+    actualizar_estado_pedido,
+    name="actualizar_estado_pedido"
+   ),
+
+   path(
+    "pedidos/<int:id_pedido>/detalle/",
+    detalle_pedido,
+    name="detalle_pedido"
+   ),
 ]
+
