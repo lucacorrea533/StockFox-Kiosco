@@ -1,0 +1,869 @@
+/* Este archivo contiene los estilos para la página de gestión de productos, incluyendo la tabla de productos, los modales de confirmación y el formulario de agregar/editar productos. Se ha diseñado con un enfoque en la claridad y facilidad de uso, utilizando una paleta de colores cálidos y una tipografía legible. */
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap'); /* Fuentes importadas para mejorar la legibilidad y estética de la interfaz. */
+
+/* ─────────────────────────────────────────────
+   Layout principal
+───────────────────────────────────────────── */
+.gestion-productos {
+  margin-left: 350px;
+  flex: 1;
+  padding: 2rem 2.5rem;
+  background: var(--naranja-pastel);
+  min-height: 100vh;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+.gp-titulo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ─────────────────────────────────────────────
+   Barra de búsqueda + filtro
+───────────────────────────────────────────── */
+.gp-barra {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.gp-buscador {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--naranja-claro);
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gp-buscador-icono {
+  width: 20px;
+  height: 20px;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.gp-buscador input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  outline: none;
+}
+
+.gp-buscador input::placeholder { color: rgba(92, 45, 10, 0.5); }
+
+.gp-select-categoria {
+  background: var(--naranja-claro);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  outline: none;
+}
+
+/* ─────────────────────────────────────────────
+   Tabla de productos
+───────────────────────────────────────────── */
+.tp-wrapper {
+  background: var(--naranja-claro);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1.5rem;
+}
+
+.tp-encabezado,
+.tp-fila {
+  display: grid;
+  grid-template-columns: 56px 1fr 1fr 80px 70px 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.tp-encabezado {
+  background: var(--naranja);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--marron-oscuro);
+}
+
+.tp-fila {
+  border-top: 1px solid rgba(92, 45, 10, 0.12);
+  font-size: 0.9rem;
+}
+
+.tp-fila:hover { background: rgba(255, 255, 255, 0.15); }
+
+.tp-foto {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.tp-foto--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(92, 45, 10, 0.2);
+  color: var(--marron-oscuro);
+  font-size: 1rem;
+}
+
+.tp-stock--bajo {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.tp-acciones {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tp-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.82rem;
+  font-family: 'Lexend', sans-serif;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.tp-btn:hover { opacity: 0.8; }
+
+.tp-btn--editar {
+  background: var(--naranja);
+  color: white;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tp-btn--eliminar {
+  background: var(--naranja-pastel);
+  color: white;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tp-btn--historial {
+  background: var(--marron-naranja);
+  color: white;
+  padding: 0.3rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tp-btn-icono {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.tp-vacia {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--marron-oscuro);
+  opacity: 0.6;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ─────────────────────────────────────────────
+   Modales — overlay compartido
+───────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-caja {
+  background: var(--naranja-pastel);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  font-family: 'Lexend', sans-serif;
+}
+
+.modal-texto {
+  font-size: 1rem;
+  color: var(--marron-oscuro);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.modal-botones {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.modal-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 2rem;
+  font-size: 0.95rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.modal-btn:hover { opacity: 0.85; }
+
+.modal-btn--no {
+  background: rgba(92, 45, 10, 0.15);
+  color: var(--marron-oscuro);
+}
+
+.modal-btn--si {
+  background: #c0392b;
+  color: white;
+}
+
+/* ─────────────────────────────────────────────
+   Modal historial de precios
+───────────────────────────────────────────── */
+.modal-historial-caja {
+  max-width: 520px;
+  text-align: left;
+}
+
+.modal-historial-titulo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  margin: 0 0 4px 0;
+}
+
+.modal-historial-producto {
+  font-size: 0.88rem;
+  color: var(--marron-naranja);
+  font-weight: 600;
+  margin: 0 0 1.2rem 0;
+}
+
+.modal-historial-vacio {
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  opacity: 0.65;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.modal-historial-tabla {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.modal-historial-encabezado,
+.modal-historial-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  text-align: center;
+  font-family: 'Lexend', sans-serif;
+}
+
+.modal-historial-encabezado {
+  background: var(--naranja);
+  font-weight: 700;
+  color: white;
+}
+
+.modal-historial-fila {
+  background: var(--naranja-claro);
+  border-top: 1px solid rgba(92, 45, 10, 0.1);
+  color: var(--marron-oscuro);
+}
+
+.mh-precio-viejo {
+  color: var(--marron-naranja);
+  font-weight: 600;
+}
+
+.mh-precio-nuevo {
+  color: var(--marron-oscuro);
+  font-weight: 700;
+}
+
+/* ─────────────────────────────────────────────
+   Menú del Día
+───────────────────────────────────────────── */
+.mdd-section {
+  background: var(--naranja-claro);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-top: 1.5rem;
+}
+
+.mdd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.mdd-titulo {
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mdd-estrella { font-size: 1.15rem; }
+
+.mdd-header-acciones {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.mdd-btn-guardar {
+  background: var(--marron-oscuro);
+  color: white;
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.mdd-btn-guardar:hover { opacity: 0.85; }
+
+.mdd-btn-eliminar {
+  background: #c0392b;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.mdd-btn-eliminar:hover { opacity: 0.85; }
+
+.mdd-controles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.mdd-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.mdd-campo--full { grid-column: 1 / -1; }
+
+.mdd-label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+}
+
+.mdd-input {
+  background: var(--naranja);
+  border: none;
+  border-radius: 7px;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.92rem;
+  font-family: 'Lexend', sans-serif;
+  color: white;
+  outline: none;
+}
+
+.mdd-input::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+.mdd-precio-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--naranja);
+  border-radius: 7px;
+  padding-left: 0.8rem;
+  gap: 2px;
+}
+
+.mdd-precio-simbolo {
+  color: white;
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.mdd-precio-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.55rem 0.75rem 0.55rem 0.3rem;
+  font-size: 0.92rem;
+  font-family: 'Lexend', sans-serif;
+  color: white;
+  outline: none;
+}
+
+.mdd-precio-input::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+.mdd-error {
+  font-size: 0.78rem;
+  font-family: 'Lexend', sans-serif;
+  color: #c0392b;
+}
+
+/* ─────────────────────────────────────────────
+   Botón agregar producto
+───────────────────────────────────────────── */
+.gp-btn-agregar {
+  background: var(--marron-oscuro);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto 1.5rem;
+  transition: opacity 0.15s;
+}
+
+.gp-btn-agregar:hover { opacity: 0.85; }
+
+/* ─────────────────────────────────────────────
+   Formulario agregar / editar
+───────────────────────────────────────────── */
+.fap-section {
+  background: var(--naranja-claro);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  margin-bottom: 1.5rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.fap-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  margin: 0 0 1rem 0;
+}
+
+.fap-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.85rem 1rem;
+}
+
+.fap-campo--nombre { grid-column: 1; }
+.fap-campo--foto   { grid-column: 1; grid-row: 2; }
+
+.fap-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.fap-campo label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+}
+
+.fap-campo input,
+.fap-campo select {
+  background: var(--naranja);
+  border: none;
+  border-radius: 7px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.92rem;
+  font-family: 'Lexend', sans-serif;
+  color: white;
+  outline: none;
+}
+
+.fap-campo select option {
+  color: var(--marron-oscuro);
+  background: var(--naranja-pastel);
+}
+
+.fap-campo input::placeholder { color: rgba(255, 255, 255, 0.55); }
+
+.fap-precio-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--naranja);
+  border-radius: 7px;
+  padding-left: 0.75rem;
+  gap: 2px;
+}
+
+.fap-precio-simbolo {
+  color: white;
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.fap-precio-wrapper input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 0 7px 7px 0;
+  padding: 0.55rem 0.75rem 0.55rem 0.3rem;
+  font-size: 0.92rem;
+  font-family: 'Lexend', sans-serif;
+  color: white;
+  outline: none;
+}
+
+.fap-precio-wrapper input::placeholder { color: rgba(255, 255, 255, 0.55); }
+
+.fap-foto-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--naranja);
+  border-radius: 7px;
+  height: 37px;
+  padding: 0 0.75rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity 0.15s;
+}
+
+.fap-foto-label:hover { opacity: 0.85; }
+
+.fap-icono-subir {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.fap-foto-texto {
+  font-size: 0.88rem;
+  font-family: 'Lexend', sans-serif;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fap-btn-quitar-foto {
+  background: none;
+  border: none;
+  color: #c0392b;
+  font-size: 0.78rem;
+  font-family: 'Lexend', sans-serif;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.2rem;
+  text-decoration: underline;
+}
+
+.fap-error {
+  font-size: 0.78rem;
+  font-family: 'Lexend', sans-serif;
+  color: #c0392b;
+}
+
+.fap-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.fap-btn {
+  border: none;
+  border-radius: 7px;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.92rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.fap-btn:hover { opacity: 0.85; }
+
+.fap-btn--cancelar {
+  background: rgba(92, 45, 10, 0.15);
+  color: var(--marron-oscuro);
+}
+
+.fap-btn--guardar {
+  background: var(--marron-oscuro);
+  color: white;
+}
+
+/* ─────────────────────────────────────────────
+   Toast — deshacer eliminación
+───────────────────────────────────────────── */
+.gp-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--marron-oscuro);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  z-index: 1000;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  animation: toastEntrar 0.2s ease;
+  white-space: nowrap;
+}
+
+.gp-toast-btn {
+  background: var(--naranja);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.gp-toast-btn:hover {
+  opacity: 0.85;
+  background: var(--naranja);
+}
+
+@keyframes toastEntrar {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ─────────────────────────────────────────────
+   Responsive
+───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .gestion-productos { padding: 1.25rem 1rem; }
+
+  .tp-encabezado,
+  .tp-fila { grid-template-columns: 44px 1fr 80px 60px; }
+
+  .tp-encabezado span:nth-child(3),
+  .tp-fila span:nth-child(3) { display: none; }
+
+  .fap-grid { grid-template-columns: 1fr 1fr; }
+  .fap-campo--nombre { grid-column: 1 / -1; }
+}
+
+/* ─────────────────────────────────────────────
+   Menú del Día — estados adicionales
+───────────────────────────────────────────── */
+
+/* Sin menú cargado */
+.mdd-vacio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.mdd-vacio-texto {
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  opacity: 0.6;
+  font-family: 'Lexend', sans-serif;
+  margin: 0;
+}
+
+.mdd-btn-nuevo {
+  background: var(--marron-oscuro);
+  color: white;
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.mdd-btn-nuevo:hover { opacity: 0.85; }
+
+/* Tarjeta menú activo */
+.mdd-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--naranja-pastel);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.mdd-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mdd-card-nombre {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+}
+
+.mdd-card-desc {
+  font-size: 0.82rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-naranja);
+}
+
+.mdd-card-fecha {
+  font-size: 0.75rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  opacity: 0.55;
+}
+
+.mdd-card-precio {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  white-space: nowrap;
+}
+
+.mdd-card-acciones {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Confirmación guardado */
+.mdd-guardado-ok {
+  font-size: 0.85rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  color: #27ae60;
+}
+
+/* Botones del formulario */
+.mdd-form-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.mdd-btn-cancelar {
+  background: rgba(92, 45, 10, 0.15);
+  color: var(--marron-oscuro);
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.mdd-btn-cancelar:hover { opacity: 0.85; }
+
+/* ─────────────────────────────────────────────
+   Toast de edición
+───────────────────────────────────────────── */
+.gp-toast--edicion {
+  background: #27ae60;
+}
+
+.gp-toast-precio {
+  opacity: 0.85;
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+/* ─────────────────────────────────────────────
+   Modal historial — precio actual + columna diff
+───────────────────────────────────────────── */
+.modal-historial-precio-actual {
+  font-size: 0.88rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  margin: -0.5rem 0 1rem 0;
+}
+
+.modal-historial-encabezado,
+.modal-historial-fila {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* ahora son 5 columnas */
+}
+
+.mh-diff {
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+}
+
+.mh-diff--suba {
+  color: #c0392b; /* rojo — subió el precio */
+}
+
+.mh-diff--baja {
+  color: #27ae60; /* verde — bajó el precio */
+}

@@ -1,0 +1,255 @@
+/* Este archivo contiene los estilos para la página de registro. */
+
+.registro-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* MITAD IZQUIERDA */
+.registro-imagen {
+  flex: 1;
+  background-size: 240%;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.registro-logo {
+  width: 220px;
+}
+
+/* MITAD DERECHA */
+.registro-panel {
+  flex: 1;
+  background-color: var(--naranja-pastel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 40px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.registro-titulo {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--marron-oscuro);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.registro-subtitulo {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.85rem;
+  color: var(--marron-oscuro);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.registro-form {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.registro-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.registro-campo label {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--marron-oscuro);
+}
+
+.registro-input-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.registro-input-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgba(92, 45, 10, 0.18);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  transition: border-color 0.2s;
+}
+
+.registro-input-wrapper input::placeholder {
+  color: rgba(92, 45, 10, 0.45);
+}
+
+.registro-input-wrapper input:focus {
+  outline: none;
+  border-color: var(--marron-naranja);
+}
+
+.registro-input-wrapper.input-error input {
+  border-color: #c0392b;
+}
+
+.registro-input-wrapper.con-icono input {
+  padding-right: 52px;
+}
+
+.registro-toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.registro-toggle-password img {
+  width: 30px;
+  height: 30px;
+}
+
+.registro-error {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.78rem;
+  color: #c0392b;
+  margin: 0;
+  padding-left: 4px;
+}
+
+/* Fila de contraseñas lado a lado */
+.registro-fila-passwords {
+  display: flex;
+  gap: 16px;
+}
+
+.registro-fila-passwords .registro-campo {
+  flex: 1;
+}
+
+/* Botón */
+.registro-boton {
+  width: 100%;
+  background-color: var(--marron-naranja);
+  color: white;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  border: none;
+  border-radius: 25px;
+  padding: 13px 0;
+  margin-top: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.registro-boton:hover {
+  background-color: var(--marron-oscuro);
+}
+
+/* Mensaje de éxito */
+.registro-exito {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #27ae60;
+  text-align: center;
+  margin: 0;
+}
+
+/* Extra */
+.registro-extra {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.registro-login-link,
+.registro-volver {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--marron-oscuro);
+  text-decoration: none;
+}
+
+.registro-volver {
+  font-weight: 500;
+  font-size: 0.88rem;
+}
+
+.registro-login-link:hover,
+.registro-volver:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .registro-wrapper {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .registro-imagen {
+    min-height: 180px;
+    background-size: cover;
+  }
+  .registro-panel {
+    padding: 24px 20px;
+    overflow: auto;
+  }
+  .registro-fila-passwords {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.registro-fila-curso {
+  display: flex;
+  gap: 16px;
+}
+
+.registro-fila-curso .registro-campo {
+  flex: 1;
+}
+
+.registro-select {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgba(92, 45, 10, 0.18);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.registro-select:focus {
+  outline: none;
+  border-color: var(--marron-naranja);
+}
+
+.registro-select.input-error {
+  border-color: #c0392b;
+}

@@ -1,0 +1,227 @@
+/* Este archivo contiene los estilos para la barra lateral de la encargada, así como los dropdowns de notificaciones y opciones. Está pensado para ser lo más parecido posible al mockup, con scroll interno para los links si es necesario. */
+
+.navbar-encargada {
+  width: 350px;
+  height: 100vh;
+  background-color: var(--naranja);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+}
+
+/* Logo */
+.navbar-encargada-logo {
+  display: flex;
+  justify-content: center;
+  padding: 6px 60px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.445);
+  flex-shrink: 0;
+}
+
+.navbar-encargada-logo img {
+  width: 115px;
+}
+
+/* Links */
+.navbar-encargada-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 10px;
+  flex: 1;
+  min-height: 0; /* clave para que el overflow-y funcione dentro de un flex item */
+  overflow-y: auto;
+}
+
+/* Para que el scroll interno (si aparece) no se vea feo */
+.navbar-encargada-links::-webkit-scrollbar {
+  width: 4px;
+}
+.navbar-encargada-links::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+/* Cada item */
+.navbar-encargada-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--marron-oscuro);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.navbar-encargada-item img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+}
+
+/* Hover */
+.navbar-encargada-item:hover {
+  background-color: var(--marron-oscuro);
+  color: var(--naranja-claro);
+}
+
+.navbar-encargada-item:hover img {
+  filter: brightness(0) invert(1);
+}
+
+/* Activo */
+.navbar-encargada-item.activo {
+  background-color: rgba(153, 78, 20, 0.75);
+  color: rgb(252, 175, 103);
+}
+
+.navbar-encargada-item.activo img {
+  filter: brightness(0) invert(1);
+}
+
+/* Footer — más grande, como pide el mockup */
+.navbar-encargada-footer {
+  padding: 16px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.445);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.navbar-encargada-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--marron-oscuro);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.navbar-encargada-usuario img {
+  width: 38px;
+  height: 38px;
+}
+
+.navbar-encargada-acciones {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-icon-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.navbar-icon-wrapper > img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.navbar-icon-wrapper > img:hover {
+  opacity: 0.7;
+}
+
+.navbar-notif-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #8b0000;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Dropdowns comunes */
+.navbar-dropdown {
+  position: absolute;
+  bottom: 46px;
+  right: 0;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  min-width: 230px;
+  padding: 10px;
+  z-index: 50;
+}
+
+.navbar-dropdown-titulo {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--marron-oscuro);
+  margin: 0 0 8px 4px;
+}
+
+/* Dropdown de notificaciones */
+.navbar-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--marron-oscuro);
+}
+
+.navbar-notif-item:hover {
+  background-color: rgba(153, 78, 20, 0.08);
+}
+
+.navbar-notif-item img {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Dropdown de opciones */
+.navbar-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navbar-dropdown-item img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+}
+
+.navbar-dropdown-item:hover {
+  background-color: #8b0000;
+  color: white;
+}
+
+.navbar-dropdown-item:hover img {
+  filter: brightness(0) invert(1);
+}

@@ -1,0 +1,68 @@
+/* Este archivo contiene los estilos para el componente ConfirmModal */
+
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-modal {
+  background-color: var(--naranja-claro, #fcd9ad);
+  border-radius: 14px;
+  padding: 28px 30px;
+  width: 320px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.confirm-modal h3 {
+  margin: 0 0 10px;
+  color: var(--marron-oscuro);
+  font-size: 1.15rem;
+}
+
+.confirm-modal p {
+  margin: 0 0 22px;
+  color: var(--marron-oscuro);
+  font-size: 0.95rem;
+}
+
+.confirm-modal-botones {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-modal-botones button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.confirm-modal-cancelar {
+  background-color: rgba(0, 0, 0, 0.15);
+  color: var(--marron-oscuro);
+}
+
+.confirm-modal-cancelar:hover {
+  opacity: 0.8;
+}
+
+.confirm-modal-confirmar {
+  background-color: #8b0000;
+  color: white;
+}
+
+.confirm-modal-confirmar:hover {
+  opacity: 0.85;
+}

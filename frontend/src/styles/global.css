@@ -1,0 +1,71 @@
+/* Este archivo contiene los estilos globales para la página de RecoKiosco, incluyendo la configuración de la tipografía, la paleta de colores oficial y las clases reutilizables para contenedores, tarjetas y títulos. Se ha diseñado con un enfoque en la simplicidad y la coherencia visual, utilizando colores cálidos y una tipografía moderna para mejorar la experiencia del usuario. */
+
+/* =======================================================
+   FONT: LEXEND
+======================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;900&display=swap');
+
+/* =======================================================
+   PALETA DE COLORES OFICIAL STOCKFOX
+======================================================= */
+:root {
+  --naranja: #e8813a;
+  --marron-oscuro: #5c2d0a;
+  --naranja-claro: #ffe3cf;
+  --marron-naranja: #bf5902;
+  --naranja-pastel: #ffaa6f;
+}
+
+/* =======================================================
+   CONFIGURACIÓN GENERAL
+======================================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Lexend', Arial, Helvetica, sans-serif;
+  background-color: var(--naranja-claro);
+  color: var(--marron-oscuro);
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  color: var(--marron-oscuro);
+}
+
+button {
+  background-color: var(--naranja);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family: 'Lexend', Arial, Helvetica, sans-serif;
+}
+
+button:hover {
+  background-color: var(--marron-naranja);
+}
+
+/* =======================================================
+   CLASES REUTILIZABLES
+======================================================= */
+.container {
+  padding: 20px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.titulo-principal {
+  color: var(--marron-oscuro);
+  margin-bottom: 20px;
+}

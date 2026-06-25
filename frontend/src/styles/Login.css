@@ -1,0 +1,193 @@
+/* Este archivo contiene los estilos CSS para la pantalla de login. Define el diseño de la página, los estilos de los campos de entrada, el botón de login y los enlaces para recuperar la contraseña y registrarse. El diseño se divide en dos mitades: una con una imagen y otra con el formulario de login. */
+
+.login-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* MITAD IZQUIERDA */
+.login-imagen {
+  flex: 1;
+  background-size: 240%;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-logo {
+  width: 220px;
+}
+
+/* MITAD DERECHA */
+.login-panel {
+  flex: 1;
+  background-color: var(--naranja-pastel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 40px;
+  box-sizing: border-box;
+}
+
+.login-titulo {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--marron-oscuro);
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-campo label {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--marron-oscuro);
+}
+
+.login-input-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.login-input-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: rgba(92, 45, 10, 0.18);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 13px 16px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.95rem;
+  color: var(--marron-oscuro);
+  transition: border-color 0.2s;
+}
+
+.login-input-wrapper input::placeholder {
+  color: rgba(92, 45, 10, 0.45);
+}
+
+.login-input-wrapper input:focus {
+  outline: none;
+  border-color: var(--marron-naranja);
+}
+
+.login-input-wrapper.input-error input {
+  border-color: #c0392b;
+}
+
+.login-input-wrapper.con-icono input {
+  padding-right: 52px;
+}
+
+.login-toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.login-toggle-password img {
+  width: 30px;
+  height: 30px;
+}
+
+.login-error {
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.8rem;
+  color: #c0392b;
+  margin: 0;
+  padding-left: 4px;
+}
+
+/* Botón */
+.login-boton {
+  width: 100%;
+  background-color: var(--marron-naranja);
+  color: white;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  border: none;
+  border-radius: 25px;
+  padding: 14px 0;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-boton:hover {
+  background-color: var(--marron-oscuro);
+}
+
+/* Extra */
+.login-extra {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-olvido {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--marron-oscuro);
+  margin: 0;
+  cursor: pointer;
+}
+
+.login-olvido:hover {
+  text-decoration: underline;
+}
+
+.login-volver {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  text-decoration: none;
+}
+
+.login-registro {
+  font-family: 'Lexend', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--marron-oscuro);
+  margin: 0;
+}
+
+.login-registro a {
+  color: var(--marron-naranja);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login-registro a:hover {
+  text-decoration: underline;
+}

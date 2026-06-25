@@ -1,0 +1,145 @@
+/* Este archivo contiene los estilos para la página principal del kiosco. */
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800&display=swap');
+
+.principal-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* MITAD SUPERIOR */
+.principal-hero {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  position: relative;
+}
+
+.principal-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(232, 129, 58, 0.25) 100%,
+    rgba(191, 89, 2, 0.45) 100%
+  );
+  z-index: 0;
+}
+
+/* Todo lo de adentro tiene que estar por encima del overlay */
+.principal-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.principal-logo-kiosco {
+  width: 200px;
+}
+
+.principal-frase {
+  color: white;
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  margin-bottom: 20px;
+}
+
+.principal-botones {
+  display: flex;
+  gap: 100px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-primario {
+  background-color: var(--naranja);
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+  padding: 13px 100px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-primario:hover {
+  background-color: var(--marron-naranja);
+  color: white;
+}
+
+.btn-secundario {
+  background-color: white;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+  padding: 13px 100px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 2px solid white;
+  transition: 0.3s;
+}
+
+.btn-secundario:hover {
+  background-color: var(--naranja-claro);
+  border-color: var(--naranja-claro);
+}
+
+.principal-aclaracion {
+  color: white;
+  font-size: 0.85rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.principal-aclaracion a {
+  color: white;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* MITAD INFERIOR */
+.principal-footer {
+  background-color: var(--naranja-pastel);
+  padding: 55px 40px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.principal-footer-texto {
+  text-align: center;
+}
+
+.principal-footer-nombre {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+}
+
+.principal-footer-sub {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+}
+
+.principal-logo-escuela {
+  width: 115px;
+  border-radius: 50%;
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+}

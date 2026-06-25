@@ -1,0 +1,162 @@
+/* Este archivo contiene los estilos para el navbar - componente del alumno, que es el que se muestra en la mayoría de las vistas. Es un sidebar fijo a la izquierda, con el logo arriba, los links de navegación en el medio y el usuario y acciones (carrito, cerrar sesión) abajo. */
+
+.navbar-alumno {
+  width: 350px;
+  height: 100vh;
+  background-color: var(--naranja);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+}
+
+/* Logo arriba */
+.navbar-alumno-logo {
+  display: flex;
+  justify-content: center;
+  padding: 6px 60px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.445);
+  flex-shrink: 0;
+}
+
+.navbar-alumno-logo img {
+  width: 115px;
+}
+
+/* Links del medio */
+.navbar-alumno-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 10px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Cada item del navbar */
+.navbar-alumno-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--marron-oscuro);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  height: 52px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.navbar-alumno-item img {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+}
+
+/* Activo — la vista en la que estás actualmente */
+.navbar-alumno-item.activo {
+  background-color: rgba(153, 78, 20, 0.75);
+  color: rgb(252, 175, 103);
+}
+
+.navbar-alumno-item.activo img {
+  filter: brightness(0) invert(1);
+}
+
+/* Hover general */
+.navbar-alumno-item:hover {
+  background-color: var(--marron-oscuro);
+  color: white;
+}
+
+.navbar-alumno-item:hover img {
+  filter: brightness(0) invert(1);
+}
+
+/* Footer — usuario y acciones, más grande como en el mockup */
+.navbar-alumno-footer {
+  padding: 16px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.445);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.navbar-alumno-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--marron-oscuro);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.navbar-alumno-usuario img {
+  width: 38px;
+  height: 38px;
+}
+
+.navbar-alumno-acciones {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.navbar-icon-btn img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+  transition: filter 0.2s;
+}
+
+/* Hover normal (carrito) */
+.navbar-icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* Hover "peligroso" (cerrar sesión) — se pone rojo, igual que en Encargada */
+.navbar-icon-btn-peligro:hover {
+  background-color: #8b0000;
+}
+
+.navbar-icon-btn-peligro:hover img {
+  filter: brightness(0) invert(1);
+}
+
+.navbar-carrito-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: var(--marron-oscuro);
+  color: white;
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
