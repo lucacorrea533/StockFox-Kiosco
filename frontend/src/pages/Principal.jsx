@@ -26,7 +26,7 @@ function Principal() {
         </div>
 
         <p className="principal-aclaracion">
-          ¿Sos alumno? <Link to="/catalogo">Creá tu cuenta acá</Link>
+          ¿Sos alumno? <Link to="/registro">Creá tu cuenta acá</Link>
         </p>
       </div>
 

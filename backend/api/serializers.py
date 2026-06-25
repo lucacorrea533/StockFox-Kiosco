@@ -8,9 +8,21 @@ from .models import (
 
 class ProductoSerializer(serializers.ModelSerializer):
 
+    categoria = serializers.CharField(
+        source="id_categoria.nombre",
+        read_only=True
+    )
+
     class Meta:
         model = Productos
-        fields = "__all__"
+        fields = [
+            "id_producto",
+            "nombre",
+            "precio_actual",
+            "stock",
+            "foto_url",
+            "categoria"
+        ]
 
 
 class CategoriaProductoSerializer(serializers.ModelSerializer):
