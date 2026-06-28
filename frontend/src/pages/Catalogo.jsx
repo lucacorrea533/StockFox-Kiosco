@@ -13,6 +13,8 @@ import btnDulces from '../assets/icons/Dulces.png'
 import btnBocados from '../assets/icons/Bocados.png'
 import btnBebCalientes from '../assets/icons/Beb.Calientes.png'
 import btnServicios from '../assets/icons/Servicios.png'
+import btnGalletitas from '../assets/icons/Galletitas.png'
+import btnProductosExtra from '../assets/icons/ProductosExtra.png'
 import hor1 from '../assets/icons/Horario1.png'
 import hor2 from '../assets/icons/Horario2.png'
 import hor3 from '../assets/icons/Horario3.png'
@@ -30,6 +32,19 @@ import iconReloj from '../assets/icons/Reloj.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import iconEliminar from '../assets/icons/EliminarBoton.png'
 import '../styles/Catalogo.css'
+
+const iconosCategorias = {
+  "Todos": btnTodos,
+  "Snacks": btnSnacks,
+  "Bebidas": btnBebidas,
+  "Alfajores y Chocolates": btnAlfajores,
+  "Dulces": btnDulces,
+  "Galletitas": btnGalletitas,
+  "Productos Extra": btnProductosExtra,
+  "Bocados y Aperitivos": btnBocados,
+  "Bebidas Calientes": btnBebCalientes,
+  "Servicios": btnServicios
+}
 
 // Determina si el producto es un Servicio sin foto
 function esServicioSinFoto(p) {
@@ -435,7 +450,8 @@ function Catalogo() {
   const [productoVariantes, setProductoVariantes] = useState(null)
   const [mostrarCarrito, setMostrarCarrito]     = useState(false)
   const [productos, setProductos] = useState([]) // --------------------------
-
+  const [categorias, setCategorias] = useState([])
+  
   // ── Toast de undo (fuera del modal, nivel página) ─────────────────────────
   // undoItem: { item, timerId } | null — solo un undo activo a la vez.
   const [undoItem, setUndoItem]   = useState(null)
@@ -463,7 +479,7 @@ function Catalogo() {
     return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current) }
   }, [])
 
-  useEffect(() => { // FETCHHHHHHHHHHHH
+  useEffect(() => { // FETCHHHHHHHHHHHH PRODUCTOOOOOOS
   fetch('http://127.0.0.1:8000/api/productos/')
     .then(response => response.json())
     .then(data => {
@@ -493,6 +509,30 @@ function Catalogo() {
     const coincideBusqueda  = p.nombre.toLowerCase().includes(busqueda.toLowerCase())
     return coincideCategoria && coincideBusqueda
   })
+
+  useEffect(() => {
+  fetch('http://127.0.0.1:8000/api/categorias/') // FEETCHHHHHH CATEGORIASASSSA
+    .then(response => response.json())
+    .then(data => {
+
+  console.log(data)
+
+  data.forEach(cat => {
+    console.log(
+      "Categoria:",
+      `"${cat.nombre}"`,
+      "Icono:",
+      iconosCategorias[cat.nombre]
+    )
+  })
+
+  setCategorias(data)
+
+})
+    .catch(error => {
+      console.error(error)
+    })
+}, [])
 
   function handleClickProducto(producto) {
     if (producto.variantes) {
@@ -542,16 +582,29 @@ function Catalogo() {
         </div>
 
         <div className="catalogo-categorias">
-          {categorias.map(cat => (
-            <button
-              key={cat.nombre}
-              className={`catalogo-cat-btn ${categoriaActiva === cat.nombre ? 'activo' : ''}`}
-              onClick={() => setCategoriaActiva(cat.nombre)}
-            >
-              <img src={cat.imagen} alt={cat.nombre} />
-            </button>
-          ))}
-        </div>
+
+  <button
+    className={`catalogo-cat-btn ${categoriaActiva === "Todos" ? "activo" : ""}`}
+    onClick={() => setCategoriaActiva("Todos")}
+  >
+    <img src={btnTodos} alt="Todos" />
+  </button>
+
+  {categorias.map(cat => (
+    <button
+      key={cat.id_categoria}
+      className={`catalogo-cat-btn ${categoriaActiva === cat.nombre ? "activo" : ""}`}
+      onClick={() => setCategoriaActiva(cat.nombre)}
+    >
+      <img
+  src={iconosCategorias[cat.nombre]}
+  alt={cat.nombre}
+   />
+
+    </button>
+  ))}
+
+</div>
 
         <div className="catalogo-buscador">
           <img src={iconBuscador} alt="Buscar" className="catalogo-buscador-icono" />
