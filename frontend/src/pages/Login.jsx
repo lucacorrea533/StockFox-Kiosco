@@ -23,7 +23,7 @@ function Login() {
     if (!contrasena.trim()) nuevosErrores.contrasena = 'Ingresá tu contraseña.'
     setErrores(nuevosErrores)
     if (Object.keys(nuevosErrores).length === 0) {
-      navigate('/admin/productos')
+      navigate('/catalogo')
     }
   }
 

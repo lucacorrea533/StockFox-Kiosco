@@ -1,0 +1,410 @@
+/* Este archivo css contiene los estilos del panel de administración. */
+
+/* ── Layout general ─────────────────────────────── */
+.pa-layout {
+  min-height: 100vh;
+  background: var(--naranja-pastel);
+}
+
+.pa-main {
+  margin-left: 350px;
+  flex: 1;
+  padding: 2rem 2.5rem;
+  background: var(--naranja-pastel);
+  min-height: 100vh;
+}
+
+/* ── Saludo ─────────────────────────────────────── */
+.pa-saludo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  margin-bottom: 1.75rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ── Sección genérica ───────────────────────────── */
+.pa-seccion {
+  margin-bottom: 1.75rem;
+}
+
+.pa-subtitulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+  margin-bottom: 0.75rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ── Fila doble (alertas + pedidos) ─────────────── */
+.pa-fila-doble {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+/* ── Métricas ───────────────────────────────────── */
+.pa-metricas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.metrica-card {
+  background: var(--naranja-claro);
+  border: 1.5px solid rgba(92, 45, 10, 0.15);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.metrica-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--marron-oscuro);
+  opacity: 0.75;
+  font-family: 'Lexend', sans-serif;
+}
+
+.metrica-valor {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+.metrica-valor--grande {
+  font-size: 1.9rem;
+}
+
+/* ── Alertas de stock ───────────────────────────── */
+.alertas-card {
+  background: var(--naranja-claro);
+  border: 1.5px solid rgba(92, 45, 10, 0.15);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.alertas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.alertas-titulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+.alertas-badge {
+  background: var(--naranja);
+  color: var(--naranja-claro);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.alertas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.alertas-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(92, 45, 10, 0.08);
+}
+
+.alertas-nombre {
+  font-size: 0.88rem;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+.alertas-stock {
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--naranja-pastel);
+  color: var(--marron-oscuro);
+  border-radius: 6px;
+  padding: 0.15rem 0.55rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.alertas-stock--cero {
+  background: #c0392b;
+  color: var(--naranja-claro);
+}
+
+.alertas-ver-todos {
+  background: none;
+  color: var(--marron-naranja);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+  margin-top: 0.75rem;
+  align-self: flex-end;
+  font-family: 'Lexend', sans-serif;
+}
+
+.alertas-ver-todos:hover {
+  background: none;
+  opacity: 0.75;
+}
+
+/* ── Pedidos recientes ──────────────────────────── */
+.pedidos-card {
+  background: var(--naranja-claro);
+  border: 1.5px solid rgba(92, 45, 10, 0.15);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.pedidos-titulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+  margin-bottom: 0.75rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.pedidos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+}
+
+.pedidos-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(92, 45, 10, 0.08);
+}
+
+.pedidos-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pedidos-alumno {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+.pedidos-detalle {
+  font-size: 0.78rem;
+  color: var(--marron-oscuro);
+  opacity: 0.65;
+  font-family: 'Lexend', sans-serif;
+}
+
+.pedido-estado {
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.pedido-estado--pendiente {
+  background: var(--naranja);
+  color: var(--naranja-claro);
+}
+
+.pedido-estado--listo {
+  background: #27ae60;
+  color: var(--naranja-claro);
+}
+
+.pedido-estado--entregado {
+  background: var(--marron-oscuro);
+  color: var(--naranja-claro);
+}
+
+.pedidos-ver-todos {
+  background: none;
+  color: var(--marron-naranja);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+  margin-top: 0.75rem;
+  align-self: flex-end;
+  font-family: 'Lexend', sans-serif;
+}
+
+.pedidos-ver-todos:hover {
+  background: none;
+  opacity: 0.75;
+}
+
+/* ── Gráfico de ventas semanales ────────────────── */
+.grafico-card {
+  background: var(--naranja-claro);
+  border: 1.5px solid rgba(92, 45, 10, 0.15);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+}
+
+.grafico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.grafico-titulo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+.grafico-periodos {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.grafico-periodo-btn {
+  background: var(--naranja-pastel);
+  color: var(--marron-oscuro);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.25rem 0.7rem;
+  border: none;
+  cursor: pointer;
+  font-family: 'Lexend', sans-serif;
+  transition: 0.2s;
+}
+
+.grafico-periodo-btn:hover {
+  background: var(--naranja);
+  color: var(--naranja-claro);
+}
+
+.grafico-periodo-btn--activo {
+  background: var(--marron-oscuro);
+  color: var(--naranja-claro);
+}
+
+.grafico-cuerpo {
+  display: flex;
+  gap: 0.75rem;
+  height: 140px;
+  align-items: flex-end;
+}
+
+.grafico-eje-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding-bottom: 1.5rem;
+}
+
+.grafico-eje-y span {
+  font-size: 0.72rem;
+  color: var(--marron-oscuro);
+  opacity: 0.55;
+  font-family: 'Lexend', sans-serif;
+}
+
+.grafico-barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex: 1;
+  height: 100%;
+}
+
+.grafico-barra-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;
+  height: 100%;
+}
+
+.grafico-barra-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.grafico-barra {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: var(--naranja-pastel);
+  transition: height 0.3s ease;
+}
+
+.grafico-barra--activa {
+  background: var(--marron-oscuro);
+}
+
+.grafico-dia {
+  font-size: 0.75rem;
+  color: var(--marron-oscuro);
+  opacity: 0.7;
+  font-family: 'Lexend', sans-serif;
+}
+
+.alertas-nombre-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.alertas-icono {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.grafico-subtitulo {
+  font-size: 0.72rem;
+  color: var(--marron-oscuro);
+  opacity: 0.5;
+  text-align: center;
+  margin-top: 0.75rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ── Responsive ─────────────────────────────────── */
+@media (max-width: 900px) {
+  .pa-main {
+    margin-left: 0;
+    padding: 1.25rem 1rem;
+  }
+
+  .pa-metricas {
+    grid-template-columns: 1fr;
+  }
+
+  .pa-fila-doble {
+    grid-template-columns: 1fr;
+  }
+}

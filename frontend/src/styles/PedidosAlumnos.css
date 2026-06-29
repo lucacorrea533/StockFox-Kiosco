@@ -1,0 +1,354 @@
+/* Este archivo contiene los estilos CSS para la página PedidosAlumnos, que muestra la lista de pedidos de los alumnos y permite filtrarlos, cambiar su estado y archivarlos. */
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap');
+
+/* ── Layout ── */
+.pedidos-panel {
+  margin-left: 350px;
+  flex: 1;
+  padding: 2rem 2.5rem;
+  background: var(--naranja-pastel);
+  min-height: 100vh;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+}
+
+/* ── Encabezado ── */
+.pp-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pp-titulo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  margin: 0;
+}
+
+.pp-fecha {
+  font-size: 0.85rem;
+  color: var(--marron-oscuro);
+  opacity: 0.6;
+}
+
+/* ── Pills de filtro ── */
+.pp-filtros-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 50px;
+  border: 2px solid transparent;
+  font-size: 0.88rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--naranja-claro);
+  color: var(--marron-oscuro);
+}
+
+.pp-pill:hover { opacity: 0.85; }
+
+.pp-pill--activa {
+  background: var(--naranja);
+  border-color: var(--marron-oscuro);
+  color: var(--marron-oscuro);
+}
+
+.pp-pill--activa.pp-pill--entregado {
+  background: var(--marron-naranja);
+  color: white;
+  border-color: var(--marron-oscuro);
+}
+
+.pp-pill-count {
+  background: var(--marron-oscuro);
+  color: white;
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ── Barra filtros ── */
+.pp-barra {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.pp-select {
+  background: var(--naranja-claro);
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  outline: none;
+}
+
+.pp-buscador {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--naranja-claro);
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.pp-buscador-icono {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.pp-buscador input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.55rem 0;
+  font-size: 0.92rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  outline: none;
+}
+
+.pp-buscador input::placeholder { color: rgba(92,45,10,0.45); }
+
+/* ── Tabla ── */
+.pp-tabla-wrapper {
+  background: var(--naranja-claro);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  margin-bottom: 1rem;
+}
+
+.pp-encabezado,
+.pp-fila {
+  display: grid;
+  grid-template-columns: 1.3fr 0.55fr 2fr 0.75fr 0.7fr 1fr 1.4fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.pp-encabezado {
+  background: var(--naranja);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--marron-oscuro);
+}
+
+.pp-fila {
+  border-top: 1px solid rgba(92,45,10,0.1);
+  font-size: 0.88rem;
+  transition: background 0.15s;
+}
+
+.pp-fila:hover { background: rgba(255,255,255,0.2); }
+.pp-fila--entregado { opacity: 0.6; }
+.pp-fila--archivado { opacity: 0.35; font-style: italic; }
+
+.pp-alumno    { font-weight: 700; }
+.pp-curso-tag { font-weight: 600; font-size: 0.82rem; color: var(--marron-naranja); }
+.pp-total     { font-weight: 700; white-space: nowrap; }
+
+.pp-productos { display: flex; flex-direction: column; gap: 2px; }
+.pp-prod      { font-size: 0.81rem; line-height: 1.3; }
+
+.pp-horario {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.83rem;
+  white-space: nowrap;
+}
+
+.pp-reloj-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* ── Badges de estado — CSS puro ── */
+.pp-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+  white-space: nowrap;
+}
+
+.pp-badge--pendiente      { background: var(--naranja-claro); color: var(--marron-oscuro); border: 1.5px solid rgba(92,45,10,0.25); }
+.pp-badge--en_preparacion { background: var(--naranja);       color: var(--marron-oscuro); }
+.pp-badge--listo          { background: var(--marron-naranja); color: white; }
+.pp-badge--entregado      { background: var(--marron-oscuro);  color: white; }
+
+/* ── Acción: select de estado ── */
+.pp-accion {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pp-estado-select {
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.15s;
+  width: 100%;
+}
+
+.pp-estado-select:hover { opacity: 0.85; }
+
+/* Color del select según estado actual */
+.pp-estado-select--pendiente      { background: var(--naranja-claro);  color: var(--marron-oscuro); }
+.pp-estado-select--en_preparacion { background: var(--naranja);        color: var(--marron-oscuro); }
+.pp-estado-select--listo          { background: var(--marron-naranja);  color: white; }
+.pp-estado-select--entregado      { background: var(--marron-oscuro);   color: white; }
+
+/* El select dentro de fila entregada no tiene tanto peso visual */
+.pp-fila--entregado .pp-estado-select--entregado {
+  background: rgba(92,45,10,0.12);
+  color: var(--marron-oscuro);
+}
+
+/* Opciones del select */
+.pp-estado-select option {
+  background: var(--naranja-pastel);
+  color: var(--marron-oscuro);
+  font-weight: 600;
+}
+
+/* Botón archivar */
+.pp-btn-archivar {
+  background: rgba(92,45,10,0.1);
+  color: var(--marron-oscuro);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.pp-btn-archivar:hover { opacity: 0.75; }
+
+/* ── Toggle archivados ── */
+.pp-btn-ver-archivados {
+  background: none;
+  border: none;
+  color: var(--marron-naranja);
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 0.25rem;
+  transition: opacity 0.15s;
+}
+
+.pp-btn-ver-archivados:hover { opacity: 0.75; }
+
+/* ── Tabla vacía ── */
+.pp-vacia {
+  text-align: center;
+  padding: 1.5rem;
+  opacity: 0.55;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ── Toast con undo ── */
+.pp-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--marron-oscuro);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  z-index: 1001;
+  white-space: nowrap;
+  animation: ppToastIn 0.2s ease;
+}
+
+.pp-toast strong { font-weight: 700; }
+
+.pp-toast-btn {
+  background: var(--naranja);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.pp-toast-btn:hover { opacity: 0.85; }
+
+@keyframes ppToastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .pp-encabezado,
+  .pp-fila {
+    grid-template-columns: 1.2fr 0.5fr 1.8fr 0.6fr 0.7fr 0.9fr 1.3fr;
+    font-size: 0.82rem;
+  }
+}
+
+@media (max-width: 850px) {
+  .pedidos-panel { padding: 1.25rem 1rem; }
+  .pp-encabezado,
+  .pp-fila { grid-template-columns: 1fr 0.5fr 1.5fr 0.5fr 0.6fr 1fr; }
+}

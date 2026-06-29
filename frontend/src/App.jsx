@@ -8,7 +8,6 @@ import Registro from './pages/Registro'
 
 // Vistas Alumno
 import Catalogo from './pages/Catalogo'
-import PedidoAnticipado from './pages/PedidoAnticipado'
 import MisPedidos from './pages/MisPedidos'
 
 // Vistas Encargada
@@ -32,7 +31,6 @@ function App() {
 
         {/* Vistas Alumno */}
         <Route path="/catalogo" element={<Catalogo />} />
-        <Route path="/pedido-anticipado" element={<PedidoAnticipado />} />
         <Route path="/mis-pedidos" element={<MisPedidos />} />
 
         {/* Vistas Encargada */}

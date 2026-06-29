@@ -1,0 +1,410 @@
+/* Este archivo contiene los estilos CSS para la página GestionUsuarios, que permite gestionar usuarios, roles y permisos. */
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap');
+
+/* ── Layout ── */
+.gestion-usuarios {
+  margin-left: 350px;
+  flex: 1;
+  padding: 2rem 2.5rem;
+  background: var(--naranja-pastel);
+  min-height: 100vh;
+  color: var(--marron-oscuro);
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ── Encabezado ── */
+.gu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.gu-titulo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  margin: 0;
+}
+
+.gu-btn-agregar {
+  background: var(--marron-oscuro);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.95rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.gu-btn-agregar:hover { opacity: 0.85; }
+
+/* ── Pestañas ── */
+.gu-pestanas {
+  display: flex;
+  border-bottom: 2px solid var(--naranja);
+  margin-bottom: 1rem;
+}
+
+.gu-pestana {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.98rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  border-radius: 8px 8px 0 0;
+}
+
+/* Hover: fondo naranja claro, texto sigue siendo marrón — legible */
+.gu-pestana:hover {
+  background: var(--naranja-claro);
+  color: var(--marron-oscuro);
+}
+
+.gu-pestana--activa {
+  border-bottom-color: var(--marron-oscuro);
+  color: var(--marron-oscuro);
+  background: none;
+}
+
+.gu-pestana-count {
+  background: var(--naranja);
+  color: white;
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.gu-pestana--activa .gu-pestana-count { background: var(--marron-oscuro); }
+
+/* ── Barra búsqueda + filtros ── */
+.gu-barra {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.gu-buscador {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--naranja-claro);
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.gu-buscador-icono { width: 20px; height: 20px; opacity: 0.7; flex-shrink: 0; }
+
+.gu-buscador input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.6rem 0;
+  font-size: 0.95rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  outline: none;
+}
+.gu-buscador input::placeholder { color: rgba(92, 45, 10, 0.45); }
+
+.gu-select {
+  background: var(--naranja-claro);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  outline: none;
+}
+
+/* ── Tabla ── */
+.gu-tabla-wrapper {
+  background: var(--naranja-claro);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.gu-tabla-encabezado--personal,
+.gu-tabla-fila--personal {
+  display: grid;
+  grid-template-columns: 2fr 1.8fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.gu-tabla-encabezado--alumnos,
+.gu-tabla-fila--alumnos {
+  display: grid;
+  grid-template-columns: 2fr 1.8fr 0.8fr 0.8fr 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  font-family: 'Lexend', sans-serif;
+}
+
+.gu-tabla-encabezado--personal,
+.gu-tabla-encabezado--alumnos {
+  background: var(--naranja);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--marron-oscuro);
+}
+
+.gu-tabla-fila--personal,
+.gu-tabla-fila--alumnos {
+  border-top: 1px solid rgba(92,45,10,0.1);
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.gu-tabla-fila--personal:hover,
+.gu-tabla-fila--alumnos:hover { background: rgba(255,255,255,0.2); }
+
+.gu-nombre-completo { font-weight: 600; }
+.gu-usuario-text { color: var(--marron-naranja); font-weight: 500; font-size: 0.87rem; }
+.gu-curso { font-size: 0.88rem; font-weight: 600; }
+
+.gu-vacia {
+  text-align: center;
+  padding: 1.5rem;
+  opacity: 0.55;
+  font-family: 'Lexend', sans-serif;
+}
+
+/* ── Badges ── */
+.gu-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: 'Lexend', sans-serif;
+}
+.gu-badge--encargada { background: var(--naranja);       color: var(--marron-oscuro); }
+.gu-badge--ayudante  { background: var(--naranja-claro); color: var(--marron-oscuro); border: 1px solid rgba(92,45,10,0.2); }
+.gu-badge--activo    { background: #d4edda; color: #155724; }
+.gu-badge--inactivo  { background: rgba(92,45,10,0.12); color: var(--marron-oscuro); }
+
+/* ── Acciones en tabla ── */
+.gu-acciones { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.gu-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+.gu-btn img { width: 22px; height: 22px; object-fit: contain; display: block; }
+.gu-btn:hover { opacity: 0.8; }
+.gu-btn--editar   { background: var(--naranja); }
+.gu-btn--eliminar { background: var(--naranja-pastel); }
+.gu-btn--disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+.gu-btn-toggle {
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.gu-btn-toggle:hover { opacity: 0.8; }
+.gu-btn-toggle--activo   { background: rgba(92,45,10,0.15); color: var(--marron-oscuro); }
+.gu-btn-toggle--inactivo { background: #d4edda; color: #155724; }
+
+/* ── Modal overlay ── */
+.gu-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.gu-modal {
+  position: relative;
+  background: var(--naranja-pastel);
+  border-radius: 14px;
+  padding: 32px 30px 24px;
+  width: 480px;
+  max-width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-family: 'Lexend', sans-serif;
+}
+
+.gu-modal--confirm { text-align: center; }
+
+.gu-modal-cerrar {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  cursor: pointer;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.gu-modal-cerrar:hover { background: rgba(0,0,0,0.1); }
+
+.gu-modal-titulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--marron-oscuro);
+  margin: 0 0 20px;
+}
+
+/* Grilla campos */
+.gu-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.gu-modal-campo { display: flex; flex-direction: column; gap: 5px; }
+
+.gu-modal-campo label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--marron-oscuro);
+}
+
+.gu-modal-campo input {
+  background: rgba(92, 45, 10, 0.12);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  color: var(--marron-oscuro);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+/* Placeholder con color visible, no gris del sistema */
+.gu-modal-campo input::placeholder {
+  color: rgba(92, 45, 10, 0.4);
+  font-family: 'Lexend', sans-serif;
+}
+
+.gu-modal-campo input:focus { border-color: var(--marron-naranja); }
+
+.gu-input-readonly { opacity: 0.55; cursor: default; }
+
+.gu-error { font-size: 0.77rem; color: #c0392b; }
+
+/* Botones del modal */
+.gu-modal-botones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.gu-modal--confirm .gu-modal-botones { justify-content: center; }
+
+.gu-modal-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 0.9rem;
+  font-family: 'Lexend', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.gu-modal-btn:hover { opacity: 0.85; }
+.gu-modal-btn--cancelar { background: rgba(92,45,10,0.15); color: var(--marron-oscuro); }
+.gu-modal-btn--guardar  { background: var(--marron-oscuro); color: white; }
+.gu-modal-btn--eliminar { background: #c0392b; color: white; }
+
+.gu-confirm-texto {
+  font-size: 0.98rem;
+  color: var(--marron-oscuro);
+  line-height: 1.5;
+  margin: 0 0 22px;
+}
+
+/* ── Toast deshacer ── */
+.gu-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--marron-oscuro);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+  z-index: 1001;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+  animation: guToastEntrar 0.2s ease;
+}
+
+.gu-toast-btn {
+  background: var(--naranja);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 14px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.gu-toast-btn:hover { opacity: 0.85; }
+
+@keyframes guToastEntrar {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .gestion-usuarios { padding: 1.25rem 1rem; }
+  .gu-tabla-encabezado--personal,
+  .gu-tabla-fila--personal { grid-template-columns: 1.5fr 1.5fr 0.8fr 1fr; }
+  .gu-tabla-encabezado--personal span:nth-child(3),
+  .gu-tabla-fila--personal span:nth-child(3) { display: none; }
+  .gu-modal-grid { grid-template-columns: 1fr; }
+}
