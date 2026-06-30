@@ -77,3 +77,11 @@ class RegistroVentaPresencialSerializer(serializers.Serializer):
     productos = ProductoVentaSerializer(
         many=True
     )
+
+class VentaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = Ventas
+
+        fields = "__all__"

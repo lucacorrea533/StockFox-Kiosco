@@ -34,6 +34,7 @@ from .serializers import ( # Importamos los serializadores que convertirán obje
     VentaSerializer,
     DetalleVentaSerializer,
     RegistroVentaPresencialSerializer,
+    VentaSerializer
 )
 
 
@@ -694,4 +695,56 @@ def registrar_venta(request):
             "alertas_stock": alertas_stock
         },
         status=status.HTTP_201_CREATED
+    )
+
+
+@api_view(["GET"])
+def listar_ventas(request):
+
+    ventas = Ventas.objects.all()
+
+    serializer = VentaSerializer(
+        ventas,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def obtener_venta(request, id_venta):
+
+    try:
+
+        venta = Ventas.objects.get(
+            id_venta=id_venta
+        )
+
+    except Ventas.DoesNotExist:
+
+        return Response(
+            {
+                "error": "Venta no encontrada."
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    detalles = DetalleVenta.objects.filter(
+        id_venta=venta
+    )
+
+    serializer_venta = VentaSerializer(
+        venta
+    )
+
+    serializer_detalles = DetalleVentaSerializer(
+        detalles,
+        many=True
+    )
+
+    return Response(
+        {
+            "venta": serializer_venta.data,
+            "detalles": serializer_detalles.data
+        },
+        status=status.HTTP_200_OK
     )
