@@ -3,7 +3,9 @@ from .models import (
     Productos,
     CategoriaProducto,
     Pedidos,
-    DetallePedido
+    DetallePedido,
+    Ventas,
+    DetalleVenta,
 )
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -44,3 +46,34 @@ class PedidoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pedidos
         fields = "__all__"
+
+class VentaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ventas
+        fields = "__all__"
+
+class DetalleVentaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DetalleVenta
+        fields = "__all__"
+
+class ProductoVentaSerializer(serializers.Serializer):
+
+    id_producto = serializers.IntegerField()
+
+    cantidad = serializers.IntegerField(
+        min_value=1,
+        error_messages={
+            "min_value": "La cantidad debe ser mayor a cero."
+        }
+    )
+
+class RegistroVentaPresencialSerializer(serializers.Serializer):
+
+    id_usuario = serializers.IntegerField()
+
+    productos = ProductoVentaSerializer(
+        many=True
+    )

@@ -12,20 +12,28 @@ from django.db import IntegrityError
  #IntegrityError es una Excepción que Django lanza cuando una operación 
  #rompe alguna regla de integridad de la base de datos.
 
+from django.db import transaction
+
 
 from .models import (
     Productos,
     CategoriaProducto,
     Pedidos,
     DetallePedido,
-    Alumnos
+    Alumnos,
+    Ventas,
+    DetalleVenta,
+    Usuarios
 )#Consulta los modelos de la bbdd
 
 from .serializers import ( # Importamos los serializadores que convertirán objetos a JSON
     ProductoSerializer,
     CategoriaProductoSerializer,
     PedidoSerializer,
-    DetallePedidoSerializer
+    DetallePedidoSerializer,
+    VentaSerializer,
+    DetalleVentaSerializer,
+    RegistroVentaPresencialSerializer,
 )
 
 
@@ -546,4 +554,144 @@ def detalle_pedido(request, id_pedido):
             "total": pedido.total,
             "productos": productos
         }
+    )
+
+@api_view(["POST"])
+def registrar_venta(request):
+
+    serializer = RegistroVentaPresencialSerializer(
+        data=request.data
+    )
+
+    if not serializer.is_valid():
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    datos = serializer.validated_data
+
+    with transaction.atomic():
+
+        productos = datos["productos"]
+
+        # ==========================================
+        # Validaciones
+        # ==========================================
+
+        for producto in productos:
+
+            producto_db = Productos.objects.filter(
+                id_producto=producto["id_producto"]
+            ).first()
+
+            if producto_db is None:
+
+                return Response(
+                    {
+                        "error": f"El producto con ID {producto['id_producto']} no existe."
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            if producto["cantidad"] <= 0:
+
+                return Response(
+                    {
+                        "error": "La cantidad debe ser mayor a cero."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if producto_db.stock < producto["cantidad"]:
+
+                return Response(
+                    {
+                        "error": f"No hay stock suficiente para '{producto_db.nombre}'."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # ==========================================
+        # Validar usuario
+        # ==========================================
+
+        usuario = Usuarios.objects.filter(
+            id_usuario=datos["id_usuario"]
+        ).first()
+
+        if usuario is None:
+
+            return Response(
+                {
+                    "error": "El usuario no existe."
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # ==========================================
+        # Crear venta
+        # ==========================================
+
+        venta = Ventas.objects.create(
+
+            id_usuario=usuario,
+
+            fecha_hora=timezone.now(),
+
+            total=0
+        )
+
+        total_venta = 0
+
+        alertas_stock = []
+
+        # ==========================================
+        # Crear detalles y descontar stock
+        # ==========================================
+
+        for producto in productos:
+
+            producto_db = Productos.objects.get(
+                id_producto=producto["id_producto"]
+            )
+
+            DetalleVenta.objects.create(
+
+                id_venta=venta,
+
+                id_producto=producto_db,
+
+                cantidad=producto["cantidad"],
+
+                precio_unitario=producto_db.precio_actual
+            )
+
+            producto_db.stock -= producto["cantidad"]
+
+            producto_db.save()
+
+            if producto_db.stock <= producto_db.stock_minimo:
+
+                alertas_stock.append(
+                    f"El producto '{producto_db.nombre}' alcanzó el stock mínimo."
+                )
+
+            total_venta += (
+                producto_db.precio_actual * producto["cantidad"]
+            )
+
+        venta.total = total_venta
+
+        venta.save()
+
+    return Response(
+        {
+            "mensaje": "Venta registrada correctamente.",
+            "id_venta": venta.id_venta,
+            "total": venta.total,
+            "alertas_stock": alertas_stock
+        },
+        status=status.HTTP_201_CREATED
     )
