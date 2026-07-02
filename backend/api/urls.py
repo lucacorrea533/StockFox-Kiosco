@@ -19,7 +19,9 @@ from .views import (
     detalle_pedido,
     registrar_venta,
     listar_ventas,
-    obtener_venta
+    obtener_venta,
+    pedidos_alumno,
+    pedidos_alumno_detalle
 )
 
 
@@ -103,6 +105,12 @@ urlpatterns = [
    ),
 
    path(
+    "pedidos/alumno/<int:id_alumno>/",
+    pedidos_alumno,
+    name="pedidos_alumno"
+  ),
+
+   path(
     "pedidos/crear/",
     crear_pedido,
     name="crear_pedido"
@@ -136,6 +144,12 @@ urlpatterns = [
     "ventas/<int:id_venta>/",
     obtener_venta,
     name="obtener_venta"
+  ),
+
+  path(
+    "alumnos/<int:id_alumno>/pedidos/detalle/",
+    pedidos_alumno_detalle,
+    name="pedidos_alumno_detalle"
   ),
 ]
 

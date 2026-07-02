@@ -22,6 +22,7 @@ class ProductoSerializer(serializers.ModelSerializer):
             "nombre",
             "precio_actual",
             "stock",
+            "disponible",
             "foto_url",
             "categoria"
         ]

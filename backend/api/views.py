@@ -37,6 +37,7 @@ from .serializers import ( # Importamos los serializadores que convertirán obje
     VentaSerializer
 )
 
+#=====================================================================================
 
 @api_view(["GET"])
 def listar_productos(request):
@@ -67,7 +68,7 @@ def listar_productos_disponibles(request):
 
     return Response(serializer.data) # Devuelve la lista filtrada 
 
-#======================================================
+#=====================================================================================
 
 @api_view(["GET"])
 def obtener_producto(request, id_producto):
@@ -90,7 +91,7 @@ def obtener_producto(request, id_producto):
     return Response(serializer.data)
 
 
-#======================================================
+#=====================================================================================
 
 @api_view(["POST"])
 def crear_producto(request):
@@ -113,7 +114,7 @@ def crear_producto(request):
         status=status.HTTP_400_BAD_REQUEST
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["PUT"]) #Esta función será un endpoint REST y solamente aceptará peticiones PUT
 def actualizar_producto(request, id_producto): #Función que se ejecutará cuando llegue la petición. Recibe os datos nuevos y el ID del prodocuto que se quiere modificar
@@ -137,21 +138,29 @@ def actualizar_producto(request, id_producto): #Función que se ejecutará cuand
         producto,
         data=request.data
     )
-
-
+    
     if serializer.is_valid(): #¿Los datos cumplen todas las reglas?
 
         serializer.save() #Se guardan los cambios y ocurre la verdadera actualización. Internamnete Django genera algo parecido a UPDATE PRODUCTOS SET nombre = "NuevoNombre", stock = 50 WHERE id_producto = 159 
 
+        if producto.stock > 0:
+
+            producto.disponible = True
+
+        else:
+
+            producto.disponible = False
+
+        producto.save()
+
         return Response(serializer.data) #Respuesta exitosa que devuelve el producto actualizado
-
-
+    
     return Response( # Respuesta si existen errores. Se eejcuta únicamente cuando serialzier.is_valid() devuelve false, es decir, algún campo es invalido. Devolvienddo el aviso del campo invalido y el 400 Bad Request 
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["DELETE"]) #Función que acepta solamente peticiones DELETE
 def eliminar_producto(request, id_producto):
@@ -180,7 +189,7 @@ def eliminar_producto(request, id_producto):
         status=status.HTTP_200_OK
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["GET"]) # La función acepta el método HTTP GET
 def listar_categorias(request):
@@ -194,7 +203,7 @@ def listar_categorias(request):
 
     return Response(serializer.data) # Devolvemos JSON
 
-#======================================================
+#=====================================================================================
 
 @api_view(["GET"])
 def obtener_categoria(request, id_categoria):
@@ -218,7 +227,7 @@ def obtener_categoria(request, id_categoria):
 
     return Response(serializer.data)
 
-#======================================================
+#=====================================================================================
 
 @api_view(["POST"])
 def crear_categoria(request):
@@ -241,7 +250,7 @@ def crear_categoria(request):
         status=status.HTTP_400_BAD_REQUEST
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["PUT"])
 def actualizar_categoria(request, id_categoria):
@@ -279,7 +288,7 @@ def actualizar_categoria(request, id_categoria):
         status=status.HTTP_400_BAD_REQUEST
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["DELETE"])
 def eliminar_categoria(request, id_categoria):
@@ -319,7 +328,7 @@ def eliminar_categoria(request, id_categoria):
     )
 
 
-#======================================================
+#=====================================================================================
 
 @api_view(["GET"])
 def listar_pedidos(request):
@@ -333,9 +342,8 @@ def listar_pedidos(request):
 
     return Response(serializer.data)
 
-#======================================================
 
-#======================================================
+#=====================================================================================
 
 @api_view(["GET"])
 def obtener_pedido(request, id_pedido):
@@ -360,9 +368,10 @@ def obtener_pedido(request, id_pedido):
     return Response(serializer.data)
 
 
-#======================================================
+#=====================================================================================
 
 @api_view(["POST"])
+@transaction.atomic
 def crear_pedido(request):
 
     id_alumno = request.data.get("id_alumno")
@@ -452,7 +461,11 @@ def crear_pedido(request):
 
         producto.stock -= item["cantidad"]
 
-        if producto.stock == 0:
+        if producto.stock > 0:
+
+            producto.disponible = 1
+
+        else:
 
             producto.disponible = 0
 
@@ -467,7 +480,7 @@ def crear_pedido(request):
         status=status.HTTP_201_CREATED
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["PUT"])
 def actualizar_estado_pedido(request, id_pedido):
@@ -514,7 +527,7 @@ def actualizar_estado_pedido(request, id_pedido):
         }
     )
 
-#======================================================
+#=====================================================================================
 
 @api_view(["GET"])
 def detalle_pedido(request, id_pedido):
@@ -556,6 +569,94 @@ def detalle_pedido(request, id_pedido):
             "productos": productos
         }
     )
+
+#=====================================================================================
+
+@api_view(["GET"])
+def pedidos_alumno(request, id_alumno):
+
+    try:
+
+        alumno = Alumnos.objects.get(
+            id_alumno=id_alumno
+        )
+
+    except Alumnos.DoesNotExist:
+
+        return Response(
+            {
+                "error": "Alumno no encontrado."
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    pedidos = Pedidos.objects.filter(
+        id_alumno=alumno
+    ).order_by("-fecha_creacion")
+
+    serializer = PedidoSerializer(
+        pedidos,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+#=====================================================================================
+
+@api_view(["GET"])
+def pedidos_alumno_detalle(request, id_alumno):
+
+    try:
+
+        alumno = Alumnos.objects.get(  #Buscamo al alumno
+            id_alumno=id_alumno
+        )
+
+    except Alumnos.DoesNotExist:
+
+        return Response( #Si ocurre algún error devolvemos un 404
+            {"error": "Alumno no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    pedidos = Pedidos.objects.filter( #luego de conseguir al alumno, obtenemos sus pedidos 
+        id_alumno=alumno
+    )
+
+    resultado = [] # Se crea una lista vacía donde se guardará la respuesta 
+
+    for pedido in pedidos: # Recorremos los pedidos del alumno 
+
+        detalles = DetallePedido.objects.filter( # Y para cada pedido buscamos sus detalles 
+            id_pedido=pedido
+        )
+
+        productos = [] # Luego creamos otra lsita vacía que contenga los productos de tal pedido 
+
+        for detalle in detalles: # Recorremos cada detalle 
+
+            productos.append( # Vamos agregando los productos que tengan tal detalle 
+                {
+                    "producto": detalle.id_producto.nombre,
+                    "cantidad": detalle.cantidad,
+                    "precio_unitario": detalle.precio_unitario
+                }
+            )
+
+        resultado.append( # Luego agregamos ese pedido completo 
+            {
+                "id_pedido": pedido.id_pedido,
+                "estado": pedido.estado,
+                "horario_retiro": pedido.horario_retiro,
+                "total": pedido.total,
+                "fecha_creacion": pedido.fecha_creacion,
+                "productos": productos
+            }
+        )
+
+    return Response(resultado) # DRF finalmente transforma automáticametne esa lista de diccionarios en JSON 
+
+#=====================================================================================
 
 @api_view(["POST"])
 def registrar_venta(request):
@@ -697,6 +798,7 @@ def registrar_venta(request):
         status=status.HTTP_201_CREATED
     )
 
+#=====================================================================================
 
 @api_view(["GET"])
 def listar_ventas(request):
@@ -709,6 +811,8 @@ def listar_ventas(request):
     )
 
     return Response(serializer.data)
+
+#=====================================================================================
 
 @api_view(["GET"])
 def obtener_venta(request, id_venta):

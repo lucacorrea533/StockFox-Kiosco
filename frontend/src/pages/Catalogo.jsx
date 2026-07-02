@@ -76,24 +76,26 @@ const menuYpromociones = [
 
 // ── HORARIOS ─────────────────────────────────────────────────────────────────
 const turnosHorarios = {
-  'Mañana': [
-    { id: 'h1',  imagen: hor1,  hora: '07:45 am', momento: 'Entrada' },
-    { id: 'h2',  imagen: hor2,  hora: '09:05 am', momento: '1er recreo' },
-    { id: 'h3',  imagen: hor3,  hora: '10:35 am', momento: '2do recreo' },
-    { id: 'h4',  imagen: hor4,  hora: '12:05 am', momento: 'Salida Normal' },
-    { id: 'h5',  imagen: hor5,  hora: '12:45 am', momento: 'Salida 7ma' },
+  "Mañana": [
+    { id: "h1", imagen: hor1, hora: "07:45", momento: "Entrada" },
+    { id: "h2", imagen: hor2, hora: "09:05", momento: "1er recreo" },
+    { id: "h3", imagen: hor3, hora: "10:35", momento: "2do recreo" },
+    { id: "h4", imagen: hor4, hora: "12:05", momento: "Salida Normal" },
+    { id: "h5", imagen: hor5, hora: "12:45", momento: "Salida 7ma" },
   ],
-  'Tarde': [
-    { id: 'h6',  imagen: hor6,  hora: '13:30 pm', momento: 'Entrada' },
-    { id: 'h7',  imagen: hor7,  hora: '14:50 pm', momento: '1er recreo' },
-    { id: 'h8',  imagen: hor8,  hora: '16:20 pm', momento: '2do recreo' },
-    { id: 'h9',  imagen: hor9,  hora: '17:50 pm', momento: 'Salida Normal' },
-    { id: 'h10', imagen: hor10, hora: '18:30 pm', momento: 'Salida 7ma' },
+
+  "Tarde": [
+    { id: "h6", imagen: hor6, hora: "13:30", momento: "Entrada" },
+    { id: "h7", imagen: hor7, hora: "14:50", momento: "1er recreo" },
+    { id: "h8", imagen: hor8, hora: "16:20", momento: "2do recreo" },
+    { id: "h9", imagen: hor9, hora: "17:50", momento: "Salida Normal" },
+    { id: "h10", imagen: hor10, hora: "18:30", momento: "Salida 7ma" },
   ],
-  'Noche': [
-    { id: 'h11', imagen: hor11, hora: '18:30 pm', momento: 'Entrada' },
-    { id: 'h12', imagen: hor12, hora: '19:50 pm', momento: '1er recreo' },
-  ],
+
+  "Noche": [
+    { id: "h11", imagen: hor11, hora: "18:30", momento: "Entrada" },
+    { id: "h12", imagen: hor12, hora: "19:50", momento: "1er recreo" },
+  ]
 }
 
 // ── HELPERS LOCALSTORAGE ──────────────────────────────────────────────────────
@@ -262,7 +264,7 @@ function ModalVariantes({ producto, varianteInicial, onAgregar, onConfirmarEdici
 // Ya no maneja el undo internamente. Al eliminar un ítem llama a onEliminar(item)
 // para que el padre (Catalogo) lo gestione como toast flotante.
 export function ModalCarrito({
-  carrito, setCarrito, mostrarCarrito, setMostrarCarrito, onEliminarItem
+  carrito, setCarrito, mostrarCarrito, setMostrarCarrito, onEliminarItem, onPedidoCreado
 }) {
   const [horario, setHorario] = useState(null)
   const [pedidoConfirmado, setPedidoConfirmado] = useState(false)
@@ -281,15 +283,88 @@ export function ModalCarrito({
     setCarrito(prev => prev.filter(i => i.id !== item.id))
     onEliminarItem(item)
   }
+ 
+async function enviarPedido() {
+
+  const pedido = {
+
+    id_alumno: 1,
+
+    horario_retiro: horario,
+
+    productos: carrito.map(item => ({
+
+      id_producto: item.id,
+
+      cantidad: item.cantidad
+
+    }))
+
+  }
+
+  const respuesta = await fetch(
+
+    "http://127.0.0.1:8000/api/pedidos/crear/",
+
+    {
+
+      method: "POST",
+
+      headers: {
+
+        "Content-Type": "application/json"
+
+      },
+
+      body: JSON.stringify(pedido)
+
+    }
+
+  )
+
+  const datos = await respuesta.json()
+
+  if (!respuesta.ok) {
+
+    throw new Error(
+      datos.error || "No se pudo crear el pedido."
+    )
+
+  }
+
+  return datos
+
+}
 
   const totalCarrito = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
+ 
+  async function handleConfirmar() {
 
-  function handleConfirmar() {
-    if (!horario) return
+  if (!horario) return
+
+  try {
+
+    const datos = await enviarPedido()
+
+    console.log(datos)
+
+    onPedidoCreado()
+
     setPedidoConfirmado(true)
+
     localStorage.removeItem(CARRITO_KEY)
+
     setCarrito([])
+
   }
+
+  catch (error) {
+
+    alert(error.message)
+
+  }
+
+}
 
   if (!mostrarCarrito) return null
 
@@ -479,8 +554,9 @@ function Catalogo() {
     return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current) }
   }, [])
 
-  useEffect(() => { // FETCHHHHHHHHHHHH PRODUCTOOOOOOS
-  fetch('http://127.0.0.1:8000/api/productos/')
+  function cargarProductos() {
+
+  fetch("http://127.0.0.1:8000/api/productos/")
     .then(response => response.json())
     .then(data => {
 
@@ -490,18 +566,22 @@ function Catalogo() {
         precio: Number(p.precio_actual),
         imagen: p.foto_url,
         stock: p.stock,
+        disponible: p.disponible,
         categoria: p.categoria,
-        descripcion: '',
+        descripcion: "",
         variantes: null
-      }))
-
-      console.log(productosFormateados)
+    }))
 
       setProductos(productosFormateados)
+
     })
     .catch(error => {
       console.error(error)
     })
+}
+
+useEffect(() => {
+  cargarProductos()
 }, [])
 
   const productosFiltrados = productos.filter(p => {
@@ -535,23 +615,34 @@ function Catalogo() {
 }, [])
 
   function handleClickProducto(producto) {
-    if (producto.variantes) {
-      setProductoVariantes(producto)
-    } else {
-      setProductoModal(producto)
-    }
+
+  if (!producto.disponible) return
+
+  if (producto.variantes) {
+    setProductoVariantes(producto)
+  } else {
+    setProductoModal(producto)
   }
+}
 
   function handleAgregar(producto) {
-    setCarrito(prev => {
-      const existe = prev.find(item => item.id === producto.id)
-      return existe
-        ? prev.map(item => item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item)
-        : [...prev, { ...producto, cantidad: 1 }]
-    })
-    setProductoModal(null)
-    setProductoVariantes(null)
-  }
+
+  if (!producto.disponible) return
+
+  setCarrito(prev => {
+    const existe = prev.find(item => item.id === producto.id)
+    return existe
+      ? prev.map(item =>
+          item.id === producto.id
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        )
+      : [...prev, { ...producto, cantidad: 1 }]
+  })
+
+  setProductoModal(null)
+  setProductoVariantes(null)
+}
 
   // Recibe el item eliminado desde ModalCarrito y lanza el toast
   function handleEliminarItem(item) {
@@ -689,6 +780,7 @@ function Catalogo() {
         mostrarCarrito={mostrarCarrito}
         setMostrarCarrito={setMostrarCarrito}
         onEliminarItem={handleEliminarItem}
+        onPedidoCreado={cargarProductos}
       />
 
       {/* ── Toast flotante de undo — igual que GestionProductos ── */}
