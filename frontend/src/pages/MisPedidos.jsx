@@ -10,62 +10,6 @@ import iconAdvertencia from '../assets/icons/Advertencia.png'
 import iconCarrito from '../assets/icons/VentasBoton.png'
 import '../styles/MisPedidos.css'
 
-// ── Datos hardcodeados de pedidos ──────────────────────────────────────────────
-const pedidosPrueba = [
-  {
-    id: 42,
-    fecha: '2026-05-27',
-    hora: '09:45',
-    estado: 'listo',
-    horario_retiro: '10:30 hs',
-    momento_retiro: '2do recreo',
-    total: 5200,
-    items: [
-      { nombre: 'Alfajor Guaymallén Negro', cantidad: 2, precio: 600 },
-      { nombre: 'Medialuna c/ J y Q',       cantidad: 1, precio: 2000 },
-      { nombre: 'Café Mediano',              cantidad: 1, precio: 2000 },
-    ],
-  },
-  {
-    id: 41,
-    fecha: '2026-05-27',
-    hora: '08:55',
-    estado: 'pendiente',
-    horario_retiro: '10:00 hs',
-    momento_retiro: '1er recreo',
-    total: 7500,
-    items: [
-      { nombre: 'Patitas de Pollo con Papas Fritas', cantidad: 1, precio: 6000 },
-      { nombre: 'Jugo Baggio Naranja 200ml',         cantidad: 1, precio: 1500 },
-    ],
-  },
-  {
-    id: 38,
-    fecha: '2026-05-26',
-    hora: '19:15',
-    estado: 'entregado',
-    horario_retiro: '11:00 hs',
-    momento_retiro: 'Salida Normal',
-    total: 5000,
-    items: [
-      { nombre: 'Torta Frita',   cantidad: 3, precio: 1000 },
-      { nombre: 'Café Mediano',  cantidad: 1, precio: 2000 },
-    ],
-  },
-  {
-    id: 35,
-    fecha: '2026-05-25',
-    hora: '09:30',
-    estado: 'entregado',
-    horario_retiro: '10:30 hs',
-    momento_retiro: '2do recreo',
-    total: 9800,
-    items: [
-      { nombre: 'Hamburguesa Completa', cantidad: 1, precio: 7000 },
-      { nombre: 'Coca Cola 600ml',      cantidad: 1, precio: 2800 },
-    ],
-  },
-]
 
 const CARRITO_KEY = 'recokiosco_carrito'
 
@@ -95,6 +39,24 @@ const ESTADO_CONFIG = {
   entregado: { label: 'Entregado',          clase: 'estado-entregado' },
 }
 
+const MOMENTOS_RETIRO = {
+
+  "07:45": "Entrada",
+  "09:05": "1er recreo",
+  "10:35": "2do recreo",
+  "12:05": "Salida Normal",
+  "12:45": "Salida 7ma",
+
+  "13:30": "Entrada",
+  "14:50": "1er recreo",
+  "16:20": "2do recreo",
+  "17:50": "Salida Normal",
+  "18:30": "Salida 7ma",
+
+  "19:50": "1er recreo"
+
+}
+
 function formatFecha(fechaStr, horaStr) {
   const [y, m, d] = fechaStr.split('-')
   return `${d}/${m}/${y} — ${horaStr} hs`
@@ -104,6 +66,8 @@ function TarjetaPedido({ pedido }) {
   const config = ESTADO_CONFIG[pedido.estado]
   const esListo = pedido.estado === 'listo'
   const esEntregado = pedido.estado === 'entregado'
+  
+  console.log("TarjetaPedido:", pedido)
 
   return (
     <div className={`mispedidos-card ${esEntregado ? 'card-entregado' : ''}`}>
@@ -160,27 +124,81 @@ function MisPedidos() {
   // Carrito compartido — se sincroniza con localStorage igual que en Catalogo
   const [carrito, setCarrito] = useState(() => cargarCarritoLocal())
   const [mostrarCarrito, setMostrarCarrito] = useState(false)
+  const [pedidos, setPedidos] = useState([])
 
   useEffect(() => {
     guardarCarritoLocal(carrito)
   }, [carrito])
 
+  useEffect(() => {
+
+  fetch("http://127.0.0.1:8000/api/alumnos/1/pedidos/detalle/")
+    .then(response => response.json())
+    .then(data => {
+
+      console.log(data)
+
+      const pedidosFormateados = data.map(pedido => {
+
+  const fecha = new Date(pedido.fecha_creacion)
+
+const horario = pedido.horario_retiro.slice(0, 5)
+
+const momentoRetiro =
+  MOMENTOS_RETIRO[horario] || ""
+
+return {
+
+  id: pedido.id_pedido,
+
+  fecha: fecha.toISOString().split("T")[0],
+
+  hora: fecha.toTimeString().slice(0,5),
+
+  estado: pedido.estado,
+
+  horario_retiro: horario + " hs",
+
+  momento_retiro: momentoRetiro,
+
+  total: Number(pedido.total),
+
+  items: pedido.productos.map(producto => ({
+    nombre: producto.producto,
+    cantidad: producto.cantidad,
+    precio: Number(producto.precio_unitario)
+  }))
+
+}
+
+})
+
+setPedidos(pedidosFormateados)
+
+    })
+    .catch(error => {
+      console.error(error)
+    })
+
+}, [])
+
   const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0)
   const totalCarrito  = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
 
-  const activos   = pedidosPrueba.filter(p => p.estado !== 'entregado')
-  const historial = pedidosPrueba.filter(p => p.estado === 'entregado')
+  const activos = pedidos.filter(p => p.estado !== "entregado")
+  const historial = pedidos.filter(p => p.estado === "entregado")
 
-  const pedidosFiltrados = tabActiva === 'todos'
-    ? pedidosPrueba
-    : pedidosPrueba.filter(p => p.estado === tabActiva)
+  const pedidosFiltrados =
+  tabActiva === "todos"
+    ? pedidos
+    : pedidos.filter(p => p.estado === tabActiva)
 
   const contadores = {
-    todos:     pedidosPrueba.length,
-    pendiente: pedidosPrueba.filter(p => p.estado === 'pendiente').length,
-    listo:     pedidosPrueba.filter(p => p.estado === 'listo').length,
-    entregado: pedidosPrueba.filter(p => p.estado === 'entregado').length,
-  }
+  todos: pedidos.length,
+  pendiente: pedidos.filter(p => p.estado === "pendiente").length,
+  listo: pedidos.filter(p => p.estado === "listo").length,
+  entregado: pedidos.filter(p => p.estado === "entregado").length,
+ }
 
   const sinPedidos = pedidosFiltrados.length === 0
 
@@ -223,9 +241,14 @@ function MisPedidos() {
           </div>
         ) : (
           <>
-            {tabActiva === 'todos' && activos.length > 0 && (
+            {tabActiva === "todos" && activos.length > 0 && (
               <section className="mispedidos-seccion">
-                {activos.map(p => <TarjetaPedido key={p.id} pedido={p} />)}
+                {activos.map(p => (
+                  <TarjetaPedido
+                    key={p.id}
+                    pedido={p}
+                  />
+                ))}
               </section>
             )}
 
