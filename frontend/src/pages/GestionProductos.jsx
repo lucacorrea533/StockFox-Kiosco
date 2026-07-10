@@ -1,33 +1,24 @@
 /* Este archivo es la página principal para la gestión de productos. Acá se muestra una tabla con todos los productos disponibles, junto con opciones para agregar, editar y eliminar productos. También incluye un buscador y un filtro por categorías para facilitar la navegación. Además, se implementa un sistema de historial de precios para cada producto, permitiendo a la encargada ver cómo han cambiado los precios a lo largo del tiempo. */
 
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import NavbarEncargada from '../components/NavbarEncargada'
 import TablaProductos from '../components/TablaProductos'
 import MenuDelDia from '../components/MenuDelDia'
-import FormAgregarProducto from '../components/FormAgregarProducto'
 import iconBuscador from '../assets/icons/BuscadorBoton.png'
 import '../styles/GestionProductos.css'
+import axios from "axios"
 
 // Las fotos de producto ya NO se importan desde assets: viven en /public/images
 // y se referencian como string (foto_url), igual que va a llegar desde la API
 // de Backend (mismo campo que en la tabla PRODUCTOS de la base de datos).
-const PRODUCTOS_INICIALES = [
-  { id: 1, nombre: 'Pitusas Chocolate',  categoria: 'Snack',          precio: 2000, stock: 15,   foto_url: '/images/PitusasChocolate.png',     historial: [] },
-  { id: 2, nombre: 'Coca Cola',          categoria: 'Bebidas',        precio: 2800, stock: 8,    foto_url: '/images/CocaCola.webp',            historial: [] },
-  { id: 3, nombre: 'Alfajor Jorgito',    categoria: 'Alfajores',      precio: 1800, stock: 10,   foto_url: '/images/AlfajorJorgitoNegro.jpeg', historial: [] },
-  { id: 4, nombre: 'Chupetin Evolution', categoria: 'Dulces',         precio: 500,  stock: 25,   foto_url: '/images/ChupetinEvolutionExtreme.png', historial: [] },
-  { id: 5, nombre: 'Medialunas',         categoria: 'Bocados',        precio: 1500, stock: 6,    foto_url: '/images/Medialunas.jpg',           historial: [] },
-  { id: 6, nombre: 'Chocolatada',        categoria: 'Beb. Calientes', precio: 2500, stock: null, foto_url: '/images/ChocolatadaCaliente.webp', historial: [] },
-]
 
-const CATEGORIAS = ['Snack', 'Bebidas', 'Alfajores', 'Dulces', 'Bocados', 'Beb. Calientes', 'Servicios']
 
 function GestionProductos() {
-  const [productos, setProductos]               = useState(PRODUCTOS_INICIALES)
+  const [productos, setProductos]               = useState([])
+  const [categorias, setCategorias]             = useState([])
   const [busqueda, setBusqueda]                 = useState('')
   const [categoriaFiltro, setCategoriaFiltro]   = useState('')
-  const [mostrarForm, setMostrarForm]           = useState(false)
-  const [productoEditando, setProductoEditando] = useState(null)
+  const [mostrarFormAgregar, setMostrarFormAgregar] = useState(false)
 
   // ── Toasts ───────────────────────────────────────────────────────────────
   const [productoEliminado, setProductoEliminado] = useState(null)
@@ -35,23 +26,195 @@ function GestionProductos() {
   const toastElimTimeout = useRef(null)
   const toastEditTimeout = useRef(null)
 
+useEffect(() => {
+
+  fetch("http://127.0.0.1:8000/api/productos/")
+    .then(response => response.json())
+    .then(data => {
+
+      console.log(data)
+
+      data.forEach(producto => {
+        console.log(producto.nombre, "=>", producto.categoria)
+      })
+
+      const productosFormateados = data.map(producto => ({
+
+        id: producto.id_producto,
+
+        nombre: producto.nombre,
+
+        categoria: producto.categoria,
+
+        precio: Number(producto.precio_actual),
+
+        stock: producto.stock,
+
+        stock_minimo: producto.stock_minimo,
+
+        foto_url: producto.foto_url,
+
+        historial: []
+
+      }))
+
+      setProductos(productosFormateados)
+
+    })
+    .catch(error => {
+      console.error(error)
+    })
+
+}, [])
+
+useEffect(() => {
+
+  fetch("http://127.0.0.1:8000/api/categorias/")
+    .then(response => response.json())
+    .then(data => {
+
+      console.log(data)
+
+      setCategorias(data)
+
+    })
+    .catch(error => {
+      console.error(error)
+    })
+
+}, [])
+
   const productosFiltrados = productos.filter((p) => {
     const coincideNombre    = p.nombre.toLowerCase().includes(busqueda.toLowerCase())
     const coincideCategoria = categoriaFiltro ? p.categoria === categoriaFiltro : true
     return coincideNombre && coincideCategoria
   })
 
-  function handleAgregar(nuevoProducto) {
-    setProductos((prev) => [
-      ...prev,
-      { ...nuevoProducto, id: Date.now(), historial: [] },
-    ])
-    setMostrarForm(false)
+async function handleAgregar(nuevoProducto) {
+
+  // Buscar la categoría seleccionada para obtener su ID
+  const categoriaSeleccionada = categorias.find(
+    categoria => categoria.nombre === nuevoProducto.categoria
+  )
+
+  // Armar el objeto que espera Django
+  const productoBackend = {
+
+    nombre: nuevoProducto.nombre,
+
+    precio_actual: nuevoProducto.precio,
+
+    stock: nuevoProducto.stock,
+
+    stock_minimo: nuevoProducto.stock_minimo,
+
+    foto_url: nuevoProducto.foto_url,
+
+    id_categoria: categoriaSeleccionada.id_categoria,
+
+    disponible: 1
+
   }
 
-  function handleEditar(productoActualizado) {
+  try {
+
+    console.log("Producto que se envía:")
+    console.log(productoBackend)
+
+    const response = await axios.post(
+      "http://127.0.0.1:8000/api/productos/crear/",
+      productoBackend
+    )
+
+    console.log("Respuesta del servidor:")
+    console.log(response.data)
+
+    setProductos(prev => [
+
+      ...prev,
+
+      {
+
+        id: response.data.id_producto,
+
+        nombre: response.data.nombre,
+
+        categoria: nuevoProducto.categoria,
+
+        precio: Number(response.data.precio_actual),
+
+        stock: response.data.stock,
+        
+        stock_minimo: response.data.stock_minimo,
+
+        foto_url: response.data.foto_url,
+
+        historial: []
+
+      }
+
+    ])
+
+  }
+
+  catch (error) {
+
+    console.error("ERROR COMPLETO:", error)
+
+    console.error("RESPUESTA:", error.response)
+
+    console.error("DATOS:", error.response.data)
+
+  }
+
+}
+
+  async function handleEditar(productoActualizado) {
     let cambioPrecio = false
 
+    // Buscar la categoría seleccionada
+const categoriaSeleccionada = categorias.find(
+  categoria => categoria.nombre === productoActualizado.categoria
+)
+
+// Objeto que espera Django
+const productoBackend = {
+
+  nombre: productoActualizado.nombre,
+
+  precio_actual: productoActualizado.precio,
+
+  stock: productoActualizado.stock,
+
+  stock_minimo: productoActualizado.stock_minimo,
+
+  foto_url: productoActualizado.foto_url,
+
+  id_categoria: categoriaSeleccionada.id_categoria,
+
+  disponible: productoActualizado.stock > 0 ? 1 : 0
+
+}
+
+try {
+
+  await axios.put(
+
+    `http://127.0.0.1:8000/api/productos/editar/${productoActualizado.id}/`,
+
+    productoBackend
+
+  )
+
+}
+
+catch (error) {
+
+  console.error(error)
+
+  return
+
+}
     setProductos((prev) =>
       prev.map((p) => {
         if (p.id !== productoActualizado.id) return p
@@ -86,47 +249,129 @@ function GestionProductos() {
       })
     )
 
-    setProductoEditando(null)
-    setMostrarForm(false)
-
     // Toast de confirmación de edición
     setToastEdicion({ nombre: productoActualizado.nombre, cambioPrecio })
     if (toastEditTimeout.current) clearTimeout(toastEditTimeout.current)
     toastEditTimeout.current = setTimeout(() => setToastEdicion(null), 3500)
   }
 
-  function handleEliminar(id) {
+  async function handleEliminar(id) {
+
+  try {
+
+    await axios.delete(
+      `http://127.0.0.1:8000/api/productos/eliminar/${id}/`
+    )
+
     const producto = productos.find((p) => p.id === id)
-    setProductos((prev) => prev.filter((p) => p.id !== id))
+
+    setProductos((prev) =>
+      prev.filter((p) => p.id !== id)
+    )
 
     setProductoEliminado(producto)
-    if (toastElimTimeout.current) clearTimeout(toastElimTimeout.current)
-    toastElimTimeout.current = setTimeout(() => setProductoEliminado(null), 5000)
+
+    if (toastElimTimeout.current) {
+      clearTimeout(toastElimTimeout.current)
+    }
+
+    toastElimTimeout.current = setTimeout(
+      () => setProductoEliminado(null),
+      5000
+    )
+
+  } catch (error) {
+
+    console.error("ERROR AL ELIMINAR:", error)
+
   }
 
-  function handleDeshacer() {
-    if (!productoEliminado) return
-    setProductos((prev) => [...prev, productoEliminado])
+}
+
+  async function handleDeshacer() {
+
+  if (!productoEliminado) return
+
+  const categoriaSeleccionada = categorias.find(
+    categoria => categoria.nombre === productoEliminado.categoria
+  )
+
+  const productoBackend = {
+
+    nombre: productoEliminado.nombre,
+
+    precio_actual: productoEliminado.precio,
+
+    stock: productoEliminado.stock,
+
+    stock_minimo: productoEliminado.stock_minimo,
+
+    foto_url: productoEliminado.foto_url,
+
+    id_categoria: categoriaSeleccionada.id_categoria,
+
+    disponible: 1
+
+  }
+
+  try {
+
+    const response = await axios.post(
+
+      "http://127.0.0.1:8000/api/productos/crear/",
+
+      productoBackend
+
+    )
+
+    setProductos(prev => [
+
+      ...prev,
+
+      {
+
+        id: response.data.id_producto,
+
+        nombre: response.data.nombre,
+
+        categoria: productoEliminado.categoria,
+
+        precio: Number(response.data.precio_actual),
+
+        stock: response.data.stock,
+
+        stock_minimo: response.data.stock_minimo,
+
+        foto_url: response.data.foto_url,
+
+        historial: productoEliminado.historial || []
+
+      }
+
+    ])
+
     setProductoEliminado(null)
+
     clearTimeout(toastElimTimeout.current)
+
   }
 
-  function abrirEdicion(producto) {
-    setProductoEditando(producto)
-    setMostrarForm(true)
-  }
+  catch (error) {
 
-  function cerrarForm() {
-    setProductoEditando(null)
-    setMostrarForm(false)
-  }
+  console.error("ERROR AL DESHACER:", error)
+  console.log(error.response.data)
+
+}
+
+}
+
 
   return (
     <div style={{ display: 'flex' }}>
       <NavbarEncargada />
 
       <main className="gestion-productos">
-
+        
         <h1 className="gp-titulo">Gestión de Productos</h1>
 
         <div className="gp-barra">
@@ -145,30 +390,24 @@ function GestionProductos() {
             onChange={(e) => setCategoriaFiltro(e.target.value)}
           >
             <option value="">Todos</option>
-            {CATEGORIAS.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+              {categorias.map((cat) => (
+              <option
+                key={cat.id_categoria}
+                value={cat.nombre}
+              >
+                {cat.nombre}
+              </option>
             ))}
           </select>
         </div>
 
         <TablaProductos
           productos={productosFiltrados}
-          onEditar={abrirEdicion}
+          categorias={categorias}
+          onGuardarEdicion={handleEditar}
+          onAgregar={handleAgregar}
           onEliminar={handleEliminar}
         />
-
-        {!mostrarForm ? (
-          <button className="gp-btn-agregar" onClick={() => setMostrarForm(true)}>
-            + Agregar Producto
-          </button>
-        ) : (
-          <FormAgregarProducto
-            categorias={CATEGORIAS}
-            productoEditar={productoEditando}
-            onGuardar={productoEditando ? handleEditar : handleAgregar}
-            onCancelar={cerrarForm}
-          />
-        )}
 
         <MenuDelDia />
 

@@ -5,6 +5,7 @@ import iconHistorial from '../assets/icons/HistorialBoton.png'
 import iconEditar    from '../assets/icons/EditarBoton.png'
 import iconEliminar  from '../assets/icons/EliminarBoton.png'
 import '../styles/GestionProductos.css'
+import FormAgregarProducto from '../components/FormAgregarProducto'
 
 function FotoProducto({ foto, nombre }) {
   if (foto) return <img className="tp-foto" src={foto} alt={nombre} />
@@ -105,8 +106,16 @@ function ModalHistorial({ producto, onCerrar }) {
 }
 
 // ── Tabla principal ───────────────────────────────────────────────────────────
-function TablaProductos({ productos, onEditar, onEliminar }) {
+function TablaProductos({
+  productos,
+  categorias,
+  onEliminar,
+  onGuardarEdicion,
+  onAgregar
+}) {
   const [productoAEliminar, setProductoAEliminar] = useState(null)
+  const [productoEditando, setProductoEditando] = useState(null)
+  const [mostrarAgregar, setMostrarAgregar] = useState(false)
 
   // Guardamos el ID para que siempre lea el producto actualizado desde la prop
   const [historialId, setHistorialId] = useState(null)
@@ -136,7 +145,9 @@ function TablaProductos({ productos, onEditar, onEliminar }) {
         </div>
 
         {productos.map((producto) => (
-          <div key={producto.id} className="tp-fila">
+          <div key={producto.id}>
+
+            <div className="tp-fila">
             <FotoProducto foto={producto.foto_url} nombre={producto.nombre} />
             <span className="tp-nombre">{producto.nombre}</span>
             <span>{producto.categoria}</span>
@@ -151,7 +162,7 @@ function TablaProductos({ productos, onEditar, onEliminar }) {
             <div className="tp-acciones">
               <button
                 className="tp-btn tp-btn--editar"
-                onClick={() => onEditar(producto)}
+                onClick={() => setProductoEditando(producto)}
                 title="Editar"
               >
                 <img src={iconEditar} alt="Editar" className="tp-btn-icono" />
@@ -172,8 +183,42 @@ function TablaProductos({ productos, onEditar, onEliminar }) {
               </button>
             </div>
           </div>
+
+          {productoEditando?.id === producto.id && (
+            <FormAgregarProducto
+              categorias={categorias}
+              productoEditar={productoEditando}
+              onGuardar={(productoActualizado) => {
+                onGuardarEdicion(productoActualizado)
+                setProductoEditando(null)
+              }}
+              onCancelar={() => setProductoEditando(null)}
+            />
+          )}
+
+          </div>
+
         ))}
+
       </div>
+
+      <button
+        className="gp-btn-agregar"
+        onClick={() => setMostrarAgregar(true)}
+      >
+        + Agregar Producto
+      </button>
+
+      {mostrarAgregar && (
+        <FormAgregarProducto
+          categorias={categorias}
+          onGuardar={(nuevoProducto) => {
+            onAgregar(nuevoProducto)
+            setMostrarAgregar(false)
+          }}
+          onCancelar={() => setMostrarAgregar(false)}
+        />
+      )}
 
       {productoAEliminar && (
         <ModalEliminar

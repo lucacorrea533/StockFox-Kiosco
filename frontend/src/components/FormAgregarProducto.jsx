@@ -9,6 +9,7 @@ const FORM_VACIO = {
   precio: '',
   categoria: '',
   stock: '',
+  stock_minimo: '',
   foto: null,
   fotoPreview: null,
 }
@@ -24,6 +25,7 @@ function FormAgregarProducto({ categorias, productoEditar, onGuardar, onCancelar
         precio:      productoEditar.precio,
         categoria:   productoEditar.categoria,
         stock:       productoEditar.stock ?? '',
+        stock_minimo: productoEditar.stock_minimo ?? '',
         foto:        null,
         fotoPreview: productoEditar.foto_url || null,
       })
@@ -50,6 +52,7 @@ function FormAgregarProducto({ categorias, productoEditar, onGuardar, onCancelar
     if (!form.nombre.trim())               nuevosErrores.nombre    = 'El nombre es obligatorio.'
     if (!form.precio || form.precio <= 0)  nuevosErrores.precio    = 'Ingresá un precio válido.'
     if (!form.categoria)                   nuevosErrores.categoria = 'Seleccioná una categoría.'
+    if (form.stock_minimo === '' || form.stock_minimo < 0) nuevosErrores.stock_minimo = 'Ingresá un stock mínimo válido.'
     if (form.stock === '' || form.stock < 0) nuevosErrores.stock   = 'Ingresá un stock válido.'
     return nuevosErrores
   }
@@ -66,6 +69,7 @@ function FormAgregarProducto({ categorias, productoEditar, onGuardar, onCancelar
       precio:    Number(form.precio),
       categoria: form.categoria,
       stock:     Number(form.stock),
+      stock_minimo: Number(form.stock_minimo),
       foto_url:  form.fotoPreview,
     }
     onGuardar(payload)
@@ -112,10 +116,20 @@ function FormAgregarProducto({ categorias, productoEditar, onGuardar, onCancelar
         {/* Categoría */}
         <div className="fap-campo">
           <label>Categoría *</label>
-          <select name="categoria" value={form.categoria} onChange={handleChange}>
+          <select
+            name="categoria"
+            value={form.categoria}
+            onChange={handleChange}
+          >
             <option value="">Seleccionar</option>
+
             {categorias.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option
+                key={cat.id_categoria}
+                value={cat.nombre}
+              >
+                {cat.nombre}
+              </option>
             ))}
           </select>
           {errores.categoria && <span className="fap-error">{errores.categoria}</span>}
@@ -133,6 +147,26 @@ function FormAgregarProducto({ categorias, productoEditar, onGuardar, onCancelar
             min="0"
           />
           {errores.stock && <span className="fap-error">{errores.stock}</span>}
+        </div>
+         
+        {/* Stock mínimo */}
+        <div className="fap-campo">
+          <label>Stock mínimo *</label>
+
+          <input
+            type="number"
+            name="stock_minimo"
+            value={form.stock_minimo}
+            onChange={handleChange}
+            placeholder="0"
+            min="0"
+          />
+
+          {errores.stock_minimo && (
+            <span className="fap-error">
+              {errores.stock_minimo}
+            </span>
+          )}
         </div>
 
         {/* Foto */}

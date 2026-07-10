@@ -15,6 +15,10 @@ class ProductoSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
+    id_categoria = serializers.PrimaryKeyRelatedField(
+    queryset=CategoriaProducto.objects.all()
+)
+
     class Meta:
         model = Productos
         fields = [
@@ -24,7 +28,9 @@ class ProductoSerializer(serializers.ModelSerializer):
             "stock",
             "disponible",
             "foto_url",
-            "categoria"
+            "categoria",
+            "id_categoria",
+            "stock_minimo",
         ]
 
 
