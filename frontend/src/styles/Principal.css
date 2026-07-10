@@ -1,15 +1,15 @@
 /* Este archivo contiene los estilos para la página principal del kiosco. */
 
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800&display=swap'); /* Trae la tipografía Lexend desde Google Fonts */
 
-.principal-wrapper {
+.principal-wrapper { /* Contenedor principal que ocupa toda la altura de la ventana y organiza el contenido en columna */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* MITAD SUPERIOR */
-.principal-hero {
+/* Mitad superior de la página - Foto de la escuela con logo, frase y botones de acceso */
+.principal-hero { /* Contenedor de la mitad superior, con foto de fondo y contenido centrado */
   flex: 1;
   background-size: cover;
   background-position: center;
@@ -19,9 +19,10 @@
   justify-content: center;
   gap: 16px;
   padding: 40px 20px;
-  position: relative;
+  position: relative; /* Sirve de referencia para el overlay oscuro de abajo */
 }
 
+/* Capa semitransparente sobre la foto para que el texto blanco se lea mejor */
 .principal-hero::before {
   content: '';
   position: absolute;
@@ -34,7 +35,7 @@
   z-index: 0;
 }
 
-/* Todo lo de adentro tiene que estar por encima del overlay */
+/* Todo lo de adentro encima del overlay */ /*El overlay es la capa semitransparente que se pone sobre la foto de fondo para que el texto blanco se lea mejor. El z-index: 0 hace que el overlay quede detrás del contenido, que tiene z-index: 1.*/
 .principal-hero > * {
   position: relative;
   z-index: 1;
@@ -49,7 +50,7 @@
   font-family: 'Lexend', sans-serif;
   font-size: 1.1rem;
   font-weight: 500;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4); /* Sombra para que se lea bien sobre la foto */
   margin-bottom: 20px;
 }
 
@@ -60,6 +61,7 @@
   justify-content: center;
 }
 
+/* Botón "Iniciar Sesión" */
 .btn-primario {
   background-color: var(--naranja);
   color: var(--marron-oscuro);
@@ -77,6 +79,7 @@
   color: white;
 }
 
+/* Botón "Registrarse" */
 .btn-secundario {
   background-color: white;
   color: var(--marron-oscuro);
@@ -107,21 +110,21 @@
   text-decoration: underline;
 }
 
-/* MITAD INFERIOR */
+/* Mitad inferior de la página - Franja naranja pastel con los datos de la escuela */
 .principal-footer {
   background-color: var(--naranja-pastel);
   padding: 55px 40px;
-  position: relative;
+  position: relative; /* Sirve de referencia para el logo de la escuela que flota a la derecha */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.principal-footer-texto {
+.principal-footer-texto { /* Contenedor de los textos dentro de la franja inferior */
   text-align: center;
 }
 
-.principal-footer-nombre {
+.principal-footer-nombre { /* Nombre de la escuela */
   font-family: 'Lexend', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
@@ -135,6 +138,7 @@
   color: var(--marron-oscuro);
 }
 
+/* Logo de la escuela, flotando en el costado derecho de la franja inferior */
 .principal-logo-escuela {
   width: 115px;
   border-radius: 50%;

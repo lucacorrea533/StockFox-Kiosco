@@ -1,3 +1,6 @@
+// Este archivo define la estructura de rutas de la aplicación y qué componente se renderiza en cada ruta. Es el punto de entrada para la navegación entre vistas.
+// import realiza la importación de módulos y componentes necesarios para la aplicación. En este caso, se importan los componentes de React Router y las vistas de la aplicación.
+
 // React Router - Sirve para manejar el enrutamiento entre las diferentes vistas
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -19,21 +22,25 @@ import GestionProveedores from './pages/GestionProveedores'
 import PedidosAlumnos from './pages/PedidosAlumnos'
 import GestionUsuarios from './pages/GestionUsuarios'
 
+// Componente raíz: define todas las rutas (URLs) de la aplicación y qué vista se muestra en cada una
+// Cada <Route> define una ruta específica y el componente que se renderiza cuando el usuario navega a esa ruta.
+// Esta función es el punto de entrada de la aplicación y se encarga de manejar la navegación entre las diferentes vistas sin recargar la página.
 function App() {
   return (
+    // Envuelve toda la app para habilitar la navegación por URL sin recargar la página
     <BrowserRouter>
       <Routes>
 
-        {/* Vistas Generales */}
+        {/* Vistas Generales - accesibles para cualquier visitante, sin login */}
         <Route path="/" element={<Principal />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
 
-        {/* Vistas Alumno */}
+        {/* Vistas Alumno - catálogo para pedir productos y seguimiento de sus pedidos */}
         <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/mis-pedidos" element={<MisPedidos />} />
 
-        {/* Vistas Encargada */}
+        {/* Vistas Encargada - panel administrativo con gestión de stock, ventas, proveedores, pedidos y usuarios */}
         <Route path="/admin" element={<PanelAdministracion />} />
         <Route path="/admin/productos" element={<GestionProductos />} />
         <Route path="/admin/ventas" element={<VentasPresenciales />} />

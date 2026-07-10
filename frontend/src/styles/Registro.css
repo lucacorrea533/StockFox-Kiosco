@@ -1,12 +1,13 @@
 /* Este archivo contiene los estilos para la página de registro. */
 
+/* Contenedor principal que ocupa toda la altura de la ventana y divide la pantalla en dos mitades */
 .registro-wrapper {
   display: flex;
   height: 100vh;
   overflow: hidden;
 }
 
-/* MITAD IZQUIERDA */
+/* Mitad izquiera de la página - Foto de fondo del kiosco con el logo centrado */
 .registro-imagen {
   flex: 1;
   background-size: 240%;
@@ -16,11 +17,11 @@
   justify-content: center;
 }
 
-.registro-logo {
+.registro-logo { /* Logo del kiosco centrado en la mitad izquierda */
   width: 220px;
 }
 
-/* MITAD DERECHA */
+/* Mitad derecha de la página - Panel con el formulario de registro */
 .registro-panel {
   flex: 1;
   background-color: var(--naranja-pastel);
@@ -29,11 +30,11 @@
   align-items: center;
   justify-content: center;
   padding: 30px 40px;
-  box-sizing: border-box;
+  box-sizing: border-box; /* Para que el padding no afecte al ancho total del panel */ /* El padding es el espacio interno entre el contenido y el borde del contenedor. */
   overflow: hidden;
 }
 
-.registro-titulo {
+.registro-titulo { /* Título de la pantalla de registro */
   font-family: 'Lexend', sans-serif;
   font-weight: 800;
   font-size: 1.7rem;
@@ -42,7 +43,7 @@
   text-align: center;
 }
 
-.registro-subtitulo {
+.registro-subtitulo { /* Subtítulo de la pantalla de registro */
   font-family: 'Lexend', sans-serif;
   font-size: 0.85rem;
   color: var(--marron-oscuro);
@@ -64,19 +65,18 @@
   gap: 4px;
 }
 
-.registro-campo label {
+.registro-campo label { /* Etiqueta de cada campo del formulario */
   font-family: 'Lexend', sans-serif;
   font-weight: 700;
   font-size: 0.88rem;
   color: var(--marron-oscuro);
 }
 
-.registro-input-wrapper {
-  position: relative;
-  display: flex;
+.registro-input-wrapper { /* Contenedor del input, que permite posicionar el botón del ojito dentro del campo */ /* El ojito es un botón que permite mostrar u ocultar la contraseña escrita en el campo de contraseña. */
+  position: relative; 
 }
 
-.registro-input-wrapper input {
+.registro-input-wrapper input { /* Estilo de los inputs de texto y contraseña */
   width: 100%;
   box-sizing: border-box;
   background-color: rgba(92, 45, 10, 0.18);
@@ -89,7 +89,7 @@
   transition: border-color 0.2s;
 }
 
-.registro-input-wrapper input::placeholder {
+.registro-input-wrapper input::placeholder { /* Estilo del texto de placeholder dentro de los inputs */
   color: rgba(92, 45, 10, 0.45);
 }
 
@@ -98,14 +98,17 @@
   border-color: var(--marron-naranja);
 }
 
+/* Se activa por JS cuando el campo tiene un error de validación */
 .registro-input-wrapper.input-error input {
   border-color: #c0392b;
 }
 
+/* Le hace lugar al botón del ojito para que no tape el texto escrito */
 .registro-input-wrapper.con-icono input {
   padding-right: 52px;
 }
 
+/* Botón del ojito para mostrar/ocultar contraseña, flotando adentro del input */
 .registro-toggle-password {
   position: absolute;
   right: 12px;
@@ -142,7 +145,7 @@
   flex: 1;
 }
 
-/* Botón */
+/* Botón principal de "Registrarse" */
 .registro-boton {
   width: 100%;
   background-color: var(--marron-naranja);
@@ -163,7 +166,7 @@
   background-color: var(--marron-oscuro);
 }
 
-/* Mensaje de éxito */
+/* Mensaje de éxito que aparece al completar el registro */
 .registro-exito {
   font-family: 'Lexend', sans-serif;
   font-size: 0.9rem;
@@ -173,7 +176,7 @@
   margin: 0;
 }
 
-/* Extra */
+/* Zona inferior con los enlaces de login y volver */
 .registro-extra {
   margin-top: 18px;
   display: flex;
@@ -201,6 +204,7 @@
   text-decoration: underline;
 }
 
+/* Versión mobile: apila la imagen arriba del formulario y ajusta espaciados */
 @media (max-width: 900px) {
   .registro-wrapper {
     flex-direction: column;
@@ -221,6 +225,7 @@
   }
 }
 
+/* Fila donde van juntos los selects de Año y División */
 .registro-fila-curso {
   display: flex;
   gap: 16px;
@@ -230,6 +235,7 @@
   flex: 1;
 }
 
+/* Estilo de los selects (Año y División), para que combinen con los inputs de texto */
 .registro-select {
   width: 100%;
   box-sizing: border-box;
@@ -240,7 +246,7 @@
   font-family: 'Lexend', sans-serif;
   font-size: 0.9rem;
   color: var(--marron-oscuro);
-  appearance: none;
+  appearance: none; /* Saca la flechita nativa del navegador para usar el estilo propio del proyecto */
   cursor: pointer;
   transition: border-color 0.2s;
 }

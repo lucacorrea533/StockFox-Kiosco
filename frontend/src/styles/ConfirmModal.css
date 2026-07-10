@@ -1,45 +1,49 @@
 /* Este archivo contiene los estilos para el componente ConfirmModal */
 
+/* Fondo oscuro que cubre toda la pantalla mientras el modal está abierto */
 .confirm-modal-overlay {
   position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0; /* Atajo que equivale a "top: 0; right: 0; bottom: 0; left: 0;" — cubre toda la pantalla */
+  background-color: rgba(0, 0, 0, 0.5); /* Negro al 50% de opacidad: oscurece el fondo sin taparlo del todo */
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  justify-content: center; /* Centra la tarjeta del modal, tanto vertical como horizontalmente */
+  z-index: 1000; /* Número alto a propósito, para asegurar que el modal quede por ENCIMA de cualquier otro elemento */
 }
 
+/* La tarjeta blanca donde va el mensaje */
 .confirm-modal {
+  /* El segundo valor (#fcd9ad) es un color de "respaldo" (fallback): si por algún motivo la variable
+     --naranja-claro no estuviera definida, el navegador usa este color en su lugar */
   background-color: var(--naranja-claro, #fcd9ad);
   border-radius: 14px;
   padding: 28px 30px;
   width: 320px;
-  max-width: 90vw;
+  max-width: 90vw; /* En pantallas chicas, nunca ocupa más del 90% del ancho visible, para que no toque los bordes */
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); /* Sombra marcada para reforzar la sensación de que "flota" sobre la página */
 }
 
-.confirm-modal h3 {
+.confirm-modal h3 { /* Título del modal, que indica la acción que se va a realizar */
   margin: 0 0 10px;
   color: var(--marron-oscuro);
   font-size: 1.15rem;
 }
 
-.confirm-modal p {
+.confirm-modal p { /* Mensaje del modal, que explica la acción que se va a realizar */
   margin: 0 0 22px;
   color: var(--marron-oscuro);
   font-size: 0.95rem;
 }
 
-.confirm-modal-botones {
+.confirm-modal-botones { /* Contenedor de los botones de acción: Cancelar y Confirmar */
   display: flex;
   gap: 12px;
   justify-content: center;
 }
 
-.confirm-modal-botones button {
-  flex: 1;
+.confirm-modal-botones button { /* Estilos comunes a ambos botones (Cancelar y Confirmar) */
+  flex: 1; /* Ambos botones (Cancelar / Cerrar Sesión) ocupan el mismo ancho, repartido en partes iguales */
   padding: 10px 0;
   border: none;
   border-radius: 8px;
@@ -49,20 +53,22 @@
   transition: opacity 0.2s;
 }
 
+/* Botón "Cancelar" — gris neutro, para indicar que es la opción "segura" */
 .confirm-modal-cancelar {
   background-color: rgba(0, 0, 0, 0.15);
   color: var(--marron-oscuro);
 }
 
-.confirm-modal-cancelar:hover {
+.confirm-modal-cancelar:hover { /* Efecto visual al pasar el mouse por encima del botón "Cancelar" */
   opacity: 0.8;
 }
 
+/* Botón "Cerrar Sesión" — rojo oscuro, para indicar que es una acción irreversible/importante */
 .confirm-modal-confirmar {
   background-color: #8b0000;
   color: white;
 }
 
-.confirm-modal-confirmar:hover {
+.confirm-modal-confirmar:hover { /* Efecto visual al pasar el mouse por encima del botón "Cerrar Sesión" */
   opacity: 0.85;
 }

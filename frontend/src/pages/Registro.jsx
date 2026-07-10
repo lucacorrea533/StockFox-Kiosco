@@ -1,5 +1,6 @@
 /* Este archivo es la página de registro para nuevos usuarios. Acá los alumnos pueden crear su cuenta ingresando su nombre completo, año, división, nombre de usuario y contraseña. Se implementa una validación básica para asegurarse de que todos los campos estén completos y que las contraseñas coincidan. Además, se incluye la opción de mostrar u ocultar la contraseña para mejorar la experiencia del usuario. Al finalizar el registro, se muestra un mensaje de éxito y se redirige automáticamente al catálogo. También hay enlaces para iniciar sesión si ya tienen una cuenta o para volver a la página principal. */
 
+/* Importaciones de React y React Router y assets */
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logoKiosco from '../assets/logos/RecoKiosco.png'
@@ -8,22 +9,25 @@ import ojoMostrar from '../assets/icons/OjoMostrar.png'
 import ojoNoMostrar from '../assets/icons/OjoNoMostrar.png'
 import '../styles/Registro.css'
 
+/* La función registro es el componente principal de la página de registro. Maneja el estado de los campos del formulario, la validación de los mismos y la navegación después del registro exitoso. */
 function Registro() {
-  const navigate = useNavigate()
-  const [mostrarPassword, setMostrarPassword] = useState(false)
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
+  const navigate = useNavigate() // Redirige al catálogo una vez completado el registro
+  const [mostrarPassword, setMostrarPassword] = useState(false) // Mostrar/ocultar campo de contraseña
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false) // Mostrar/ocultar campo de confirmar contraseña
   const [nombre, setNombre] = useState('')
   const [anio, setAnio] = useState('')
   const [division, setDivision] = useState('')
   const [usuario, setUsuario] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [confirmacion, setConfirmacion] = useState('')
-  const [errores, setErrores] = useState({})
-  const [exito, setExito] = useState(false)
+  const [errores, setErrores] = useState({}) // Mensajes de error por cada campo del formulario
+  const [exito, setExito] = useState(false) // Muestra el mensaje de "cuenta creada" al terminar
 
+  // Valida todos los campos del formulario (nombre, año, división, usuario, contraseñas) antes de registrar
   function handleSubmit() {
     const nuevosErrores = {}
 
+// Los if a continuación verifican que cada campo del formulario esté completo y cumpla con las condiciones mínimas. Si algún campo no cumple, se agrega un mensaje de error al objeto `nuevosErrores`. Al final, si no hay errores, se muestra un mensaje de éxito y se redirige al catálogo después de 1.5 segundos.
     if (!nombre.trim())
       nuevosErrores.nombre = 'Ingresá tu nombre completo.'
     else if (nombre.trim().length < 2)
@@ -47,6 +51,7 @@ function Registro() {
 
     setErrores(nuevosErrores)
 
+    // Si no hay errores, muestra el mensaje de éxito y redirige después de 1.5 segundos
     if (Object.keys(nuevosErrores).length === 0) {
       setExito(true)
       setTimeout(() => navigate('/catalogo'), 1500)
@@ -71,6 +76,7 @@ function Registro() {
 
         <div className="registro-form">
 
+          {/* Nombre completo */}
           <div className="registro-campo">
             <label htmlFor="nombre">Nombre Completo *</label>
             <div className={`registro-input-wrapper ${errores.nombre ? 'input-error' : ''}`}>
@@ -85,6 +91,7 @@ function Registro() {
             {errores.nombre && <p className="registro-error">⚠ {errores.nombre}</p>}
           </div>
 
+          {/* Año y división en la misma fila, para armar el curso del alumno */}
           <div className="registro-fila-curso">
             <div className="registro-campo">
               <label htmlFor="anio">Año *</label>
@@ -129,6 +136,7 @@ function Registro() {
             </div>
           </div>
 
+          {/* Nombre de usuario elegido */}
           <div className="registro-campo">
             <label htmlFor="usuario">Usuario *</label>
             <div className={`registro-input-wrapper ${errores.usuario ? 'input-error' : ''}`}>
@@ -143,7 +151,7 @@ function Registro() {
             {errores.usuario && <p className="registro-error">⚠ {errores.usuario}</p>}
           </div>
 
-          {/* Contraseña y Confirmar en fila (como el wireframe) */}
+          {/* Contraseña y Confirmar en fila */}
           <div className="registro-fila-passwords">
 
             <div className="registro-campo">
@@ -196,6 +204,7 @@ function Registro() {
             Registrarse
           </button>
 
+          {/* Mensaje de confirmación que aparece justo antes de redirigir */}
           {exito && (
             <p className="registro-exito">
               ✓ ¡Cuenta creada! Redirigiendo...
@@ -204,7 +213,7 @@ function Registro() {
 
         </div>
 
-        <div className="registro-extra">
+        <div className="registro-extra"> {/* Enlaces secundarios: ir a login o volver al inicio */ }
           <Link to="/login" className="registro-login-link">¿Ya tenés cuenta? Iniciá Sesión</Link>
           <Link to="/" className="registro-volver">← Volver al Inicio</Link>
         </div>

@@ -1,39 +1,40 @@
 /* Este archivo contiene los estilos CSS para la pantalla de login. Define el diseño de la página, los estilos de los campos de entrada, el botón de login y los enlaces para recuperar la contraseña y registrarse. El diseño se divide en dos mitades: una con una imagen y otra con el formulario de login. */
 
+/* Contenedor principal que ocupa toda la altura de la ventana y divide la pantalla en dos mitades */
 .login-wrapper {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
+  display: flex; /* Flexbox para dividir la pantalla en dos mitades */ /*El flexblox permite que los elementos hijos se distribuyan en fila o columna, y se ajusten automáticamente al tamaño del contenedor.*/
+  height: 100vh; /* Height de la ventana del navegador */
+  overflow: hidden; /* Evita que aparezca scroll si el contenido se desborda */
 }
 
-/* MITAD IZQUIERDA */
+/* Mitad de la Izquierda en la Página - Foto de fondo del kiosco con el logo centrado */
 .login-imagen {
-  flex: 1;
-  background-size: 240%;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex: 1; /* Ocupa la mitad izquierda de la pantalla */
+  background-size: 240%; /* Aumenta el tamaño de la imagen para que se vea más grande y centrada */
+  background-position: center; /* Centra la imagen de fondo */
+  display: flex; /* Flexbox para centrar el logo dentro de la mitad izquierda */
+  align-items: center; /* Centra verticalmente el logo */
+  justify-content: center; /* Centra horizontalmente el logo */
 }
 
-.login-logo {
+.login-logo { /* Logo del kiosco centrado en la mitad izquierda */
   width: 220px;
 }
 
-/* MITAD DERECHA */
+/* Mitad de la Derecha en la Página - Panel con el formulario, fondo naranja pastel */
 .login-panel {
   flex: 1;
-  background-color: var(--naranja-pastel);
+  background-color: var(--naranja-pastel); /* Color de fondo naranja pastel */
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Flexbox para organizar los elementos del formulario en columna */
   align-items: center;
-  justify-content: center;
-  padding: 50px 40px;
+  justify-content: center; /* Centra el contenido vertical y horizontalmente */
+  padding: 50px 40px; /* Padding interno para que el contenido no quede pegado a los bordes */ /* El padding es el espacio interno entre el contenido y el borde del contenedor. */
   box-sizing: border-box;
 }
 
-.login-titulo {
-  font-family: 'Lexend', sans-serif;
+.login-titulo { /* Título de la pantalla de login */
+  font-family: 'Lexend', sans-serif; /* Fuente Lexend para el título */
   font-weight: 800;
   font-size: 1.8rem;
   color: var(--marron-oscuro);
@@ -41,7 +42,7 @@
   text-align: center;
 }
 
-.login-form {
+.login-form { /* Contenedor del formulario de login, con ancho máximo de 400px y centrado */
   width: 100%;
   max-width: 400px;
   display: flex;
@@ -49,7 +50,7 @@
   gap: 20px;
 }
 
-.login-campo {
+.login-campo { /* Cada campo del formulario (usuario y contraseña) */
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -62,8 +63,8 @@
   color: var(--marron-oscuro);
 }
 
-.login-input-wrapper {
-  position: relative;
+.login-input-wrapper { /* Contenedor del input, que permite posicionar el botón del ojito dentro del campo */
+  position: relative; 
   display: flex;
 }
 
@@ -86,17 +87,20 @@
 
 .login-input-wrapper input:focus {
   outline: none;
-  border-color: var(--marron-naranja);
+  border-color: var(--marron-naranja); /* Resalta el borde cuando el usuario hace click en el campo */
 }
 
+/* Se activa por JS cuando falta completar el campo o hay un error de validación */
 .login-input-wrapper.input-error input {
   border-color: #c0392b;
 }
 
+/* Le hace lugar al botón del ojito para que no tape el texto escrito */
 .login-input-wrapper.con-icono input {
   padding-right: 52px;
 }
 
+/* Botón del ojito para mostrar/ocultar la contraseña, flotando adentro del input */
 .login-toggle-password {
   position: absolute;
   right: 12px;
@@ -110,12 +114,12 @@
   cursor: pointer;
 }
 
-.login-toggle-password img {
+.login-toggle-password img { /* Icono del ojito */
   width: 30px;
   height: 30px;
 }
 
-.login-error {
+.login-error { /* Mensaje de error debajo del campo, en rojo */
   font-family: 'Lexend', sans-serif;
   font-size: 0.8rem;
   color: #c0392b;
@@ -123,7 +127,7 @@
   padding-left: 4px;
 }
 
-/* Botón */
+/* Botón principal de "Iniciar Sesión" */
 .login-boton {
   width: 100%;
   background-color: var(--marron-naranja);
@@ -140,11 +144,11 @@
   transition: background-color 0.3s;
 }
 
-.login-boton:hover {
+.login-boton:hover { /* Cambia el color de fondo cuando el usuario pasa el mouse por encima */
   background-color: var(--marron-oscuro);
 }
 
-/* Extra */
+/* Zona inferior con los enlaces secundarios (olvidé contraseña, registro, volver) */
 .login-extra {
   margin-top: 40px;
   display: flex;
@@ -153,7 +157,7 @@
   gap: 12px;
 }
 
-.login-olvido {
+.login-olvido { /* Enlace de "Olvidé mi contraseña" */
   font-family: 'Lexend', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
@@ -174,7 +178,7 @@
   text-decoration: none;
 }
 
-.login-registro {
+.login-registro { /* Enlace de "Registrarse" */
   font-family: 'Lexend', sans-serif;
   font-weight: 500;
   font-size: 0.9rem;

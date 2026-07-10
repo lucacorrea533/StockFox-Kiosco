@@ -3,50 +3,64 @@
 /* =======================================================
    FONT: LEXEND
 ======================================================= */
+/* Importa la fuente Lexend directo desde Google Fonts, en varios grosores (400 normal, 500, 600, 700 y 900 negrita). Esto tiene que ir siempre al principio del archivo, si no el navegador lo ignora. */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;900&display=swap');
 
 /* =======================================================
    PALETA DE COLORES OFICIAL STOCKFOX
 ======================================================= */
+/* :root define "variables CSS". Son valores que se guardan acá una sola vez y después se reutilizan en cualquier parte del proyecto escribiendo var(--nombre-variable).
+   Si un día hay que cambiar el naranja del proyecto, se cambia acá y se actualiza en todos lados. */
+
 :root {
-  --naranja: #e8813a;
-  --marron-oscuro: #5c2d0a;
-  --naranja-claro: #ffe3cf;
-  --marron-naranja: #bf5902;
-  --naranja-pastel: #ffaa6f;
+  --naranja: #e8813a;         /* Naranja principal: botones, acentos, elementos destacados */
+  --marron-oscuro: #5c2d0a;   /* Marrón oscuro: texto principal y títulos */
+  --naranja-claro: #ffe3cf;   /* Naranja bien clarito: fondos suaves */
+  --marron-naranja: #bf5902;  /* Marrón anaranjado: hover de botones, detalles */
+  --naranja-pastel: #ffaa6f;  /* Naranja pastel: paneles y fondos secundarios */
 }
 
 /* =======================================================
    CONFIGURACIÓN GENERAL
 ======================================================= */
+/* El selector * (asterisco) aplica el estilo a todos los elementos de la página, sin excepción. Se usa para "resetear" los estilos por defecto que trae cada navegador (que no siempre son iguales entre sí). */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0;   /* Saca el margen exterior que el navegador le pone por defecto a cada elemento */
+  padding: 0;  /* Saca el espacio interior por defecto */
+  box-sizing: border-box; /* Hace que el ancho y alto de los elementos incluya el padding y el borde, para que no se desborden */
 }
 
 body {
+  /* font-family en cascada: el navegador intenta usar 'Lexend' primero; si por algún motivo no cargó (por ejemplo, sin internet), usa Arial, y si tampoco existe, cae en cualquier fuente sans-serif del sistema */
   font-family: 'Lexend', Arial, Helvetica, sans-serif;
-  background-color: var(--naranja-claro);
-  color: var(--marron-oscuro);
-  min-height: 100vh;
+  background-color: var(--naranja-claro); /* Fondo general de toda la página */
+  color: var(--marron-oscuro);            /* Color de texto por defecto */
+  min-height: 100vh; /* La página ocupa como mínimo el 100% de la altura visible de la pantalla (vh = "viewport height"),
+                        así el fondo no corta feo si hay poco contenido */
 }
 
+/* Todos los títulos (h1, h2, h3) del proyecto usan el mismo color marrón oscuro por defecto,
+   así no hay que repetirlo en cada vista individual */
 h1, h2, h3 {
   color: var(--marron-oscuro);
 }
 
+/* Estilo base para TODOS los botones <button> del proyecto. Cualquier vista nueva que use <button>
+   ya hereda automáticamente este look, sin necesidad de definirlo de nuevo */
 button {
   background-color: var(--naranja);
   color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
+  border: none;        /* Saca el borde gris feo que traen los botones por defecto */
+  padding: 10px 16px;   /* Espacio interno: 10px arriba/abajo, 16px a los costados */
+  border-radius: 8px;   /* Bordes redondeados */
+  cursor: pointer;      /* Cambia el cursor a "manito" al pasar por encima, para indicar que es clickeable */
+  transition: 0.3s;     /* Hace que cualquier cambio de estilo (como el color en hover) sea gradual/animado
+                           en 0.3 segundos, en vez de cambiar de golpe */
   font-family: 'Lexend', Arial, Helvetica, sans-serif;
 }
 
+/* Estado ":hover" = mientras el mouse está posicionado arriba del botón.
+   Gracias al "transition" de arriba, este cambio de color se ve como una animación suave */
 button:hover {
   background-color: var(--marron-naranja);
 }
@@ -54,18 +68,24 @@ button:hover {
 /* =======================================================
    CLASES REUTILIZABLES
 ======================================================= */
-.container {
-  padding: 20px;
+/* Estas son clases "genéricas" pensadas para usarse en cualquier vista del proyecto,
+   agregando className="container", className="card", etc. en el HTML/JSX */
+
+.container { /* Contenedor general que centra el contenido y le da un ancho máximo */
+  padding: 20px; /* Espacio interno estándar para contenedores generales de contenido */
 }
 
-.card {
+.card { /* Tarjeta con fondo blanco, bordes redondeados y sombra sutil */
   background-color: white;
   border-radius: 12px;
   padding: 15px;
+  /* box-shadow agrega una sombra sutil debajo de la tarjeta para darle sensación de "relieve"/profundidad.
+     Los valores son: desplazamiento horizontal (0), desplazamiento vertical (2px), difuminado (8px),
+     y color negro con solo 10% de opacidad (rgba con el último valor en 0.1) */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .titulo-principal {
   color: var(--marron-oscuro);
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Separación respecto al contenido que viene después del título */
 }
