@@ -1,5 +1,6 @@
 /* Este archivo contiene los estilos para el componente CardProducto */
 
+/* Tarjeta base del producto: imagen arriba, info en el medio, botón abajo */
 .card-producto {
   background-color: white;
   border-radius: 12px;
@@ -19,7 +20,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Que no se achique si el texto de abajo crece */
 }
 
 .card-producto-imagen img {
@@ -45,7 +46,7 @@
   background: linear-gradient(135deg, var(--naranja-claro) 0%, var(--naranja-pastel) 100%);
 }
 
-/* Franja naranja */
+/* Franja naranja separadora entre la imagen y la info */
 .card-producto-franja {
   height: 6px;
   background-color: var(--naranja);
@@ -67,7 +68,7 @@
   font-size: 0.85rem;
   color: var(--marron-oscuro);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 2; /* Corta el nombre a 2 líneas si es muy largo */
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -100,12 +101,13 @@
   flex-shrink: 0;
 }
 
-/* Estado sin stock */
+/* Estado sin stock: se ve apagada y no responde a clicks */
 .card-producto.sin-stock {
   opacity: 0.5;
   pointer-events: none;
 }
 
+/* El botón "Agregar" pasa a gris y a cursor de bloqueado cuando no hay stock */
 .card-producto.sin-stock .card-producto-btn {
   background-color: #aaa;
   cursor: not-allowed;

@@ -1,3 +1,9 @@
+/* Archivo de estilos globales del proyecto. Define la paleta de colores, tipografía y variables CSS compartidas entre todos los componentes. */
+/* Aun así, este archivo define nada de lo que se ve en RecoKiosco
+/* Se basa en la plantilla Vite original, que es un proyecto de ejemplo para crear aplicaciones web modernas con React y Vite. */
+/* El diseño real esta en frontend/src/styles/global.css, que importa este archivo y agrega la tipografía Lexend y otros estilos específicos del proyecto. */
+
+/* Estilo del contador de ejemplo que trae la plantilla Vite (botón "count is X") */
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -12,11 +18,12 @@
     border-color: var(--accent-border);
   }
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent); /* Resalta el borde cuando se navega con teclado (accesibilidad) */
     outline-offset: 2px;
   }
 }
 
+/* Sección "hero": logos superpuestos en 3D (React + Vite) de la pantalla de bienvenida por defecto */
 .hero {
   position: relative;
 
@@ -24,7 +31,7 @@
   .framework,
   .vite {
     inset-inline: 0;
-    margin: 0 auto;
+    margin: 0 auto; /* Centra cada logo horizontalmente */
   }
 
   .base {
@@ -35,13 +42,14 @@
 
   .framework,
   .vite {
-    position: absolute;
+    position: absolute; /* Se posicionan flotando sobre el logo base */
   }
 
   .framework {
     z-index: 1;
     top: 34px;
     height: 28px;
+    /* Rotación en perspectiva 3D para simular el logo "flotando" en el aire */
     transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
       scale(1.4);
   }
@@ -56,6 +64,7 @@
   }
 }
 
+/* Bloque central de la página: centra todo su contenido vertical y horizontalmente */
 #center {
   display: flex;
   flex-direction: column;
@@ -65,18 +74,19 @@
   flex-grow: 1;
 
   @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
+    padding: 32px 20px 24px; /* Menos espaciado en pantallas chicas */
     gap: 18px;
   }
 }
 
+/* Franja inferior "próximos pasos", dividida en columnas (Docs / Íconos) */
 #next-steps {
   display: flex;
   border-top: 1px solid var(--border);
   text-align: left;
 
   & > div {
-    flex: 1 1 0;
+    flex: 1 1 0; /* Cada columna ocupa el mismo ancho */
     padding: 32px;
     @media (max-width: 1024px) {
       padding: 24px 20px;
@@ -90,20 +100,21 @@
   }
 
   @media (max-width: 1024px) {
-    flex-direction: column;
+    flex-direction: column; /* En mobile las columnas se apilan una debajo de la otra */
     text-align: center;
   }
 }
 
 #docs {
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--border); /* Separador entre la columna de Docs y la de íconos */
 
   @media (max-width: 1024px) {
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border); /* En mobile el separador pasa a ser horizontal */
   }
 }
 
+/* Lista de íconos/enlaces sociales (React, Vite, etc.) al pie de la página */
 #next-steps ul {
   list-style: none;
   padding: 0;
@@ -128,7 +139,7 @@
     transition: box-shadow 0.3s;
 
     &:hover {
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow); /* Sombra al pasar el mouse, da sensación de "botón" */
     }
     .button-icon {
       height: 18px;
@@ -142,7 +153,7 @@
     justify-content: center;
 
     li {
-      flex: 1 1 calc(50% - 8px);
+      flex: 1 1 calc(50% - 8px); /* En mobile los íconos se acomodan de a 2 por fila */
     }
 
     a {
@@ -153,14 +164,16 @@
   }
 }
 
+/* Espaciador vacío entre secciones, con línea divisoria arriba */
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
   @media (max-width: 1024px) {
-    height: 48px;
+    height: 48px; /* Más chico en mobile para no desperdiciar espacio */
   }
 }
 
+/* Decoración: pequeñas "muescas" (triángulos) en los extremos de una línea divisoria */
 .ticks {
   position: relative;
   width: 100%;
@@ -175,10 +188,12 @@
 
   &::before {
     left: 0;
-    border-left-color: var(--border);
+    border-left-color: var(--border); /* Triángulo apuntando desde la izquierda */
   }
   &::after {
     right: 0;
-    border-right-color: var(--border);
+    border-right-color: var(--border); /* Triángulo apuntando desde la derecha */
   }
 }
+
+/* Aclaración: Nosotros, no diseñamos el responsive. Aun así, algunos archivos de la plantilla original traen media queries para que se vea bien en pantallas chicas. */

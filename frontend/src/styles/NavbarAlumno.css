@@ -1,16 +1,18 @@
 /* Este archivo contiene los estilos para el navbar - componente del alumno, que es el que se muestra en la mayoría de las vistas. Es un sidebar fijo a la izquierda, con el logo arriba, los links de navegación en el medio y el usuario y acciones (carrito, cerrar sesión) abajo. */
 
-.navbar-alumno {
+.navbar-alumno { /* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
   width: 350px;
-  height: 100vh;
+  height: 100vh; /* Ocupa toda la altura de la pantalla, sin importar cuánto contenido tenga la página */
   background-color: var(--naranja);
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Acomoda logo, links y footer en columna, de arriba hacia abajo */
   padding: 16px 0;
+  /* position: fixed + left/top: 0 lo "clava" en la esquina superior izquierda de la pantalla,
+     para que quede siempre visible aunque el usuario haga scroll en el contenido de la derecha */
   position: fixed;
   left: 0;
   top: 0;
-  overflow: hidden;
+  overflow: hidden; /* Evita que algo se desborde visualmente fuera de la barra */
 }
 
 /* Logo arriba */
@@ -18,8 +20,8 @@
   display: flex;
   justify-content: center;
   padding: 6px 60px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.445);
-  flex-shrink: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.445); /* Línea divisoria semitransparente debajo del logo */
+  flex-shrink: 0; /* Evita que el logo se achique si el contenido del medio necesita más espacio */
 }
 
 .navbar-alumno-logo img {
@@ -32,47 +34,51 @@
   flex-direction: column;
   gap: 4px;
   padding: 14px 10px;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+  flex: 1; /* Ocupa todo el espacio disponible entre el logo y el footer, empujando al footer hacia abajo */
+  min-height: 0; /* Truco necesario en flexbox: sin esto, el scroll interno (overflow-y) no funcionaría bien */
+  overflow-y: auto; /* Si hay muchos links y no entran, aparece scroll vertical solo en esta zona */
 }
 
-/* Cada item del navbar */
+/* Cada item del navbar (ícono + texto) */
 .navbar-alumno-item {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  text-decoration: none;
+  text-decoration: none; /* Saca el subrayado que traen los links por defecto */
   color: var(--marron-oscuro);
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s; /* El cambio de color al pasar el mouse se ve suave, no de golpe */
   height: 52px;
   position: relative;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Ningún ítem se achica, todos mantienen su altura fija de 52px */
 }
 
 .navbar-alumno-item img {
   width: 50px;
   height: 50px;
   flex-shrink: 0;
+  /* Los íconos originales son PNG en algún color (ej. negro o gris). Este filter los "recolorea"
+     por código: primero los vuelve blanco y negro (brightness/saturate en 0), y después usando
+     sepia + saturate + hue-rotate los tiñe hasta lograr el marrón oscuro del proyecto,
+     sin necesidad de tener una versión de cada ícono ya coloreada de antemano */
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
-/* Activo — la vista en la que estás actualmente */
+/* Activo — resalta visualmente en qué sección está parado el alumno ahora mismo (lo controla el NavLink en el JSX) */
 .navbar-alumno-item.activo {
   background-color: rgba(153, 78, 20, 0.75);
   color: rgb(252, 175, 103);
 }
 
 .navbar-alumno-item.activo img {
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* Vuelve el ícono blanco puro cuando el link está activo */
 }
 
-/* Hover general */
+/* Hover general — se aplica al pasar el mouse por cualquier link que no sea el activo */
 .navbar-alumno-item:hover {
   background-color: var(--marron-oscuro);
   color: white;
@@ -88,11 +94,11 @@
   border-top: 1px solid rgba(0, 0, 0, 0.445);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* Usuario a la izquierda, acciones (carrito/cerrar sesión) a la derecha */
   flex-shrink: 0;
 }
 
-.navbar-alumno-usuario {
+.navbar-alumno-usuario { /* Contenedor del avatar y nombre del usuario */
   display: flex;
   align-items: center;
   gap: 10px;
@@ -101,50 +107,52 @@
   font-size: 1.05rem;
 }
 
-.navbar-alumno-usuario img {
+.navbar-alumno-usuario img { /* Avatar del usuario, que es un círculo con la inicial de su nombre */
   width: 38px;
   height: 38px;
 }
 
-.navbar-alumno-acciones {
+.navbar-alumno-acciones { /* Contenedor de los íconos de acción (carrito, cerrar sesión) */
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+/* Botón circular que envuelve cada ícono de acción (carrito, cerrar sesión) */
 .navbar-icon-btn {
-  position: relative;
+  position: relative; /* Referencia para poder ubicar el globito del carrito (badge) encima del ícono */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 7px;
-  border-radius: 50%;
+  border-radius: 50%; /* Lo vuelve un círculo perfecto */
   transition: background-color 0.2s;
 }
 
-.navbar-icon-btn img {
+.navbar-icon-btn img { /* Ícono dentro del botón circular */
   width: 34px;
   height: 34px;
-  object-fit: contain;
+  object-fit: contain; /* Asegura que el ícono no se deforme, aunque el contenedor no sea exactamente cuadrado */
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
-  transition: filter 0.2s;
+  transition: filter 0.2s; /* El cambio de color del ícono en hover también es gradual */
 }
 
-/* Hover normal (carrito) */
+/* Hover normal (carrito) — fondo gris suave */
 .navbar-icon-btn:hover {
   background-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Hover "peligroso" (cerrar sesión) — se pone rojo, igual que en Encargada */
+/* Hover "peligroso" (cerrar sesión) — se pone rojo, igual que en Encargada, para indicar que es una acción sensible */
 .navbar-icon-btn-peligro:hover {
   background-color: #8b0000;
 }
 
-.navbar-icon-btn-peligro:hover img {
+.navbar-icon-btn-peligro:hover img { /* Ícono de cerrar sesión se vuelve blanco puro al pasar el mouse, para que contraste con el fondo rojo */
   filter: brightness(0) invert(1);
 }
 
+/* Globito rojo que muestra la cantidad de productos en el carrito, flotando en la esquina del ícono */
 .navbar-carrito-badge {
   position: absolute;
   top: -4px;

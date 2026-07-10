@@ -1,42 +1,47 @@
 /* ── FONT ────────────────────────────────────────────────────────────────────── */
+/* Se importa Lexend, la tipografía oficial del proyecto */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;900&display=swap');
 
+/* Forzar Lexend en toda la vista de Catálogo y sus hijos */
 .catalogo-layout,
 .catalogo-layout * {
   font-family: 'Lexend', sans-serif;
 }
 
 /* ── LAYOUT ──────────────────────────────────────────────────────────────────── */
+/* Contenedor principal del catálogo, que ocupa toda la pantalla y tiene un fondo naranja pastel */
 .catalogo-layout {
-  min-height: 100vh;
+  min-height: 100vh; /* Ocupa como mínimo toda la pantalla, aunque haya poco contenido */
   background-color: var(--naranja-pastel);
 }
 
-.catalogo-contenido {
-  margin-left: 350px;
+.catalogo-contenido { /* Contenedor interno que centra el contenido y deja espacio para la navbar fija de la izquierda */
+  margin-left: 350px; /* Deja el espacio libre para la navbar fija de la izquierda */
   padding: 30px;
   min-height: 100vh;
 }
 
 /* ── BANNER MENÚ DEL DÍA ─────────────────────────────────────────────────────── */
+/* Banner que muestra el menú del día o promociones especiales, con un título y un carrusel de cards */
 .catalogo-banner-menu {
   margin-bottom: 24px;
 }
 
-.catalogo-banner-titulo {
+.catalogo-banner-titulo { /* Título del banner, por ejemplo "Menú del día" o "Promociones" */
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--marron-oscuro);
   margin-bottom: 12px;
 }
 
-.catalogo-banner-cards {
+.catalogo-banner-cards { /* Contenedor de las cards del menú del día, que se muestran en un carrusel horizontal */
   display: flex;
   gap: 16px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Si no entran todas las cards, bajan de línea */
   margin-bottom: 28px;
 }
 
+/* Tarjeta individual del menú del día / promoción */
 .catalogo-menu-card {
   background-color: var(--naranja-claro);
   border-radius: 12px;
@@ -48,37 +53,37 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.menu-card-tipo {
+.menu-card-tipo { /* Tipo de producto (ej: "Combo", "Promo", "Menú del día") */
   font-size: 0.75rem;
   color: var(--marron-naranja);
   font-weight: 600;
 }
 
-.menu-card-nombre {
+.menu-card-nombre { /* Nombre del producto (ej: "Combo Hamburguesa + Papas") */
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--marron-oscuro);
   line-height: 1.3;
 }
 
-.menu-card-desc {
+.menu-card-desc { /* Descripción corta del producto (ej: "Incluye bebida y postre") */
   font-size: 0.78rem;
   color: var(--marron-naranja);
 }
 
-.menu-card-footer {
+.menu-card-footer { /* Pie de la card, que contiene el precio y el botón de agregar al carrito */
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 8px;
 }
 
-.menu-card-precio {
+.menu-card-precio { /* Precio del producto (ej: "$450") */
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
-.menu-card-btn {
+.menu-card-btn { /* Botón de agregar al carrito dentro de la card del menú del día */
   padding: 6px 14px;
   font-size: 0.82rem;
   border-radius: 20px;
@@ -95,6 +100,7 @@
 }
 
 /* ── FILTROS DE CATEGORÍA ────────────────────────────────────────────────────── */
+/* Fila de íconos que filtran el catálogo por categoría (scrollable horizontalmente) */
 .catalogo-categorias {
   display: flex;
   flex-wrap: wrap;
@@ -103,7 +109,7 @@
   align-items: center;
 }
 
-.catalogo-cat-btn {
+.catalogo-cat-btn { /* Botón individual de categoría, que contiene un ícono y se puede seleccionar */
   background: none;
   border: none;
   padding: 0;
@@ -114,7 +120,7 @@
   display: block;
 }
 
-.catalogo-cat-btn img {
+.catalogo-cat-btn img { /* Ícono de la categoría dentro del botón */
   height: 30px;
   width: auto;
   display: block;
@@ -126,6 +132,7 @@
   transform: scale(1.04);
 }
 
+/* Categoría actualmente seleccionada se marca con un borde grueso */
 .catalogo-cat-btn.activo {
   outline: 3px solid var(--marron-oscuro);
   border-radius: 14px;
@@ -133,6 +140,7 @@
 }
 
 /* ── BUSCADOR ────────────────────────────────────────────────────────────────── */
+/* Barra de búsqueda que filtra los productos por nombre, con un ícono de lupa a la izquierda */
 .catalogo-buscador {
   display: flex;
   align-items: center;
@@ -144,13 +152,13 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-.catalogo-buscador-icono {
+.catalogo-buscador-icono { /* Ícono de lupa dentro del buscador */
   width: 22px;
   height: 22px;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Que no se achique si el input crece */
 }
 
-.catalogo-buscador input {
+.catalogo-buscador input { /* Input de texto donde el usuario escribe su búsqueda */
   border: none;
   background: transparent;
   outline: none;
@@ -160,27 +168,29 @@
   font-family: 'Lexend', sans-serif;
 }
 
-.catalogo-buscador input::placeholder {
+.catalogo-buscador input::placeholder { /* Placeholder del input, que dice "Buscar productos..." */
   color: var(--marron-naranja);
 }
 
 /* ── GRILLA ──────────────────────────────────────────────────────────────────── */
+/* Grilla de productos: 4 columnas en desktop (2 en mobile, ver breakpoints aparte, aunque el Responive no se realizó completamente) */
 .catalogo-grilla {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
-.catalogo-card-wrapper {
+.catalogo-card-wrapper { /* Cada producto se muestra dentro de un contenedor que tiene un pequeño efecto al pasar el mouse */
   cursor: pointer;
   transition: transform 0.15s;
 }
 
 .catalogo-card-wrapper:hover {
-  transform: scale(1.02);
+  transform: scale(1.02); /* Pequeño efecto de "levantado" al pasar el mouse */
 }
 
 /* ── BOTÓN FLOTANTE CARRITO ──────────────────────────────────────────────────── */
+/* Botón fijo abajo a la derecha que muestra el carrito con cantidad y total */
 .catalogo-carrito-flotante {
   position: fixed;
   bottom: 30px;
@@ -206,12 +216,13 @@
   background-color: var(--naranja);
 }
 
-.catalogo-carrito-flotante img {
+.catalogo-carrito-flotante img { /* Ícono del carrito dentro del botón flotante */
   width: 24px;
   height: 24px;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(1); /* Fuerza el ícono a blanco sin necesitar otro asset */
 }
 
+/* Numerito redondo con la cantidad de productos en el carrito */
 .catalogo-carrito-badge {
   background-color: var(--naranja);
   color: white;
@@ -230,6 +241,7 @@
 }
 
 /* ── MODALES — OVERLAY ───────────────────────────────────────────────────────── */
+/* Fondo oscuro semitransparente que tapa la pantalla cuando hay un modal abierto */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -241,6 +253,7 @@
 }
 
 /* ── MODAL PRODUCTO (simple) ─────────────────────────────────────────────────── */
+/* Modal que se abre al tocar un producto sin variantes: imagen, info y botón de agregar */
 .modal-producto {
   background-color: white;
   border-radius: 16px;
@@ -268,50 +281,50 @@
   color: var(--naranja);
 }
 
-.modal-producto-imagen {
+.modal-producto-imagen { /* Contenedor de la imagen del producto dentro del modal */
   width: 100%;
   height: 200px;
   background-color: var(--naranja-claro);
   overflow: hidden;
 }
 
-.modal-producto-imagen img {
+.modal-producto-imagen img { /* Imagen del producto dentro del modal, que se ajusta al contenedor */
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.modal-producto-imagen .card-producto-placeholder {
+.modal-producto-imagen .card-producto-placeholder { /* Placeholder de la imagen del producto dentro del modal, que se muestra mientras carga la imagen real */
   width: 100%;
   height: 100%;
 }
 
-.modal-producto-info {
+.modal-producto-info { /* Contenedor de la información del producto dentro del modal: nombre, descripción, precio y botón */
   padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.modal-producto-categoria {
+.modal-producto-categoria { /* Nombre de la categoría del producto dentro del modal (ej: "Bebidas", "Snacks") */
   font-size: 0.78rem;
   color: var(--marron-naranja);
   font-weight: 600;
 }
 
-.modal-producto-nombre {
+.modal-producto-nombre { /* Nombre del producto dentro del modal (ej: "Coca-Cola 500ml") */
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
-.modal-producto-desc {
+.modal-producto-desc { /* Descripción del producto dentro del modal (ej: "Refresco de cola, sin azúcar") */
   font-size: 0.88rem;
   color: #555;
   line-height: 1.4;
 }
 
-.modal-producto-precio {
+.modal-producto-precio { /* Precio del producto dentro del modal (ej: "$150") */
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--marron-oscuro);
@@ -328,10 +341,11 @@
 }
 
 /* ── MODAL VARIANTES ─────────────────────────────────────────────────────────── */
+/* Modal para productos con opciones (ej: tamaños o sabores) antes de agregarlos al carrito */
 .modal-variantes {
   width: 420px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow-y: auto; /* Scroll si hay muchas variantes */
 }
 
 .modal-variantes-label {
@@ -349,6 +363,7 @@
   margin-bottom: 4px;
 }
 
+/* Cada opción de variante se muestra como un botón seleccionable */
 .modal-variante-btn {
   display: flex;
   justify-content: space-between;
@@ -367,6 +382,7 @@
   background-color: var(--naranja-claro);
 }
 
+/* Variante elegida por el alumno */
 .modal-variante-btn.activo {
   border-color: var(--marron-oscuro);
   background-color: var(--naranja-pastel);
@@ -392,6 +408,7 @@
 }
 
 /* ── MODAL CARRITO ───────────────────────────────────────────────────────────── */
+/* Modal principal del carrito: lista de productos a la izquierda, resumen y horarios a la derecha */
 .modal-carrito {
   background-color: var(--naranja-pastel);
   border-radius: 16px;
@@ -425,6 +442,7 @@
   margin-top: -8px;
 }
 
+/* Mensaje que se muestra cuando el carrito no tiene productos cargados */
 .modal-carrito-vacio {
   color: var(--marron-oscuro);
   font-size: 0.92rem;
@@ -434,6 +452,7 @@
   gap: 6px;
 }
 
+/* Fila con un producto dentro del carrito */
 .modal-carrito-item {
   background-color: var(--naranja-claro);
   border-radius: 10px;
@@ -474,6 +493,7 @@
   color: var(--marron-naranja);
 }
 
+/* Controles de + / - cantidad de cada producto */
 .modal-carrito-item-controles {
   display: flex;
   align-items: center;
@@ -494,7 +514,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
-.modal-carrito-item-controles span {
+.modal-carrito-item-controles span { /* Muestra la cantidad de cada producto en el carrito */
   font-weight: 700;
   color: var(--marron-oscuro);
   min-width: 20px;
@@ -509,6 +529,7 @@
   text-align: right;
 }
 
+/* Botón para volver al catálogo sin salir del flujo de compra */
 .modal-seguir-btn {
   background: none;
   border: 2px solid var(--marron-oscuro);
@@ -527,6 +548,7 @@
 }
 
 /* ── PANEL DERECHO CARRITO ───────────────────────────────────────────────────── */
+/* Panel lateral fijo con el resumen del pedido y la elección de horario de retiro */
 .modal-carrito-der {
   width: 260px;
   background-color: var(--naranja-claro);
@@ -577,6 +599,7 @@
   margin-bottom: 8px;
 }
 
+/* Selector de turno (ej: recreo mañana / tarde) antes de mostrar los horarios puntuales */
 .modal-turno-selector {
   display: flex;
   gap: 6px;
@@ -607,6 +630,7 @@
   color: white;
 }
 
+/* Botón con un horario de retiro disponible */
 .modal-horario-btn {
   width: 100%;
   background-color: var(--marron-naranja);
@@ -657,6 +681,7 @@
 }
 
 /* ── ESTADO POST-CONFIRMACIÓN ────────────────────────────────────────────────── */
+/* Pantalla que reemplaza el contenido del modal una vez que el pedido queda confirmado */
 .modal-confirmado {
   width: 100%;
   padding: 40px 32px;
@@ -702,6 +727,7 @@
 }
 
 /* ── ÍCONO GENÉRICO AVISO ────────────────────────────────────────────────────── */
+/* Ícono chico reutilizable para mensajes de aviso (ej: "recordá retirar tu pedido") */
 .modal-aviso-icono {
   width: 18px;
   height: 18px;
@@ -729,6 +755,7 @@
   color: #000;
 }
 
+/* Estado deshabilitado: por ejemplo, mientras no se eligió un horario de retiro */
 .modal-confirmar-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;
@@ -754,6 +781,7 @@
 }
 
 /* ── SELECT DE VARIEDADES DENTRO DEL CARRITO ────────────────────────────────── */
+/* Select para cambiar la variante de un producto ya agregado, sin volver al modal de producto */
 .carrito-select-variedad {
   background-color: var(--naranja-pastel);
   border: 1px solid var(--marron-naranja);
@@ -779,7 +807,7 @@
   background-color: var(--naranja-claro);
 }
 
-/* Ajuste al botón flotante para MisPedidos.jsx */
+/* Repetimos el estilo del botón flotante para que también se vea igual en MisPedidos.jsx */
 .catalogo-carrito-flotante {
   position: fixed;
   bottom: 30px;
@@ -806,6 +834,7 @@
 }
 
 /* ── CARRUSEL MENÚ DEL DÍA ────────────────────────────────────────────────── */
+/* Carrusel de promos/menú del día, muestra 4 cards por página (ver CARDS_POR_PAGINA en el JSX) */
 .carrusel-menu-wrapper {
   display: flex;
   flex-direction: column;
@@ -825,7 +854,7 @@
   visibility: hidden;
 }
 
-/* Dots de navegación */
+/* Dots de navegación entre páginas del carrusel */
 .carrusel-dots {
   display: flex;
   justify-content: center;
@@ -845,6 +874,7 @@
   transition: background-color 0.25s, transform 0.2s;
 }
 
+/* Dot de la página actual del carrusel */
 .carrusel-dot.activo {
   background-color: var(--naranja);
   border-color: var(--naranja);
@@ -857,6 +887,7 @@
 }
 
 /* ── TAG DE VARIEDAD EN EL CARRITO ────────────────────────────────────────── */
+/* Etiqueta chica que muestra la variante elegida (ej: "Grande") junto al producto en el carrito */
 .carrito-variedad-tag {
   display: inline-block;
   background-color: var(--naranja-pastel);
@@ -871,6 +902,7 @@
 }
 
 /* ── CENTRO DEL ITEM: variedad + acciones juntas ──────────────────────────── */
+/* Columna central del item del carrito, agrupa el tag de variedad y los botones de editar/eliminar */
 .carrito-item-centro {
   display: flex;
   flex-direction: column;
@@ -916,12 +948,14 @@
   transform: scale(1.12);
 }
 
+/* Fondo rojo pálido al pasar el mouse, para reforzar que "eliminar" es una acción destructiva */
 .carrito-btn-eliminar:hover {
   background-color: #fde8e8;
   transform: scale(1.12);
 }
 
 /* ── FILA DE UNDO (reemplaza el item mientras cuenta) ─────────────────────── */
+/* Cuando se elimina un producto, esta fila reemplaza el item por unos segundos con opción de deshacer */
 .modal-carrito-item.item-undo {
   background-color: var(--naranja-claro);
   border: 2px dashed var(--marron-naranja);
@@ -955,7 +989,7 @@
   background-color: var(--naranja);
 }
 
-/* Toast Flotante de confirmación */
+/* Toast flotante que confirma la eliminación de un producto del carrito */
 .catalogo-toast {
   position: fixed;
   bottom: 32px;
@@ -997,6 +1031,10 @@
   opacity: 0.85;
 }
 
+/* Animación de entrada del toast: aparece deslizándose un poco hacia arriba */
+/* O sea, esto lo que hace es que el toast aparezca con un efecto de "fade in" y "slide up" */
+/* El toast es el mensaje que aparece cuando se elimina un producto del carrito, con opción de deshacer */
+/* Fade in significa que la opacidad va de 0 a 1, y slide up significa que la posición vertical va de abajo hacia arriba */
 @keyframes catalogoToastEntrar {
   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
