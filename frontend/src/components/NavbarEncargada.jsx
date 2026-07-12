@@ -19,18 +19,13 @@ import iconAdvertencia from '../assets/icons/Advertencia.png'
 import ConfirmModal from './ConfirmModal'
 import '../styles/NavbarEncargada.css'
 
-// Datos de ejemplo "hardcodeados" (fijos en el código) para simular notificaciones mientras no hay backend conectado.
-// Cuando se integre con la API real, esto se va a reemplazar por datos que vengan del servidor (ej. alertas de stock bajo)
-const notificacionesEjemplo = [ // Array de objetos, cada uno representando una notificación
-  {
-    id: 1,
-    tipo: 'stock', // Define qué ícono mostrar en la notificación (acá siempre es el de advertencia)
-    mensaje: 'Yerba Amanda: quedan solo 3 unidades en stock.',
-  },
-]
+
 
 // Recibe una sola prop: onCerrarSesion, la función que ejecuta la vista padre cuando se confirma el cierre de sesión
-function NavbarEncargada({ onCerrarSesion }) {
+function NavbarEncargada({
+  onCerrarSesion,
+  alertasStock = []
+}) {
   const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false) // Controla si el dropdown de notificaciones está abierto
   const [mostrarOpciones, setMostrarOpciones] = useState(false) // Controla si el dropdown de opciones (cerrar sesión, etc) está abierto
   const [confirmando, setConfirmando] = useState(false) // Controla si el modal de confirmación de cierre de sesión está visible
@@ -165,10 +160,10 @@ function NavbarEncargada({ onCerrarSesion }) {
                 onClick={toggleNotificaciones}
               />
               {/* El globito con el número solo aparece si hay al menos una notificación */}
-              {notificacionesEjemplo.length > 0 && (
-                <span className="navbar-notif-badge">
-                  {notificacionesEjemplo.length}
-                </span>
+              {alertasStock.length > 0 && (
+                  <span className="navbar-notif-badge">
+                      {alertasStock.length}
+                  </span>
               )}
 
               {/* Dropdown que lista las notificaciones, solo visible si mostrarNotificaciones es true */}
@@ -177,14 +172,14 @@ function NavbarEncargada({ onCerrarSesion }) {
                   <p className="navbar-dropdown-titulo">Notificaciones</p>
                   {/* .map() recorre el array de notificaciones y genera un bloque HTML por cada una.
                       "key={n.id}" es obligatorio en React para que sepa identificar cada elemento de la lista */}
-                  {notificacionesEjemplo.map((n) => (
-                    <div className="navbar-notif-item" key={n.id}>
-                      {/* Por ahora solo existe el tipo "stock", pero esta estructura permite
-                          agregar más tipos de notificación en el futuro con distintos íconos */}
-                      {n.tipo === 'stock' && (
-                        <img src={iconAdvertencia} alt="Advertencia" />
-                      )}
-                      <span>{n.mensaje}</span>
+                  {alertasStock.map((mensaje, index) => (
+                    <div className="navbar-notif-item" key={index}>
+                      <img
+                        src={iconAdvertencia}
+                        alt="Advertencia"
+                      />
+
+                      <span>{mensaje}</span>
                     </div>
                   ))}
                 </div>

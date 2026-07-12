@@ -7,7 +7,7 @@ import iconReloj   from '../assets/icons/Reloj.png'
 import iconAviso   from '../assets/icons/Aviso.png'
 import '../styles/VentasPresenciales.css'
 
-function ResumenVenta({ items, total, error, ventaConfirmada, onConfirmar, onCancelar }) {
+function ResumenVenta({ items, total, error, ventaConfirmada, registrandoVenta, onConfirmar, onCancelar, onNuevaVenta }) {
   const [confirmando, setConfirmando] = useState(false)
 
   function handleClickConfirmar() {
@@ -26,6 +26,41 @@ function ResumenVenta({ items, total, error, ventaConfirmada, onConfirmar, onCan
   function handleCancelarConfirm() {
     setConfirmando(false)
   }
+  
+
+  if (registrandoVenta) {
+
+  return (
+
+    <aside className="rv-panel">
+
+      <div className="rv-confirmada">
+
+        <div className="rv-check-wrap">
+
+          ⏳
+
+        </div>
+
+        <p className="rv-confirmada-titulo">
+
+          Registrando venta...
+
+        </p>
+
+        <p>
+
+          Por favor espere unos segundos.
+
+        </p>
+
+      </div>
+
+    </aside>
+
+  )
+
+}
 
   // ── Estado: venta confirmada ─────────────────────────────────────────────
   if (ventaConfirmada) {
@@ -55,8 +90,7 @@ function ResumenVenta({ items, total, error, ventaConfirmada, onConfirmar, onCan
               <span>${ventaConfirmada.total.toLocaleString('es-AR')}</span>
             </div>
           </div>
-          <button className="rv-btn rv-btn--confirmar" onClick={onCancelar}>Guardar</button>
-          <button className="rv-btn rv-btn--cancelar" onClick={onCancelar}>Nueva venta</button>
+          <button className="rv-btn rv-btn--cancelar" onClick={onNuevaVenta}>Nueva venta</button>
         </div>
       </aside>
     )
@@ -81,8 +115,14 @@ function ResumenVenta({ items, total, error, ventaConfirmada, onConfirmar, onCan
               <span>${total.toLocaleString('es-AR')}</span>
             </div>
           </div>
-          <button className="rv-btn rv-btn--confirmar" onClick={handleAceptarConfirm}>
-            ✓ Sí, confirmar
+          <button
+            className="rv-btn rv-btn--confirmar"
+            onClick={handleAceptarConfirm}
+            disabled={registrandoVenta}
+            >
+            {registrandoVenta
+                ? "Registrando venta..."
+                : "✓ Sí, confirmar"}
           </button>
           <button className="rv-btn rv-btn--cancelar" onClick={handleCancelarConfirm}>
             Volver

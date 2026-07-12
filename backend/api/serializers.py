@@ -50,9 +50,69 @@ class DetallePedidoSerializer(serializers.ModelSerializer):
 
 class PedidoSerializer(serializers.ModelSerializer):
 
+    alumno = serializers.SerializerMethodField()
+
+    curso = serializers.SerializerMethodField()
+
+    productos = serializers.SerializerMethodField()
+
+
     class Meta:
+
         model = Pedidos
-        fields = "__all__"
+
+        fields = [
+
+            "id_pedido",
+
+            "alumno",
+
+            "curso",
+
+            "horario_retiro",
+
+            "estado",
+
+            "total",
+
+            "fecha_creacion",
+
+            "productos"
+
+        ]
+
+
+    def get_alumno(self, obj):
+
+        return f"{obj.id_alumno.nombre} {obj.id_alumno.apellido}"
+
+
+    def get_curso(self, obj):
+
+        return f"{obj.id_alumno.anio}°{obj.id_alumno.division}°"
+
+
+    def get_productos(self, obj):
+
+        detalles = DetallePedido.objects.filter(
+
+            id_pedido=obj
+
+        )
+
+        return [
+
+            {
+
+                "nombre": detalle.id_producto.nombre,
+
+                "cantidad": detalle.cantidad
+
+            }
+
+            for detalle in detalles
+
+        ]
 
 class VentaSerializer(serializers.ModelSerializer):
 

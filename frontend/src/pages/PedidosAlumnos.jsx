@@ -1,6 +1,9 @@
 /* Este archivo contiene el código de la página PedidosAlumnos, que muestra la lista de pedidos de los alumnos y permite filtrarlos, cambiar su estado y archivarlos. */
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+
+import axios from 'axios'
+
 import NavbarEncargada from '../components/NavbarEncargada'
 
 import iconBuscador  from '../assets/icons/BuscadorBoton.png'
@@ -8,77 +11,67 @@ import iconReloj     from '../assets/icons/Reloj.png'
 
 import '../styles/PedidosAlumnos.css'
 
-// ── Datos de ejemplo ───────────────────────────────────────────────────────
-const PEDIDOS_INICIALES = [
-  {
-    id: 1,
-    alumno: 'Micaela Arevalo', curso: '5°8°',
-    productos: [
-      { nombre: 'Patinesa Completa',        cantidad: 1 },
-      { nombre: 'Jugo Baggio Naranja',      cantidad: 1 },
-    ],
-    horario: '10:00', total: 6500, estado: 'pendiente', archivado: false,
-  },
-  {
-    id: 2,
-    alumno: 'Luca Correa', curso: '5°8°',
-    productos: [
-      { nombre: 'Pebete',                   cantidad: 1 },
-      { nombre: 'Café Grande',              cantidad: 1 },
-      { nombre: 'Alfajor Guaymallen Negro', cantidad: 1 },
-    ],
-    horario: '10:00', total: 8000, estado: 'en_preparacion', archivado: false,
-  },
-  {
-    id: 3,
-    alumno: 'Perla Salas', curso: '5°8°',
-    productos: [
-      { nombre: 'Hamburguesa Completa',     cantidad: 1 },
-      { nombre: 'Cono de Papas',            cantidad: 1 },
-    ],
-    horario: '10:30', total: 9800, estado: 'pendiente', archivado: false,
-  },
-  {
-    id: 4,
-    alumno: 'Mirian Anaya', curso: '6°7°',
-    productos: [
-      { nombre: 'Sándwich de Milanesa Completo', cantidad: 1 },
-      { nombre: 'Churrasquito Completo',         cantidad: 1 },
-    ],
-    horario: '10:30', total: 11000, estado: 'listo', archivado: false,
-  },
-  {
-    id: 5,
-    alumno: 'Madelaine Tumiri', curso: '4°8°',
-    productos: [
-      { nombre: 'Torta Frita',      cantidad: 3 },
-      { nombre: 'Café Mediano',     cantidad: 1 },
-      { nombre: 'Nikitos Pizzitos', cantidad: 1 },
-    ],
-    horario: '11:00', total: 4500, estado: 'entregado', archivado: false,
-  },
-]
 
-const ESTADOS = ['pendiente', 'en_preparacion', 'listo', 'entregado']
+const ESTADOS = ['pendiente', 'listo', 'entregado']
 
 const LABEL = {
   pendiente:      'Pendiente',
-  en_preparacion: 'En Preparación',
   listo:          'Listo',
   entregado:      'Entregado',
 }
 
 // ── Componente ─────────────────────────────────────────────────────────────
 function PedidosAlumnos() {
-  const [pedidos,       setPedidos]       = useState(PEDIDOS_INICIALES)
+  const [pedidos, setPedidos] = useState([])
   const [filtroEstado,  setFiltroEstado]  = useState('todos')
   const [filtroCurso,   setFiltroCurso]   = useState('')
   const [busqueda,      setBusqueda]      = useState('')
   const [verArchivados, setVerArchivados] = useState(false)
+  const [pedidoActualizando, setPedidoActualizando] = useState(null)
 
   // Toast + undo
   const [toast,      setToast]      = useState(null) // { alumno, estadoNuevo, id, estadoAnterior }
   const toastRef = useRef(null)
+
+  useEffect(() => {
+
+    axios
+        .get("http://127.0.0.1:8000/api/pedidos/")
+        .then(response => {
+
+            const pedidosBackend = response.data.map(pedido => ({
+
+                id: pedido.id_pedido,
+
+                alumno: pedido.alumno,
+
+                curso: pedido.curso,
+
+                horario: pedido.horario_retiro,
+
+                total: Number(pedido.total),
+
+                estado: pedido.estado,
+
+                archivado: false,
+
+                productos: pedido.productos
+
+            }))
+
+            setPedidos(pedidosBackend)
+
+            console.log(response.data)
+
+        })
+
+        .catch(error => {
+
+            console.error(error)
+
+        })
+
+}, [])
 
   const hoy = new Date().toLocaleDateString('es-AR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -89,7 +82,6 @@ function PedidosAlumnos() {
   const conteos = {
     todos:          pedidos.filter((p) => !p.archivado).length,
     pendiente:      pedidos.filter((p) => p.estado === 'pendiente'      && !p.archivado).length,
-    en_preparacion: pedidos.filter((p) => p.estado === 'en_preparacion' && !p.archivado).length,
     listo:          pedidos.filter((p) => p.estado === 'listo'          && !p.archivado).length,
     entregado:      pedidos.filter((p) => p.estado === 'entregado'      && !p.archivado).length,
   }
@@ -105,29 +97,133 @@ function PedidosAlumnos() {
     .sort((a, b) => a.horario.localeCompare(b.horario))
 
   // Cambio de estado directo desde el select (HU-12)
-  function cambiarEstado(id, nuevoEstado) {
-    const pedido = pedidos.find((p) => p.id === id)
-    if (!pedido || pedido.estado === nuevoEstado) return
-    const estadoAnterior = pedido.estado
+  async function cambiarEstado(id, nuevoEstado) {
 
-    setPedidos((prev) =>
-      prev.map((p) => p.id === id ? { ...p, estado: nuevoEstado } : p)
+  const pedido = pedidos.find((p) => p.id === id)
+
+  if (!pedido || pedido.estado === nuevoEstado) return
+
+  setPedidoActualizando(id)
+
+  const estadoAnterior = pedido.estado
+
+  try {
+
+    await axios.put(
+
+      `http://127.0.0.1:8000/api/pedidos/estado/${id}/`,
+
+      {
+        estado: nuevoEstado
+      }
+
     )
 
-    // Toast con undo
-    if (toastRef.current) clearTimeout(toastRef.current)
-    setToast({ id, alumno: pedido.alumno, estadoNuevo: nuevoEstado, estadoAnterior })
-    toastRef.current = setTimeout(() => setToast(null), 5000)
+    setPedidos(prev =>
+
+      prev.map(p =>
+
+        p.id === id
+          ? { ...p, estado: nuevoEstado }
+          : p
+
+      )
+
+    )
+
+    if (toastRef.current) {
+
+      clearTimeout(toastRef.current)
+
+    }
+
+    setToast({
+
+      id,
+
+      alumno: pedido.alumno,
+
+      estadoNuevo: nuevoEstado,
+
+      estadoAnterior
+
+    })
+
+    toastRef.current = setTimeout(() => {
+
+      setToast(null)
+
+    }, 5000)
+
   }
 
-  function deshacer() {
+  catch(error) {
+
+    console.error(error)
+
+    alert("No se pudo actualizar el estado del pedido.")
+
+  }
+  
+  finally {
+
+    setPedidoActualizando(null)
+
+}
+
+}
+
+  async function deshacer() {
+
     if (!toast) return
-    setPedidos((prev) =>
-      prev.map((p) => p.id === toast.id ? { ...p, estado: toast.estadoAnterior } : p)
-    )
-    clearTimeout(toastRef.current)
-    setToast(null)
-  }
+
+    setPedidoActualizando(toast.id)
+
+    try {
+
+        await axios.put(
+
+            `http://127.0.0.1:8000/api/pedidos/estado/${toast.id}/`,
+
+            {
+                estado: toast.estadoAnterior
+            }
+
+        )
+
+        setPedidos(prev =>
+
+            prev.map(p =>
+
+                p.id === toast.id
+                    ? { ...p, estado: toast.estadoAnterior }
+                    : p
+
+            )
+
+        )
+
+        clearTimeout(toastRef.current)
+
+        setToast(null)
+
+    }
+
+    catch (error) {
+
+        console.error(error)
+
+        alert("No se pudo deshacer el cambio de estado.")
+
+    }
+
+    finally {
+
+    setPedidoActualizando(null)
+
+}
+
+}
 
   function archivar(id) {
     setPedidos((prev) => prev.map((p) => p.id === id ? { ...p, archivado: true } : p))
@@ -152,7 +248,6 @@ function PedidosAlumnos() {
           {[
             { key: 'todos',          label: 'Todos'          },
             { key: 'pendiente',      label: 'Pendiente'      },
-            { key: 'en_preparacion', label: 'En Preparación' },
             { key: 'listo',          label: 'Listo'          },
             { key: 'entregado',      label: 'Entregado'      },
           ].map(({ key, label }) => (
@@ -226,13 +321,29 @@ function PedidosAlumnos() {
                 <div className="pp-accion">
                   {!p.archivado && (
                     <select
-                      className={`pp-estado-select pp-estado-select--${p.estado}`}
-                      value={p.estado}
-                      onChange={(e) => cambiarEstado(p.id, e.target.value)}
+                        className={`pp-estado-select pp-estado-select--${p.estado}`}
+                        value={pedidoActualizando === p.id ? "" : p.estado}
+                        disabled={pedidoActualizando === p.id}
+                        onChange={(e) => cambiarEstado(p.id, e.target.value)}
                     >
-                      {ESTADOS.map((est) => (
-                        <option key={est} value={est}>{LABEL[est]}</option>
-                      ))}
+
+                        {pedidoActualizando === p.id && (
+                            <option value="">
+                                Cambiando...
+                            </option>
+                        )}
+
+                        {!pedidoActualizando &&
+                            ESTADOS.map(est => (
+                                <option
+                                    key={est}
+                                    value={est}
+                                >
+                                    {LABEL[est]}
+                                </option>
+                            ))
+                        }
+
                     </select>
                   )}
                   {p.estado === 'entregado' && !p.archivado && (

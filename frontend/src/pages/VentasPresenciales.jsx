@@ -1,5 +1,7 @@
 /* Este archivo contiene la página de Ventas Presenciales, donde se pueden seleccionar productos, ver el resumen de la venta y confirmar o cancelar la misma. */
 import { useState, useRef } from 'react'
+import { useEffect } from "react"
+import axios from "axios"
 import NavbarEncargada from '../components/NavbarEncargada'
 import TarjetaProducto from '../components/TarjetaProducto'
 import ResumenVenta from '../components/ResumenVenta'
@@ -13,29 +15,34 @@ import iconDulces    from '../assets/icons/Dulces.png'
 import iconBocados   from '../assets/icons/Bocados.png'
 import iconBebCal    from '../assets/icons/Beb.Calientes.png'
 import iconServicios from '../assets/icons/Servicios.png'
+
+import iconGalletitas from '../assets/icons/Galletitas.png'
+import iconProductosExtra from '../assets/icons/ProductosExtra.png'
 import '../styles/VentasPresenciales.css'
 
-const PRODUCTOS_DISPONIBLES = [
-  { id: 1, nombre: 'Alfajor Guaymallen Negro', categoria: 'Alfajores',     precio:  600, stock: 30 },
-  { id: 2, nombre: 'Medialuna',                categoria: 'Bocados',        precio: 1500, stock: 40 },
-  { id: 3, nombre: 'Coca Cola 600ml',          categoria: 'Bebidas',        precio: 2800, stock: 15 },
-  { id: 4, nombre: 'Saladix Jamón',            categoria: 'Snacks',         precio: 3000, stock: 20 },
-  { id: 5, nombre: 'Café Mediano',             categoria: 'Beb. Calientes', precio: 2000, stock: 30 },
-  { id: 6, nombre: 'Agua Villavicencio',       categoria: 'Bebidas',        precio: 1800, stock:  0 },
-  { id: 7, nombre: 'Chicle Bazooka Menta',     categoria: 'Dulces',         precio:  200, stock: 40 },
-  { id: 8, nombre: 'Calentar Comida',          categoria: 'Servicios',      precio:  200, stock: 999 },
-]
 
-const CATEGORIAS = [
-  { label: 'Todos',          icon: iconTodos     },
-  { label: 'Snacks',         icon: iconSnacks    },
-  { label: 'Bebidas',        icon: iconBebidas   },
-  { label: 'Alfajores',      icon: iconAlfajores },
-  { label: 'Dulces',         icon: iconDulces    },
-  { label: 'Bocados',        icon: iconBocados   },
-  { label: 'Beb. Calientes', icon: iconBebCal    },
-  { label: 'Servicios',      icon: iconServicios },
-]
+const ICONOS_CATEGORIAS = {
+
+  "Snacks": iconSnacks,
+
+  "Bebidas": iconBebidas,
+
+  "Alfajores y Chocolates": iconAlfajores,
+
+  "Dulces": iconDulces,
+
+  "Bocados y Aperitivos": iconBocados,
+
+  "Bebidas Calientes": iconBebCal,
+
+  "Servicios": iconServicios,
+
+  "Galletitas": iconGalletitas,
+
+  "Productos Extra": iconProductosExtra
+
+}
+
 
 const USUARIO_ACTUAL = 'Encargada'
 
@@ -49,8 +56,91 @@ function VentasPresenciales() {
   const [undoToast, setUndoToast]             = useState(null) // { cantidadesGuardadas, segundos }
   const undoTimerRef                          = useRef(null)
   const undoCountRef                          = useRef(null)
+  const [productosDisponibles, setProductosDisponibles] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [idUsuario, setIdUsuario] = useState(1)
+  const [registrandoVenta, setRegistrandoVenta] = useState(false)
+  const [alertasStock, setAlertasStock] = useState([])
 
-  const productosFiltrados = PRODUCTOS_DISPONIBLES.filter((p) => {
+  useEffect(() => {
+
+  axios
+    .get("http://127.0.0.1:8000/api/productos/")
+    .then(response => {
+
+      const productos = response.data.map(producto => ({
+
+        id: producto.id_producto,
+
+        nombre: producto.nombre,
+
+        categoria: producto.categoria,
+
+        precio: Number(producto.precio_actual),
+
+        stock: producto.stock,
+
+        stock_minimo: producto.stock_minimo,
+
+        foto_url: producto.foto_url
+
+      }))
+
+      setProductosDisponibles(productos)
+
+    })
+
+    .catch(error => {
+
+      console.error(error)
+
+    })
+
+}, [])
+
+
+useEffect(() => {
+
+  axios
+    .get("http://127.0.0.1:8000/api/categorias/")
+    .then(response => {
+
+      setCategorias(response.data)
+
+    })
+
+    .catch(error => {
+
+      console.error(error)
+
+    })
+
+}, [])
+
+
+const categoriasConIcono = [
+
+  {
+    nombre: "Todos",
+    icono: iconTodos
+  },
+
+  ...categorias.map(cat => {
+
+  return {
+
+    nombre: cat.nombre,
+
+    icono: ICONOS_CATEGORIAS[cat.nombre]
+
+  }
+
+})
+
+]
+
+
+  const productosFiltrados = productosDisponibles.filter((p) => {
     const coincideNombre    = p.nombre.toLowerCase().includes(busqueda.toLowerCase())
     const coincideCategoria = categoriaActiva === 'Todos' || p.categoria === categoriaActiva
     return coincideNombre && coincideCategoria
@@ -79,7 +169,7 @@ function VentasPresenciales() {
     })
   }
 
-  const itemsSeleccionados = PRODUCTOS_DISPONIBLES
+  const itemsSeleccionados = productosDisponibles
     .filter((p) => cantidades[p.id] > 0)
     .map((p) => ({
       ...p,
@@ -89,18 +179,158 @@ function VentasPresenciales() {
 
   const total = itemsSeleccionados.reduce((acc, i) => acc + i.subtotal, 0)
 
-  function handleConfirmar() {
-    if (itemsSeleccionados.length === 0) {
-      setError('Seleccioná al menos un producto antes de confirmar.')
-      return
-    }
-    const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-    const nuevaVenta = { items: itemsSeleccionados, total, usuario: USUARIO_ACTUAL, hora }
-    setVentaConfirmada(nuevaVenta)
-    setHistorial((prev) => [nuevaVenta, ...prev])
-    setCantidades({})
-    setError('')
+
+
+  async function handleConfirmar() {
+
+  if (itemsSeleccionados.length === 0) {
+
+    setError("Seleccioná al menos un producto antes de confirmar.")
+
+    return
+
   }
+
+  if (registrandoVenta) return
+
+  setRegistrandoVenta(true)
+
+  const ventaBackend = {
+
+    id_usuario: idUsuario,
+
+    productos: itemsSeleccionados.map(item => ({
+
+      id_producto: item.id,
+
+      cantidad: item.cantidad
+
+    }))
+
+  }
+
+  try {
+
+    const response = await axios.post(
+
+      "http://127.0.0.1:8000/api/ventas/registrar",
+
+      ventaBackend
+
+    )
+
+    console.log(response.data)
+
+    if (response.data.alertas_stock?.length > 0) {
+
+    setAlertasStock(prev => {
+
+    const nuevas = response.data.alertas_stock.filter(
+
+        alerta => !prev.includes(alerta)
+
+    )
+
+    return [
+
+        ...prev,
+
+        ...nuevas
+
+    ]
+
+})
+
+}
+
+    setProductosDisponibles(prev =>
+
+  prev.map(producto => {
+
+    const vendido = itemsSeleccionados.find(
+
+      item => item.id === producto.id
+
+    )
+
+    if (!vendido) return producto
+
+    return {
+
+      ...producto,
+
+      stock: Math.max(
+            0,
+            producto.stock - vendido.cantidad
+        )
+
+    }
+
+  })
+
+)
+
+    const hora = new Date().toLocaleTimeString(
+  "es-AR",
+  {
+    hour: "2-digit",
+    minute: "2-digit"
+  }
+)
+
+const nuevaVenta = {
+
+  items: itemsSeleccionados,
+
+  total,
+
+  usuario: USUARIO_ACTUAL,
+
+  hora
+
+}
+
+setVentaConfirmada(nuevaVenta)
+
+setHistorial(prev => [
+
+  nuevaVenta,
+
+  ...prev
+
+])
+
+setCantidades({})
+
+setError("")
+
+  }
+
+  catch(error){
+
+    console.error(error)
+
+    if (error.response?.data?.error){
+
+        setError(error.response.data.error)
+
+    }
+
+    else{
+
+        setError("Error al registrar la venta.")
+
+    }
+
+}
+
+finally{
+
+    setRegistrandoVenta(false)
+
+}
+
+}
 
   function handleCancelar() {
     // Si no hay nada seleccionado, cancela directo sin toast
@@ -153,9 +383,21 @@ function VentasPresenciales() {
     setUndoToast(null)
   }
 
+  function handleNuevaVenta() {
+
+  setVentaConfirmada(null)
+
+  setCantidades({})
+
+  setError("")
+
+}
+
   return (
     <div className="vp-layout">
-      <NavbarEncargada />
+      <NavbarEncargada
+          alertasStock={alertasStock}
+      />
 
       <main className="vp-main">
         <div className="vp-contenido">
@@ -176,13 +418,15 @@ function VentasPresenciales() {
 
             {/* Categorías: cada imagen ES el botón */}
             <div className="vp-categorias">
-              {CATEGORIAS.map((cat) => (
+              {categoriasConIcono.map((cat) => (
                 <img
-                  key={cat.label}
-                  src={cat.icon}
-                  alt={cat.label}
-                  className={`vp-cat-img ${categoriaActiva === cat.label ? 'vp-cat-img--activo' : ''}`}
-                  onClick={() => setCategoriaActiva(cat.label)}
+                  key={cat.nombre}
+                  src={cat.icono}
+                  alt={cat.nombre}
+                  className={`vp-cat-img ${
+                    categoriaActiva === cat.nombre ? 'vp-cat-img--activo' : ''
+                  }`}
+                  onClick={() => setCategoriaActiva(cat.nombre)}
                 />
               ))}
             </div>
@@ -234,8 +478,10 @@ function VentasPresenciales() {
             total={total}
             error={error}
             ventaConfirmada={ventaConfirmada}
+            registrandoVenta={registrandoVenta}
             onConfirmar={handleConfirmar}
             onCancelar={handleCancelar}
+            onNuevaVenta={handleNuevaVenta}
           />
 
         </div>
