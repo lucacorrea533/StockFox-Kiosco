@@ -6,15 +6,15 @@
 -- Año: 2026
 -- ──────────────────────────────────────────────────────────────────────────────
 
-DROP DATABASE IF EXISTS StockFox_V2; -- Si la BBDD ya existe, se elimina para poder recrearla
+DROP DATABASE IF EXISTS stockfox_v2; -- Si la BBDD ya existe, se elimina para poder recrearla
 
 -- Crea la base de datos con soporte completo para caracteres especiales
-CREATE DATABASE StockFox_V2
+CREATE DATABASE stockfox_v2
     CHARACTER SET utf8mb4 -- Define qué caracteres puede almacenar la base de datos. Es la versión completa de UTF-8 que soporta prácticamente todos los carácteres
     COLLATE utf8mb4_unicode_ci; -- Define cómo se comparan y ordenan los textos. Significa que no distingue entre mayúsculas y minúsculas al comparar.
     
 -- Selecciona la base de datos a usar para que todas las tablas se creen dentro de ella.
-USE StockFox_V2;
+USE stockfox_v2;
 
 -- ──────────────────────────────────────────────────────────────────────────────
 -- BLOQUE 1: ENTIDADES FUERTES SIN DEPENDENCIAS Entidades Fuertes sin Dependencias
@@ -27,6 +27,7 @@ CREATE TABLE USUARIOS (
     -- Nombre y apellido del usuario.
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
+    usuario VARCHAR(50) NOT NULL UNIQUE, -- Usuario para iniciar sesión
     contrasena_hash VARCHAR(255) NOT NULL, -- Contraseña encriptada con bcrypt. Nunca se guarda en texto plano. VARCHAR(255) porque bcrypt genera hashes de entre 60 y 72 caracteres.
     rol ENUM('Encargada', 'Ayudante') NOT NULL -- Define el perfil de acceso. Solo puede ser 'Encargada' o 'Ayudante'. -- ENUM garantiza que no se pueda guardar ningún otro valor.
 );
@@ -36,6 +37,7 @@ CREATE TABLE ALUMNOS (
     id_alumno INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
     apellido VARCHAR(50) NOT NULL,
+    usuario VARCHAR(50) NOT NULL UNIQUE, -- Usuario para iniciar sesión
     anio TINYINT NOT NULL,      -- 1, 2, 3, 4, 5, 6
 	division TINYINT NOT NULL,  -- 1, 2, 3... 10
     -- PIN encriptado para autenticación del alumno.
@@ -233,21 +235,22 @@ CREATE TABLE PROVEEDOR_PRODUCTO (
 
 -- TABLA: USUARIOS --
 -- Se insertan los usuarios del sistema: encargadas y ayudantes del kiosco.
-INSERT INTO USUARIOS (nombre, apellido, contrasena_hash, rol) VALUES
-('María',    'González',  '$2b$12$KIXabc123placeholder001', 'Encargada'),
-('Laura',    'Fernández', '$2b$12$KIXabc123placeholder002', 'Encargada'),
-('Sofía',    'Ramírez',   '$2b$12$KIXabc123placeholder003', 'Ayudante'),
-('Valentina','López',     '$2b$12$KIXabc123placeholder004', 'Ayudante'),
-('Camila',   'Martínez',  '$2b$12$KIXabc123placeholder005', 'Ayudante');
+INSERT INTO USUARIOS (nombre, apellido, usuario, contrasena_hash, rol) VALUES
+('María',     'González',  'maria.gonzalez',     '$2b$12$KIXabc123placeholder001', 'Encargada'),
+('Laura',     'Fernández', 'laura.fernandez',    '$2b$12$KIXabc123placeholder002', 'Encargada'),
+('Sofía',     'Ramírez',   'sofia.ramirez',      '$2b$12$KIXabc123placeholder003', 'Ayudante'),
+('Valentina', 'López',     'valentina.lopez',    '$2b$12$KIXabc123placeholder004', 'Ayudante'),
+('Camila',    'Martínez',  'camila.martinez',    '$2b$12$KIXabc123placeholder005', 'Ayudante');
 
 -- TABLA: ALUMNOS --
 -- Se insertan alumnos de distintos cursos que pueden realizar pedidos.
-INSERT INTO ALUMNOS (nombre, apellido, anio, division, pin_hash) VALUES
-('Micaela',   'Arevalo', 5, 8, '$2b$12$PINabc123placeholder001'),
-('Mirian',    'Anaya', 6, 7, '$2b$12$PINabc123placeholder002'),
-('Madelaine', 'Tumiri', 4, 8, '$2b$12$PINabc123placeholder003'),
-('Luca',      'Correa', 5, 8, '$2b$12$PINabc123placeholder004'),
-('Perla',     'Salas', 5, 8, '$2b$12$PINabc123placeholder005');
+
+INSERT INTO ALUMNOS (nombre, apellido, anio, division, usuario, pin_hash) VALUES
+('Micaela',   'Arevalo', 5, 8, 'micaela.arevalo',   '$2b$12$PINabc123placeholder001'),
+('Mirian',    'Anaya',   6, 7, 'mirian.anaya',      '$2b$12$PINabc123placeholder002'),
+('Madelaine', 'Tumiri',  4, 8, 'madelaine.tumiri',  '$2b$12$PINabc123placeholder003'),
+('Luca',      'Correa',  5, 8, 'luca.correa',       '$2b$12$PINabc123placeholder004'),
+('Perla',     'Salas',   5, 8, 'perla.salas',       '$2b$12$PINabc123placeholder005');
 
 -- TABLA: CATEGORIA_PRODUCTO --
 -- Categorías que agrupan los productos reales del kiosco.
@@ -665,3 +668,13 @@ INSERT INTO PROVEEDOR_PRODUCTO (id_proveedor, id_producto) VALUES
 (9, 33),   -- Opera Chiquitas
 (9, 48);   -- Tita Chocolate
 
+SELECT DATABASE();
+USE stockfox_v2;
+
+UPDATE usuarios
+SET contrasena_hash = "pbkdf2_sha256$1200000$WnIE6safWYXJdDfPE8UpBK$dEeBqZnYP1R+wd/ySjkq6S//iNkNOWYN/nd8GAF7hLw="
+WHERE usuario = 'maria.gonzalez';
+
+UPDATE usuarios
+SET contrasena_hash = 'pbkdf2_sha256$1200000$SljpxZiHp9kh1EuM1eGhah$0Y3Q0Cpx9m4jlUGeasQEhHaoRJdyUN2FMROJUi134Qg='
+WHERE usuario = 'sofia.ramirez';

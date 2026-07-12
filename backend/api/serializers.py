@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
 from .models import (
     Productos,
@@ -6,6 +7,9 @@ from .models import (
     DetallePedido,
     Ventas,
     DetalleVenta,
+    Usuarios,
+    Alumnos,
+
 )
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -18,13 +22,15 @@ class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Productos
         fields = [
+            "id_categoria",
             "id_producto",
             "nombre",
             "precio_actual",
             "stock",
+            "stock_minimo",
             "disponible",
             "foto_url",
-            "categoria"
+            "categoria" 
         ]
 
 
@@ -79,10 +85,83 @@ class RegistroVentaPresencialSerializer(serializers.Serializer):
         many=True
     )
 
-class VentaSerializer(serializers.ModelSerializer):
+
+
+class RegistroAlumnoSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True) # Campo que solo se utiliza para recibir la contraseña
 
     class Meta:
+        model = Alumnos
 
-        model = Ventas
+        # Campos que se recibirán desde el frontend
+        fields = [
+            "nombre",
+            "apellido",
+            "anio",
+            "division",
+            "usuario",
+            "password",
+        ]
 
-        fields = "__all__"
+    def create(self, validated_data):
+        
+        # Extrae la contraseña para no guardarla en texto plano
+        password = validated_data.pop("password")
+
+        # Crea el alumno guardando la contraseña encriptada
+        alumno = Alumnos.objects.create(
+            **validated_data,
+            pin_hash=make_password(password)
+        )
+
+        return alumno
+
+
+class LoginSerializer(serializers.Serializer):
+    
+    # Usuario ingresado en el login
+    usuario = serializers.CharField()
+    # Contraseña ingresada en el login
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+
+        # Obtiene los datos enviados por el usuario
+        usuario = data["usuario"]
+        password = data["password"]
+
+        # Buscar en USUARIOS (Encargada o Ayudante)
+        try:
+            user = Usuarios.objects.get(usuario=usuario)
+
+            # Comprueba que la contraseña sea correcta
+            if check_password(password, user.contrasena_hash):
+                return {
+                    "tipo": "usuario",
+                    "usuario": user
+                }
+
+        # Si no existe, continúa buscando en alumnos
+        except Usuarios.DoesNotExist:
+            pass
+
+        # Buscar en ALUMNOS
+        try:
+            alumno = Alumnos.objects.get(usuario=usuario)
+
+            # Comprueba que la contraseña sea correcta
+            if check_password(password, alumno.pin_hash):
+                return {
+                    "tipo": "alumno",
+                    "usuario": alumno
+                }
+
+        # Si no existe, continúa hasta lanzar el error
+        except Alumnos.DoesNotExist:
+            pass
+
+        # Si no encontró ningún usuario válido
+        raise serializers.ValidationError(
+            "Usuario o contraseña incorrectos."
+        )
