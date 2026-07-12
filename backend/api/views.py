@@ -4,6 +4,12 @@ from rest_framework.response import Response #Devuelve JSON
 from rest_framework import status 
 # Nos permite escribir status=status.HTTP_201_CREATED en lugar de memorizar números
 
+# Funciones para generar los tokens JWT
+from .jwt_utils import (
+    generar_access_token,
+    generar_refresh_token,
+)
+
 from django.utils import timezone # Para usar la función timezone.now() que devuelve fecha y hora actual
 
 from django.db import IntegrityError 
@@ -34,12 +40,21 @@ from .serializers import ( # Importamos los serializadores que convertirán obje
     VentaSerializer,
     DetalleVentaSerializer,
     RegistroVentaPresencialSerializer,
-    VentaSerializer
+    VentaSerializer,
+    RegistroAlumnoSerializer,
+    LoginSerializer
 )
 
 #=====================================================================================
+# Decoradores para autenticación y control de permisos
+from .auth import (
+    login_requerido,
+    roles_permitidos,
+    solo_alumno
+)
 
 @api_view(["GET"])
+@login_requerido
 def listar_productos(request):
 
     productos = Productos.objects.all() # Django ejecuta SELECT * FROM productos;
@@ -93,7 +108,9 @@ def obtener_producto(request, id_producto):
 
 #=====================================================================================
 
-@api_view(["POST"])
+@api_view(["POST"]) # Acepta únicamente peticiones HTTP POST
+@login_requerido # Verifica que el usuario haya iniciado sesión mediante un token válido
+@roles_permitidos("Encargada") # Permite acceder únicamente a usuarios con el rol Encargada
 def crear_producto(request):
 
     serializer = ProductoSerializer(
@@ -117,6 +134,8 @@ def crear_producto(request):
 #=====================================================================================
 
 @api_view(["PUT"]) #Esta función será un endpoint REST y solamente aceptará peticiones PUT
+@login_requerido
+@roles_permitidos("Encargada")
 def actualizar_producto(request, id_producto): #Función que se ejecutará cuando llegue la petición. Recibe os datos nuevos y el ID del prodocuto que se quiere modificar
 
 
@@ -162,7 +181,9 @@ def actualizar_producto(request, id_producto): #Función que se ejecutará cuand
 
 #=====================================================================================
 
-@api_view(["DELETE"]) #Función que acepta solamente peticiones DELETE
+@api_view(["DELETE"])#Función que acepta solamente peticiones DELETE
+@login_requerido
+@roles_permitidos("Encargada")
 def eliminar_producto(request, id_producto):
 
 
@@ -230,6 +251,8 @@ def obtener_categoria(request, id_categoria):
 #=====================================================================================
 
 @api_view(["POST"])
+@login_requerido
+@roles_permitidos("Encargada")
 def crear_categoria(request):
 
     serializer = CategoriaProductoSerializer( 
@@ -253,6 +276,8 @@ def crear_categoria(request):
 #=====================================================================================
 
 @api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada")
 def actualizar_categoria(request, id_categoria):
 
 
@@ -291,6 +316,8 @@ def actualizar_categoria(request, id_categoria):
 #=====================================================================================
 
 @api_view(["DELETE"])
+@login_requerido
+@roles_permitidos("Encargada")
 def eliminar_categoria(request, id_categoria):
 
     try:
@@ -331,6 +358,8 @@ def eliminar_categoria(request, id_categoria):
 #=====================================================================================
 
 @api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def listar_pedidos(request):
 
     pedidos = Pedidos.objects.all()
@@ -346,6 +375,8 @@ def listar_pedidos(request):
 #=====================================================================================
 
 @api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def obtener_pedido(request, id_pedido):
 
     try:
@@ -372,6 +403,8 @@ def obtener_pedido(request, id_pedido):
 
 @api_view(["POST"])
 @transaction.atomic
+@login_requerido
+@solo_alumno
 def crear_pedido(request):
 
     id_alumno = request.data.get("id_alumno")
@@ -483,6 +516,8 @@ def crear_pedido(request):
 #=====================================================================================
 
 @api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def actualizar_estado_pedido(request, id_pedido):
 
     try:
@@ -530,6 +565,8 @@ def actualizar_estado_pedido(request, id_pedido):
 #=====================================================================================
 
 @api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def detalle_pedido(request, id_pedido):
 
     try:
@@ -659,6 +696,8 @@ def pedidos_alumno_detalle(request, id_alumno):
 #=====================================================================================
 
 @api_view(["POST"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def registrar_venta(request):
 
     serializer = RegistroVentaPresencialSerializer(
@@ -801,6 +840,8 @@ def registrar_venta(request):
 #=====================================================================================
 
 @api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def listar_ventas(request):
 
     ventas = Ventas.objects.all()
@@ -815,6 +856,8 @@ def listar_ventas(request):
 #=====================================================================================
 
 @api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
 def obtener_venta(request, id_venta):
 
     try:
@@ -851,4 +894,80 @@ def obtener_venta(request, id_venta):
             "detalles": serializer_detalles.data
         },
         status=status.HTTP_200_OK
+    )
+
+@api_view(["POST"])
+def registrar_alumno(request):
+
+    serializer = RegistroAlumnoSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+
+        return Response(
+            {"mensaje": "Alumno registrado correctamente"},
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+@api_view(["POST"])
+def login(request):
+
+    serializer = LoginSerializer(data=request.data)
+
+    if not serializer.is_valid():
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    datos = serializer.validated_data
+    usuario = datos["usuario"]
+    tipo = datos["tipo"]
+
+    access = generar_access_token(usuario, tipo)
+    refresh = generar_refresh_token(usuario, tipo)
+
+    return Response({
+
+    "access": access,
+    "refresh": refresh,
+    "tipo": tipo,
+    "nombre": usuario.nombre,
+    "usuario": usuario.usuario,
+    "rol": getattr(usuario, "rol", None)
+})
+
+@api_view(["POST"])
+def registro(request):
+
+    serializer = RegistroAlumnoSerializer(data=request.data)
+
+    if not serializer.is_valid():
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    alumno = serializer.save()
+
+    access = generar_access_token(alumno, "alumno")
+    refresh = generar_refresh_token(alumno, "alumno")
+
+    return Response(
+        {
+            "mensaje": "Alumno registrado correctamente.",
+            "access": access,
+            "refresh": refresh,
+            "tipo": "alumno",
+            "usuario": alumno.usuario,
+            "nombre": alumno.nombre,
+        },
+        status=status.HTTP_201_CREATED
     )

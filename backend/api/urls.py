@@ -21,7 +21,10 @@ from .views import (
     listar_ventas,
     obtener_venta,
     pedidos_alumno,
-    pedidos_alumno_detalle
+    pedidos_alumno_detalle,
+    registrar_alumno,
+    login,
+    registro, 
 )
 
 
@@ -151,5 +154,27 @@ urlpatterns = [
     pedidos_alumno_detalle,
     name="pedidos_alumno_detalle"
   ),
+  
+  # Endpoint para registrar un nuevo alumno
+  path(
+    "auth/registro/",
+    registrar_alumno,
+    name="registrar_alumno"
+  ),
+
+# Endpoint para iniciar sesión
+path(
+    "auth/login/",
+    login,
+    name="login"
+  ),
+
+# Endpoint para registrar un alumno (vista principal)
+path(
+    "auth/registro/",
+    registro,
+    name="registro"
+),
+
 ]
 
