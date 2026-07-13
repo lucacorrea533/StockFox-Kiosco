@@ -536,7 +536,7 @@ def actualizar_estado_pedido(request, id_pedido):
 
     try:
 
-        pedido = Pedidos.objects.get( # Buscamos el pedido
+        pedido = Pedidos.objects.get(
             id_pedido=id_pedido
         )
 
@@ -547,9 +547,9 @@ def actualizar_estado_pedido(request, id_pedido):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    nuevo_estado = request.data.get("estado") # Lee el nuevo estado y lo guarda en la variable 
+    nuevo_estado = request.data.get("estado")
 
-    estados_validos = [ # Validamos el estado (tienen que ser alguno de estos)
+    estados_validos = [
         "pendiente",
         "listo",
         "entregado"
@@ -564,9 +564,37 @@ def actualizar_estado_pedido(request, id_pedido):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    pedido.estado = nuevo_estado # Guardamos los cambios 
+    estado_anterior = pedido.estado
+
+    pedido.estado = nuevo_estado
 
     pedido.save()
+
+    # Si el pedido pasa a "entregado" por primera vez, se registra como venta real en Informes
+    if nuevo_estado == "entregado" and estado_anterior != "entregado":
+
+        usuario = Usuarios.objects.filter(id_usuario=request.usuario["id"]).first()
+
+        if usuario is not None:
+
+            with transaction.atomic():
+
+                venta = Ventas.objects.create(
+                    id_usuario=usuario,
+                    fecha_hora=timezone.now(),
+                    total=pedido.total
+                )
+
+                detalles = DetallePedido.objects.filter(id_pedido=pedido)
+
+                for detalle in detalles:
+
+                    DetalleVenta.objects.create(
+                        id_venta=venta,
+                        id_producto=detalle.id_producto,
+                        cantidad=detalle.cantidad,
+                        precio_unitario=detalle.precio_unitario
+                    )
 
     return Response(
         {

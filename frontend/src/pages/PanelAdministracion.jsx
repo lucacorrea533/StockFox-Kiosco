@@ -15,7 +15,7 @@ function getSaludo() {
 }
 
 function PanelAdministracion() {
-  const [periodoActivo, setPeriodoActivo] = useState('Sem')
+  const [periodoActivo, setPeriodoActivo] = useState('Dia')
   const [metricas, setMetricas] = useState({
     totalVendidoHoy: 0,
     ventasDelDia: 0,

@@ -1,7 +1,7 @@
 /* Este archivo contiene la página de Ventas Presenciales, donde se pueden seleccionar productos, ver el resumen de la venta y confirmar o cancelar la misma. */
 import { useState, useRef } from 'react'
 import { useEffect } from "react"
-import axios from "axios"
+import api from '../api/axiosClient'
 import NavbarEncargada from '../components/NavbarEncargada'
 import TarjetaProducto from '../components/TarjetaProducto'
 import ResumenVenta from '../components/ResumenVenta'
@@ -63,9 +63,13 @@ function VentasPresenciales() {
   const [alertasStock, setAlertasStock] = useState([])
 
   useEffect(() => {
+  const id = localStorage.getItem('id')
+  if (id) setIdUsuario(Number(id))
+}, [])
 
-  axios
-    .get("http://127.0.0.1:8000/api/productos/")
+  useEffect(() => {
+
+    api.get("productos/")
     .then(response => {
 
       const productos = response.data.map(producto => ({
@@ -101,8 +105,7 @@ function VentasPresenciales() {
 
 useEffect(() => {
 
-  axios
-    .get("http://127.0.0.1:8000/api/categorias/")
+    api.get("categorias/")
     .then(response => {
 
       setCategorias(response.data)
@@ -211,13 +214,7 @@ const categoriasConIcono = [
 
   try {
 
-    const response = await axios.post(
-
-      "http://127.0.0.1:8000/api/ventas/registrar",
-
-      ventaBackend
-
-    )
+    const response = await api.post("ventas/registrar", ventaBackend)
 
     console.log(response.data)
 

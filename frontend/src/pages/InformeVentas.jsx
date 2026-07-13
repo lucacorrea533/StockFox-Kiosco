@@ -22,7 +22,7 @@ const PERIODOS = ['Día', 'Semana', 'Mes']
 const FORM_GASTO_VACIO = { concepto: '', monto: '', fecha: '' }
 
 function InformeVentas() {
-  const [periodoActivo, setPeriodoActivo] = useState('Semana')
+  const [periodoActivo, setPeriodoActivo] = useState('Día')
   const [gastos, setGastos]               = useState([])
   const [resumen, setResumen]             = useState({
     total_vendido: 0, cantidad_ventas: 0, ganancia_neta: 0, barras: [], torta: [], top: []

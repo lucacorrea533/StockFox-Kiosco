@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 
-import axios from 'axios'
+import api from '../api/axiosClient'
 
 import NavbarEncargada from '../components/NavbarEncargada'
 
@@ -20,6 +20,21 @@ const LABEL = {
   entregado:      'Entregado',
 }
 
+const ARCHIVADOS_KEY = 'pedidos_archivados'
+
+function cargarArchivadosLocal() {
+  try {
+    const raw = localStorage.getItem(ARCHIVADOS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function guardarArchivadosLocal(ids) {
+  localStorage.setItem(ARCHIVADOS_KEY, JSON.stringify(ids))
+}
+
 // ── Componente ─────────────────────────────────────────────────────────────
 function PedidosAlumnos() {
   const [pedidos, setPedidos] = useState([])
@@ -33,11 +48,13 @@ function PedidosAlumnos() {
   const [toast,      setToast]      = useState(null) // { alumno, estadoNuevo, id, estadoAnterior }
   const toastRef = useRef(null)
 
-  useEffect(() => {
+ useEffect(() => {
 
-    axios
-        .get("http://127.0.0.1:8000/api/pedidos/")
+    api
+        .get("pedidos/")
         .then(response => {
+
+            const archivados = cargarArchivadosLocal()
 
             const pedidosBackend = response.data.map(pedido => ({
 
@@ -53,15 +70,13 @@ function PedidosAlumnos() {
 
                 estado: pedido.estado,
 
-                archivado: false,
+                archivado: archivados.includes(pedido.id_pedido),
 
                 productos: pedido.productos
 
             }))
 
             setPedidos(pedidosBackend)
-
-            console.log(response.data)
 
         })
 
@@ -109,15 +124,7 @@ function PedidosAlumnos() {
 
   try {
 
-    await axios.put(
-
-      `http://127.0.0.1:8000/api/pedidos/estado/${id}/`,
-
-      {
-        estado: nuevoEstado
-      }
-
-    )
+    await api.put(`pedidos/estado/${id}/`, { estado: nuevoEstado })
 
     setPedidos(prev =>
 
@@ -181,15 +188,7 @@ function PedidosAlumnos() {
 
     try {
 
-        await axios.put(
-
-            `http://127.0.0.1:8000/api/pedidos/estado/${toast.id}/`,
-
-            {
-                estado: toast.estadoAnterior
-            }
-
-        )
+      await api.put(`pedidos/estado/${toast.id}/`, { estado: toast.estadoAnterior })
 
         setPedidos(prev =>
 
@@ -225,9 +224,16 @@ function PedidosAlumnos() {
 
 }
 
-  function archivar(id) {
-    setPedidos((prev) => prev.map((p) => p.id === id ? { ...p, archivado: true } : p))
+function archivar(id) {
+
+  const archivados = cargarArchivadosLocal()
+
+  if (!archivados.includes(id)) {
+    guardarArchivadosLocal([...archivados, id])
   }
+
+  setPedidos((prev) => prev.map((p) => p.id === id ? { ...p, archivado: true } : p))
+}
 
   const cantArchivados = pedidos.filter((p) => p.archivado).length
 
