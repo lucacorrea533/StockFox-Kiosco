@@ -22,13 +22,42 @@ function Login() {
   const [mostrarOlvido, setMostrarOlvido] = useState(false) // Controla si el modal de "olvidé mi contraseña" está abierto
 
   // Valida que los campos no estén vacíos. Si todo está bien, redirige al catálogo
-  function handleSubmit() {
+async function handleSubmit() {
     const nuevosErrores = {}
     if (!usuario.trim()) nuevosErrores.usuario = 'Ingresá tu usuario.'
     if (!contrasena.trim()) nuevosErrores.contrasena = 'Ingresá tu contraseña.'
     setErrores(nuevosErrores)
-    if (Object.keys(nuevosErrores).length === 0) {
-      navigate('/catalogo')
+    if (Object.keys(nuevosErrores).length > 0) return
+
+    try {
+      const respuesta = await fetch("http://127.0.0.1:8000/api/auth/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario, password: contrasena })
+      })
+
+      const datos = await respuesta.json()
+
+      if (!respuesta.ok) {
+        setErrores({ contrasena: 'Usuario o contraseña incorrectos.' })
+        return
+      }
+
+      localStorage.setItem('access', datos.access)
+      localStorage.setItem('refresh', datos.refresh)
+      localStorage.setItem('tipo', datos.tipo)
+      localStorage.setItem('nombre', datos.nombre)
+      localStorage.setItem('rol', datos.rol || '')
+      localStorage.setItem('id', datos.id)
+
+      if (datos.tipo === 'alumno') {
+        navigate('/catalogo')
+      } else {
+        navigate('/admin') // Redirige a la pantalla de administración si el usuario es admin
+      }
+
+    } catch (error) {
+      setErrores({ contrasena: 'No se pudo conectar con el servidor.' })
     }
   }
 

@@ -1031,6 +1031,13 @@
   opacity: 0.85;
 }
 
+.menu-card-info {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--marron-naranja);
+  font-style: italic;
+}
+
 /* Animación de entrada del toast: aparece deslizándose un poco hacia arriba */
 /* O sea, esto lo que hace es que el toast aparezca con un efecto de "fade in" y "slide up" */
 /* El toast es el mensaje que aparece cuando se elimina un producto del carrito, con opción de deshacer */

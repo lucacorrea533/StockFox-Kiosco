@@ -1,8 +1,9 @@
-/* Este componente permite cargar un menú del día con nombre, precio especial y descripción breve. El menú se guarda en localStorage para persistencia. Se pueden editar o eliminar los datos cargados. */
+/* Este componente permite cargar un menú del día con nombre, precio especial y descripción breve. El menú se guarda en el backend (tabla MENU_DIA) y se muestra a los alumnos en el catálogo. Solo puede existir un menú activo a la vez. */
 import { useState, useEffect } from 'react'
 import iconEditar   from '../assets/icons/EditarBoton.png'
 import iconEliminar from '../assets/icons/EliminarBoton.png'
 import '../styles/GestionProductos.css'
+import api from '../api/axiosClient'
 
 const MENU_VACIO = {
   nombre:         '',
@@ -10,17 +11,11 @@ const MENU_VACIO = {
   descripcion:    '',
 }
 
-function cargarMenuGuardado() {
-  try {
-    const guardado = localStorage.getItem('menuDelDia')
-    return guardado ? JSON.parse(guardado) : null
-  } catch {
-    return null
-  }
-}
+const SEPARADOR = ' — '
 
 function MenuDelDia() {
-  const [menuActivo, setMenuActivo]         = useState(cargarMenuGuardado)
+  const [menuActivo, setMenuActivo]         = useState(null)
+  const [cargando, setCargando]             = useState(true)
   const [mostrarForm, setMostrarForm]       = useState(false)
   const [confirmarEliminar, setConfirmarEliminar] = useState(false)
   const [form, setForm]                     = useState(MENU_VACIO)
@@ -28,12 +23,25 @@ function MenuDelDia() {
   const [guardado, setGuardado]             = useState(false)
 
   useEffect(() => {
-    if (menuActivo) {
-      localStorage.setItem('menuDelDia', JSON.stringify(menuActivo))
-    } else {
-      localStorage.removeItem('menuDelDia')
-    }
-  }, [menuActivo])
+    api.get('menu-dia/actual/')
+      .then(response => {
+        const data = response.data
+        if (!data) {
+          setMenuActivo(null)
+          return
+        }
+        const [nombre, descripcion] = data.descripcion.split(SEPARADOR)
+        setMenuActivo({
+          id_menu: data.id_menu,
+          nombre: nombre || data.descripcion,
+          descripcion: descripcion || '',
+          precioEspecial: Number(data.precio),
+          fecha: new Date(data.fecha).toLocaleDateString('es-AR'),
+        })
+      })
+      .catch(error => console.error(error))
+      .finally(() => setCargando(false))
+  }, [])
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -50,23 +58,40 @@ function MenuDelDia() {
     return nuevosErrores
   }
 
-  function handleGuardar() {
+  async function handleGuardar() {
     const erroresEncontrados = validar()
     if (Object.keys(erroresEncontrados).length > 0) {
       setErrores(erroresEncontrados)
       return
     }
-    const nuevoMenu = {
-      nombre:         form.nombre.trim(),
-      precioEspecial: Number(form.precioEspecial),
-      descripcion:    form.descripcion.trim(),
-      fecha:          new Date().toLocaleDateString('es-AR'),
+
+    const descripcionCombinada = form.descripcion.trim()
+      ? `${form.nombre.trim()}${SEPARADOR}${form.descripcion.trim()}`
+      : form.nombre.trim()
+
+    try {
+      const response = await api.post('menu-dia/guardar/', {
+        descripcion: descripcionCombinada,
+        precio: Number(form.precioEspecial),
+      })
+
+      setMenuActivo({
+        id_menu: response.data.id_menu,
+        nombre: form.nombre.trim(),
+        descripcion: form.descripcion.trim(),
+        precioEspecial: Number(response.data.precio),
+        fecha: new Date(response.data.fecha).toLocaleDateString('es-AR'),
+      })
+
+      setMostrarForm(false)
+      setForm(MENU_VACIO)
+      setGuardado(true)
+      setTimeout(() => setGuardado(false), 2500)
+
+    } catch (error) {
+      console.error(error)
+      alert('No se pudo guardar el menú del día.')
     }
-    setMenuActivo(nuevoMenu)
-    setMostrarForm(false)
-    setForm(MENU_VACIO)
-    setGuardado(true)
-    setTimeout(() => setGuardado(false), 2500)
   }
 
   function abrirEdicion() {
@@ -78,11 +103,17 @@ function MenuDelDia() {
     setMostrarForm(true)
   }
 
-  function confirmarYEliminar() {
-    setMenuActivo(null)
-    setMostrarForm(false)
-    setForm(MENU_VACIO)
-    setConfirmarEliminar(false)
+  async function confirmarYEliminar() {
+    try {
+      await api.delete('menu-dia/eliminar/')
+      setMenuActivo(null)
+      setMostrarForm(false)
+      setForm(MENU_VACIO)
+      setConfirmarEliminar(false)
+    } catch (error) {
+      console.error(error)
+      alert('No se pudo eliminar el menú del día.')
+    }
   }
 
   function cancelarForm() {
@@ -90,6 +121,8 @@ function MenuDelDia() {
     setForm(MENU_VACIO)
     setErrores({})
   }
+
+  if (cargando) return null
 
   return (
     <section className="mdd-section">
@@ -101,7 +134,6 @@ function MenuDelDia() {
         {guardado && <span className="mdd-guardado-ok">✓ Guardado</span>}
       </div>
 
-      {/* Sin menú cargado */}
       {!menuActivo && !mostrarForm && (
         <div className="mdd-vacio">
           <p className="mdd-vacio-texto">No hay menú del día cargado todavía.</p>
@@ -111,7 +143,6 @@ function MenuDelDia() {
         </div>
       )}
 
-      {/* Tarjeta menú activo */}
       {menuActivo && !mostrarForm && (
         <div className="mdd-card">
           <div className="mdd-card-info">
@@ -135,10 +166,8 @@ function MenuDelDia() {
         </div>
       )}
 
-      {/* Formulario agregar / editar */}
       {mostrarForm && (
         <div className="mdd-controles">
-
           <div className="mdd-campo">
             <label className="mdd-label">Menú del día *</label>
             <input
@@ -187,11 +216,9 @@ function MenuDelDia() {
               {menuActivo ? 'Guardar cambios' : 'Agregar Menú del Día'}
             </button>
           </div>
-
         </div>
       )}
 
-      {/* Modal confirmación eliminar */}
       {confirmarEliminar && (
         <div className="modal-overlay">
           <div className="modal-caja">

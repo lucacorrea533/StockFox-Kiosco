@@ -6,7 +6,8 @@ import TablaProductos from '../components/TablaProductos'
 import MenuDelDia from '../components/MenuDelDia'
 import iconBuscador from '../assets/icons/BuscadorBoton.png'
 import '../styles/GestionProductos.css'
-import axios from "axios"
+import api from "../api/axiosClient"
+import { authFetch } from "../api/authFetch"
 
 // Las fotos de producto ya NO se importan desde assets: viven en /public/images
 // y se referencian como string (foto_url), igual que va a llegar desde la API
@@ -28,7 +29,7 @@ function GestionProductos() {
 
 useEffect(() => {
 
-  fetch("http://127.0.0.1:8000/api/productos/")
+  authFetch("http://127.0.0.1:8000/api/productos/")
     .then(response => response.json())
     .then(data => {
 
@@ -121,10 +122,7 @@ async function handleAgregar(nuevoProducto) {
     console.log("Producto que se envía:")
     console.log(productoBackend)
 
-    const response = await axios.post(
-      "http://127.0.0.1:8000/api/productos/crear/",
-      productoBackend
-    )
+    const response = await api.post("productos/crear/", productoBackend)
 
     console.log("Respuesta del servidor:")
     console.log(response.data)
@@ -198,13 +196,7 @@ const productoBackend = {
 
 try {
 
-  await axios.put(
-
-    `http://127.0.0.1:8000/api/productos/editar/${productoActualizado.id}/`,
-
-    productoBackend
-
-  )
+  await api.put(`productos/editar/${productoActualizado.id}/`, productoBackend)
 
 }
 
@@ -259,9 +251,7 @@ catch (error) {
 
   try {
 
-    await axios.delete(
-      `http://127.0.0.1:8000/api/productos/eliminar/${id}/`
-    )
+    await api.delete(`productos/eliminar/${id}/`)
 
     const producto = productos.find((p) => p.id === id)
 
@@ -316,13 +306,7 @@ catch (error) {
 
   try {
 
-    const response = await axios.post(
-
-      "http://127.0.0.1:8000/api/productos/crear/",
-
-      productoBackend
-
-    )
+    const response = await api.post("productos/crear/", productoBackend)
 
     setProductos(prev => [
 

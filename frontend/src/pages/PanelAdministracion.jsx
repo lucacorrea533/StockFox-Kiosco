@@ -1,14 +1,12 @@
-// Este archivo contiene el componente de panel de administración para la encargada del kiosco.
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import NavbarEncargada from '../components/NavbarEncargada'
 import MetricaCard from '../components/MetricaCard'
 import AlertasStock from '../components/AlertasStock'
 import PedidosRecientes from '../components/PedidosRecientes'
 import GraficoVentas from '../components/GraficoVentas'
 import '../styles/PanelAdministracion.css'
+import api from '../api/axiosClient'
 
-/* Funcion para determinar el saludo según la hora del día */
 function getSaludo() {
   const hora = new Date().getHours()
   if (hora >= 6 && hora < 12)  return 'Buen día'
@@ -16,14 +14,38 @@ function getSaludo() {
   return 'Buenas noches'
 }
 
-const METRICAS = [
-  { label: 'Total vendido hoy',  valor: '$00.000', grande: true },
-  { label: 'Ventas del día',     valor: '00' },
-  { label: 'Pedidos Pendientes', valor: '00' },
-]
-
 function PanelAdministracion() {
   const [periodoActivo, setPeriodoActivo] = useState('Sem')
+  const [metricas, setMetricas] = useState({
+    totalVendidoHoy: 0,
+    ventasDelDia: 0,
+    pedidosPendientes: 0,
+  })
+
+  useEffect(() => {
+    api.get('informes/resumen-ventas/?periodo=dia')
+      .then(response => {
+        setMetricas(prev => ({
+          ...prev,
+          totalVendidoHoy: Number(response.data.total_vendido),
+          ventasDelDia: response.data.cantidad_ventas,
+        }))
+      })
+      .catch(error => console.error(error))
+
+    api.get('pedidos/')
+      .then(response => {
+        const pendientes = response.data.filter(p => p.estado === 'pendiente').length
+        setMetricas(prev => ({ ...prev, pedidosPendientes: pendientes }))
+      })
+      .catch(error => console.error(error))
+  }, [])
+
+  const METRICAS = [
+    { label: 'Total vendido hoy',  valor: `$${metricas.totalVendidoHoy.toLocaleString('es-AR')}`, grande: true },
+    { label: 'Ventas del día',     valor: String(metricas.ventasDelDia).padStart(2, '0') },
+    { label: 'Pedidos Pendientes', valor: String(metricas.pedidosPendientes).padStart(2, '0') },
+  ]
 
   return (
     <div className="pa-layout">
@@ -33,7 +55,6 @@ function PanelAdministracion() {
 
         <h1 className="pa-saludo">{getSaludo()}, Encargada</h1>
 
-        {/* ── Métricas del día ── */}
         <section className="pa-seccion">
           <h2 className="pa-subtitulo">Métricas del Día</h2>
           <div className="pa-metricas">
@@ -43,13 +64,11 @@ function PanelAdministracion() {
           </div>
         </section>
 
-        {/* ── Alertas + Pedidos recientes ── */}
         <div className="pa-fila-doble">
           <AlertasStock />
           <PedidosRecientes />
         </div>
 
-        {/* ── Gráfico ventas semanales ── */}
         <section className="pa-seccion">
           <h2 className="pa-subtitulo">Ventas de la semana</h2>
           <GraficoVentas

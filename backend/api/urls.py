@@ -24,7 +24,21 @@ from .views import (
     pedidos_alumno_detalle,
     registrar_alumno,
     login,
-    registro, 
+    registro,
+    listar_usuarios,
+    listar_alumnos,
+    crear_usuario,
+    actualizar_usuario,
+    eliminar_usuario,
+    listar_gastos,
+    crear_gasto,
+    eliminar_gasto,
+    resumen_ventas,
+    notificaciones_encargada,
+    obtener_menu_dia,
+    guardar_menu_dia,
+    eliminar_menu_dia,
+    productos_stock_bajo,
 )
 
 
@@ -176,5 +190,29 @@ path(
     name="registro"
 ),
 
+path(
+        "usuarios/",
+        listar_usuarios,
+        name="listar_usuarios"
+    ),
+
+    path(
+        "alumnos/",
+        listar_alumnos,
+        name="listar_alumnos"
+    ),
+
+    path("usuarios/crear/", crear_usuario, name="crear_usuario"),
+    path("usuarios/editar/<int:id_usuario>/", actualizar_usuario, name="actualizar_usuario"),
+    path("usuarios/eliminar/<int:id_usuario>/", eliminar_usuario, name="eliminar_usuario"),
+    path("gastos/", listar_gastos, name="listar_gastos"),
+    path("gastos/crear/", crear_gasto, name="crear_gasto"),
+    path("gastos/eliminar/<int:id_gasto>/", eliminar_gasto, name="eliminar_gasto"),
+    path("informes/resumen-ventas/", resumen_ventas, name="resumen_ventas"),
+    path("notificaciones/", notificaciones_encargada, name="notificaciones_encargada"),
+    path("menu-dia/actual/", obtener_menu_dia, name="obtener_menu_dia"),
+    path("menu-dia/guardar/", guardar_menu_dia, name="guardar_menu_dia"),
+    path("menu-dia/eliminar/", eliminar_menu_dia, name="eliminar_menu_dia"),
+    path("productos/stock-bajo/", productos_stock_bajo, name="productos_stock_bajo"),
 ]
 

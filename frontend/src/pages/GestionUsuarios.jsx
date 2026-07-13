@@ -6,22 +6,8 @@ import iconEditar   from '../assets/icons/EditarBoton.png'
 import iconEliminar from '../assets/icons/EliminarBoton.png'
 import iconBuscador from '../assets/icons/BuscadorBoton.png'
 import '../styles/GestionUsuarios.css'
-
-const PERSONAL_INICIAL = [
-  { id: 1, nombre: 'María',     apellido: 'González',  usuario: 'maria.gonzalez',   rol: 'Encargada', estado: 'Activo' },
-  { id: 2, nombre: 'Laura',     apellido: 'Fernández', usuario: 'laura.fernandez',  rol: 'Encargada', estado: 'Activo' },
-  { id: 3, nombre: 'Sofía',     apellido: 'Ramírez',   usuario: 'sofia.ramirez',    rol: 'Ayudante',  estado: 'Activo' },
-  { id: 4, nombre: 'Valentina', apellido: 'López',     usuario: 'valentina.lopez',  rol: 'Ayudante',  estado: 'Inactivo' },
-  { id: 5, nombre: 'Camila',    apellido: 'Martínez',  usuario: 'camila.martinez',  rol: 'Ayudante',  estado: 'Activo' },
-]
-
-const ALUMNOS_INICIAL = [
-  { id: 1, nombre: 'Micaela',   apellido: 'Arevalo', usuario: 'micaela.arevalo',  curso: '5°8°', estado: 'Activo' },
-  { id: 2, nombre: 'Mirian',    apellido: 'Anaya',   usuario: 'mirian.anaya',     curso: '6°7°', estado: 'Activo' },
-  { id: 3, nombre: 'Madelaine', apellido: 'Tumiri',  usuario: 'madelaine.tumiri', curso: '4°8°', estado: 'Activo' },
-  { id: 4, nombre: 'Luca',      apellido: 'Correa',  usuario: 'luca.correa',      curso: '5°8°', estado: 'Activo' },
-  { id: 5, nombre: 'Perla',     apellido: 'Salas',   usuario: 'perla.salas',      curso: '5°8°', estado: 'Activo' },
-]
+import { authFetch } from "../api/authFetch"
+import api from "../api/axiosClient"
 
 const FORM_VACIO = { nombre: '', apellido: '', usuario: '', contrasena: '', confirmar: '' }
 
@@ -58,8 +44,8 @@ function ModalWrapper({ onClose, children }) {
 function GestionUsuarios() {
   const [pestana, setPestana] = useState('personal')
 
-  const [personal, setPersonal] = useState(PERSONAL_INICIAL)
-  const [alumnos,  setAlumnos]  = useState(ALUMNOS_INICIAL)
+  const [personal, setPersonal] = useState([])
+  const [alumnos,  setAlumnos]  = useState([])
 
   const [busqueda,     setBusqueda]     = useState('')
   const [filtroRol,    setFiltroRol]    = useState('')
@@ -78,6 +64,40 @@ function GestionUsuarios() {
 
   // Cursos únicos para el selector de filtro
   const cursosUnicos = [...new Set(alumnos.map((a) => a.curso))].sort()
+
+  useEffect(() => {
+  authFetch("http://127.0.0.1:8000/api/usuarios/")
+    .then(response => response.json())
+    .then(data => {
+      const formateados = data.map(u => ({
+        id: u.id_usuario,
+        nombre: u.nombre,
+        apellido: u.apellido,
+        usuario: u.usuario,
+        rol: u.rol,
+        estado: 'Activo' // Todavía no existe columna "estado" en la BBDD, se muestra fijo por ahora
+      }))
+      setPersonal(formateados)
+    })
+    .catch(error => console.error(error))
+}, [])
+
+  useEffect(() => {
+    authFetch("http://127.0.0.1:8000/api/alumnos/")
+      .then(response => response.json())
+      .then(data => {
+        const formateados = data.map(a => ({
+          id: a.id_alumno,
+          nombre: a.nombre,
+          apellido: a.apellido,
+          usuario: a.usuario,
+          curso: a.curso, // ya viene armado como "5°8°" desde el AlumnoSerializer
+          estado: 'Activo'
+        }))
+        setAlumnos(formateados)
+      })
+      .catch(error => console.error(error))
+  }, [])
 
   function filtrarPersonal(lista) {
     return lista.filter((u) => {
@@ -136,33 +156,52 @@ function GestionUsuarios() {
     return err
   }
 
-  function handleGuardar() {
-    const err = validar()
-    if (Object.keys(err).length > 0) { setErrores(err); return }
+async function handleGuardar() {
+  const err = validar()
+  if (Object.keys(err).length > 0) { setErrores(err); return }
+
+  const payload = {
+    nombre: form.nombre.trim(),
+    apellido: form.apellido.trim(),
+    usuario: form.usuario.trim(),
+  }
+  if (form.contrasena) payload.password = form.contrasena
+
+  try {
     if (editando) {
-      setPersonal((prev) =>
-        prev.map((u) =>
-          u.id === editando.id
-            ? { ...u, nombre: form.nombre.trim(), apellido: form.apellido.trim(), usuario: form.usuario.trim() }
-            : u
-        )
-      )
+      const response = await api.put(`usuarios/editar/${editando.id}/`, payload)
+      setPersonal(prev => prev.map(u =>
+        u.id === editando.id
+          ? { ...u, nombre: response.data.nombre, apellido: response.data.apellido, usuario: response.data.usuario }
+          : u
+      ))
     } else {
-      setPersonal((prev) => [...prev, {
-        id: Date.now(), nombre: form.nombre.trim(), apellido: form.apellido.trim(),
-        usuario: form.usuario.trim(), rol: 'Ayudante', estado: 'Activo',
+      const response = await api.post("usuarios/crear/", payload)
+      setPersonal(prev => [...prev, {
+        id: response.data.id_usuario,
+        nombre: response.data.nombre,
+        apellido: response.data.apellido,
+        usuario: response.data.usuario,
+        rol: response.data.rol,
+        estado: 'Activo',
       }])
     }
     cerrarModal()
+  } catch (error) {
+    console.error(error)
+    setErrores({ usuario: 'No se pudo guardar el usuario. Revisá los datos.' })
   }
+}
 
-  function handleEliminar(u) {
-    setPersonal((prev) => prev.filter((p) => p.id !== u.id))
+async function handleEliminar(u) {
+  try {
+    await api.delete(`usuarios/eliminar/${u.id}/`)
+    setPersonal(prev => prev.filter(p => p.id !== u.id))
     setEliminando(null)
-    setEliminado(u)
-    if (toastTimeout.current) clearTimeout(toastTimeout.current)
-    toastTimeout.current = setTimeout(() => setEliminado(null), 5000)
+  } catch (error) {
+    console.error(error)
   }
+}
 
   function handleDeshacer() {
     if (!eliminado) return

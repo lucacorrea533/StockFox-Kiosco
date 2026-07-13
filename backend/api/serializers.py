@@ -9,7 +9,8 @@ from .models import (
     DetalleVenta,
     Usuarios,
     Alumnos,
-
+    GastosOperativos,
+    MenuDia,
 )
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -233,3 +234,73 @@ class LoginSerializer(serializers.Serializer):
         raise serializers.ValidationError(
             "Usuario o contraseña incorrectos."
         )
+
+
+class UsuarioSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Usuarios
+        fields = ["id_usuario", "nombre", "apellido", "usuario", "rol"]
+
+
+class AlumnoSerializer(serializers.ModelSerializer):
+
+    curso = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Alumnos
+        fields = ["id_alumno", "nombre", "apellido", "usuario", "anio", "division", "curso"]
+
+    def get_curso(self, obj):
+        return f"{obj.anio}°{obj.division}°"
+
+class CrearUsuarioSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Usuarios
+        fields = ["id_usuario", "nombre", "apellido", "usuario", "rol", "password"]
+
+    def create(self, validated_data):
+        password = validated_data.pop("password")
+        usuario = Usuarios.objects.create(
+            **validated_data,
+            contrasena_hash=make_password(password)
+        )
+        return usuario
+
+
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+
+    # La contraseña es opcional al editar: si no se manda, se conserva la actual
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    class Meta:
+        model = Usuarios
+        fields = ["nombre", "apellido", "usuario", "password"]
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        for campo, valor in validated_data.items():
+            setattr(instance, campo, valor)
+
+        if password:
+            instance.contrasena_hash = make_password(password)
+
+        instance.save()
+        return instance
+    
+class GastoOperativoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GastosOperativos
+        fields = ["id_gasto", "descripcion", "monto", "fecha", "categoria"]
+
+class MenuDiaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MenuDia
+        fields = ["id_menu", "descripcion", "precio", "fecha"]
+        read_only_fields = ["id_menu", "fecha"]

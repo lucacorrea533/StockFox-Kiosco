@@ -157,7 +157,8 @@ function MisPedidos() { /* Esta función basicaente define la página completa, 
   // Se conecta con la API del backend para traer los pedidos reales del alumno (por ahora el alumno 1 está fijo/hardcodeado)
   useEffect(() => {
 
-  fetch("http://127.0.0.1:8000/api/alumnos/1/pedidos/detalle/") // Llama a la API del backend para traer los pedidos del alumno 1
+  const idAlumno = localStorage.getItem('id')
+  fetch(`http://127.0.0.1:8000/api/alumnos/${idAlumno}/pedidos/detalle/`) // Llama a la API del backend para traer los pedidos del alumno
     .then(response => response.json()) // Convierte la respuesta cruda del servidor a un objeto/array JS
     .then(data => {
 

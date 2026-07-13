@@ -1,36 +1,29 @@
-/* Este archivo contiene el componente de gráfico de ventas en el panel de administración. */
-
+import { useState, useEffect } from 'react'
 import '../styles/PanelAdministracion.css'
+import api from '../api/axiosClient'
 
 const PERIODOS = ['Dia', 'Sem', 'Mes']
 
-const DATOS_POR_PERIODO = {
-  Dia: [
-    { dia: '8hs',  valor: 1200 },
-    { dia: '9hs',  valor: 3400 },
-    { dia: '10hs', valor: 5800 },
-    { dia: '11hs', valor: 4200 },
-    { dia: '12hs', valor: 7800 },
-  ],
-  Sem: [
-    { dia: 'Lun', valor: 4200 },
-    { dia: 'Mar', valor: 3800 },
-    { dia: 'Mie', valor: 3500 },
-    { dia: 'Jue', valor: 7800 },
-    { dia: 'Vie', valor: 5100 },
-  ],
-  Mes: [
-    { dia: 'Sem 1', valor: 28000 },
-    { dia: 'Sem 2', valor: 34000 },
-    { dia: 'Sem 3', valor: 41000 },
-    { dia: 'Sem 4', valor: 38000 },
-  ],
+const PERIODO_BACKEND = {
+  Dia: 'dia',
+  Sem: 'semana',
+  Mes: 'mes',
 }
 
 function GraficoVentas({ periodoActivo, onCambiarPeriodo }) {
-  const datos    = DATOS_POR_PERIODO[periodoActivo]
-  const maxBarra = Math.max(...datos.map((d) => d.valor))
-  const MAX_VALOR = periodoActivo === 'Mes' ? 50000 : 10000
+  const [datos, setDatos]       = useState([])
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    setCargando(true)
+    api.get(`informes/resumen-ventas/?periodo=${PERIODO_BACKEND[periodoActivo]}`)
+      .then(response => setDatos(response.data.barras || []))
+      .catch(error => console.error(error))
+      .finally(() => setCargando(false))
+  }, [periodoActivo])
+
+  const maxBarra  = datos.length ? Math.max(...datos.map((d) => d.valor)) : 0
+  const MAX_VALOR = maxBarra > 0 ? maxBarra * 1.15 : 1
 
   return (
     <div className="grafico-card">
@@ -51,12 +44,15 @@ function GraficoVentas({ periodoActivo, onCambiarPeriodo }) {
 
       <div className="grafico-cuerpo">
         <div className="grafico-eje-y">
-          <span>{periodoActivo === 'Mes' ? '50k' : '10k'}</span>
-          <span>{periodoActivo === 'Mes' ? '25k' : '5k'}</span>
-          <span>{periodoActivo === 'Mes' ? '10k' : '1k'}</span>
+          <span>${Math.round(MAX_VALOR).toLocaleString('es-AR')}</span>
+          <span>${Math.round(MAX_VALOR / 2).toLocaleString('es-AR')}</span>
+          <span>$0</span>
         </div>
 
         <div className="grafico-barras">
+          {!cargando && datos.length === 0 && (
+            <p className="grafico-vacio">Sin ventas registradas en este período.</p>
+          )}
           {datos.map((d) => {
             const altura = Math.max(8, (d.valor / MAX_VALOR) * 100)
             const esMax  = d.valor === maxBarra

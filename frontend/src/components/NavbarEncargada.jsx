@@ -1,7 +1,7 @@
 /* Este componente representa la barra de navegación para la encargada, con enlaces a todas las secciones del panel administrativo (productos, ventas, informes, proveedores, pedidos, usuarios), además de notificaciones y opciones para cerrar sesión. */
 
 /* Importa React y hooks necesarios, así como componentes y assets (imágenes e íconos) */ /*Los hooks son funciones especiales de React que permiten usar estado y otras características de React en componentes funcionales. */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import logoKiosco from '../assets/logos/RecoKiosco2.png'
 import iconInicio from '../assets/icons/InicioBoton.png'
@@ -18,18 +18,22 @@ import iconCerrarSesion from '../assets/icons/SimboloCerrarSesion.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import ConfirmModal from './ConfirmModal'
 import '../styles/NavbarEncargada.css'
+import { authFetch } from '../api/authFetch'
 
+// Componente principal de la barra de navegación para la encargada. Recibe una función onCerrarSesion como prop, que se ejecuta cuando la encargada confirma que quiere cerrar sesión.
+function NavbarEncargada({ onCerrarSesion }) {
+  const [alertasStock, setAlertasStock] = useState([])   // ya no viene por prop
+  const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false)
+  const [mostrarOpciones, setMostrarOpciones] = useState(false)
+  const [confirmando, setConfirmando] = useState(false)
+  const navigate = useNavigate()
 
-
-// Recibe una sola prop: onCerrarSesion, la función que ejecuta la vista padre cuando se confirma el cierre de sesión
-function NavbarEncargada({
-  onCerrarSesion,
-  alertasStock = []
-}) {
-  const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false) // Controla si el dropdown de notificaciones está abierto
-  const [mostrarOpciones, setMostrarOpciones] = useState(false) // Controla si el dropdown de opciones (cerrar sesión, etc) está abierto
-  const [confirmando, setConfirmando] = useState(false) // Controla si el modal de confirmación de cierre de sesión está visible
-  const navigate = useNavigate() // Permite redirigir por código, sin que el usuario clickee un link
+  useEffect(() => {
+    authFetch("http://127.0.0.1:8000/api/notificaciones/")
+      .then(response => response.json())
+      .then(data => setAlertasStock(data.alertas || []))
+      .catch(error => console.error(error))
+  }, [])
 
   // Abre/cierra el dropdown de notificaciones. Si estaba abierto el de opciones, lo cierra
   // (para que no queden los dos dropdowns abiertos al mismo tiempo, tapándose entre sí) // los dropdowns son los menús que se abren al clickear la campana de notificaciones o el ícono de opciones
@@ -147,7 +151,7 @@ function NavbarEncargada({
         <div className="navbar-encargada-footer">
           <div className="navbar-encargada-usuario">
             <img src={iconUsuario} alt="Usuario" />
-            <span>Encargada</span>
+            <span>{localStorage.getItem('nombre')}</span> {/* Muestra el nombre del usuario logueado, que se guardó en localStorage al iniciar sesión */}
           </div>
 
           <div className="navbar-encargada-acciones">

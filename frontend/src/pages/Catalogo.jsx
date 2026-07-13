@@ -34,6 +34,7 @@ import iconReloj from '../assets/icons/Reloj.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import iconEliminar from '../assets/icons/EliminarBoton.png'
 import '../styles/Catalogo.css'
+import { authFetch } from '../api/authFetch'
 
 // Diccionario que relaciona el NOMBRE de cada categoría (tal cual viene de la base de datos)
 // con el ícono PNG que le corresponde. Se usa para pintar el botón de filtro de cada categoría
@@ -76,13 +77,13 @@ const categorias = [
 // Datos de ejemplo "hardcodeados" (fijos en el código) para el carrusel de arriba del catálogo.
 // A futuro esto se reemplazaría por datos reales que vengan de las tablas MENU_DIA y PROMOCIONES del backend
 const menuYpromociones = [
-  { id: 'menu1',  tipo: 'MENÚ DEL DÍA', nombre: 'Hamburguesa Completa + Cono de Papas + Jugo Placer', desc: 'Precio especial · Separado sale $12.300', precio: 9000 },
-  { id: 'promo1', tipo: 'PROMOCIÓN',    nombre: 'Café con Leche + 5 Chipá',                            desc: 'Café mediano + 5 chipas',                 precio: 3800 },
-  { id: 'promo2', tipo: 'PROMOCIÓN',    nombre: 'Café + Medialuna c/ J y Q',                           desc: 'Desayuno completo',                        precio: 3800 },
-  { id: 'promo3', tipo: 'PROMOCIÓN',    nombre: 'Café + 2 Medialunas',                                 desc: 'Café mediano + 2 medialunas',              precio: 4500 },
-  { id: 'promo4', tipo: 'PROMOCIÓN',    nombre: 'Desayuno: Café + Tostado J y Q',                      desc: 'Café mediano + tostado',                   precio: 3500 },
-  { id: 'promo5', tipo: 'PROMOCIÓN',    nombre: '2 Empanadas + Jugo Baggio',                           desc: '2 empanadas + jugo 200ml',                 precio: 5000 },
-  { id: 'promo6', tipo: 'PROMOCIÓN',    nombre: 'Chocolatada + Bizcochuelo',                           desc: 'Chocolatada caliente + porción',           precio: 3500 },
+  { id: 'menu1',  tipo: 'MENÚ DEL DÍA', nombre: 'Hamburguesa Completa + Cono de Papas + Jugo Placer', desc: 'Precio especial · Separado sale $12.300', precio: 9000, comprable: false },
+  { id: 'promo1', tipo: 'PROMOCIÓN',    nombre: 'Café con Leche + 5 Chipá',                            desc: 'Café mediano + 5 chipas',                 precio: 3800, comprable: false },
+  { id: 'promo2', tipo: 'PROMOCIÓN',    nombre: 'Café + Medialuna c/ J y Q',                           desc: 'Desayuno completo',                        precio: 3800, comprable: false },
+  { id: 'promo3', tipo: 'PROMOCIÓN',    nombre: 'Café + 2 Medialunas',                                 desc: 'Café mediano + 2 medialunas',              precio: 4500, comprable: false },
+  { id: 'promo4', tipo: 'PROMOCIÓN',    nombre: 'Desayuno: Café + Tostado J y Q',                      desc: 'Café mediano + tostado',                   precio: 3500, comprable: false },
+  { id: 'promo5', tipo: 'PROMOCIÓN',    nombre: '2 Empanadas + Jugo Baggio',                           desc: '2 empanadas + jugo 200ml',                 precio: 5000, comprable: false },
+  { id: 'promo6', tipo: 'PROMOCIÓN',    nombre: 'Chocolatada + Bizcochuelo',                           desc: 'Chocolatada caliente + porción',           precio: 3500, comprable: false },
 ]
 
 // ── HORARIOS ─────────────────────────────────────────────────────────────────
@@ -171,19 +172,24 @@ function CarruselMenu({ items, onAgregar }) {
             <p className="menu-card-desc">{item.desc}</p>
             <div className="menu-card-footer">
               <span className="menu-card-precio">${item.precio.toLocaleString('es-AR')}</span>
-              <button
-                className="menu-card-btn"
-                onClick={() => onAgregar({
-                  id: item.id,
-                  nombre: item.nombre,
-                  precio: item.precio,
-                  categoria: item.tipo,
-                  stock: 99, // Stock ficticio alto, ya que estos ítems son promociones/menú, no productos reales con stock limitado
-                  imagen: null,
-                })}
-              >
-                Agregar
-              </button>
+              {item.comprable === false ? (
+                <span className="menu-card-info">Disponible en el kiosco</span>
+              ) : (
+                <button
+                  className="menu-card-btn"
+                  onClick={() => onAgregar({
+                    id: item.id,
+                    nombre: item.nombre,
+                    precio: item.precio,
+                    categoria: item.tipo,
+                    stock: 99,
+                    imagen: null,
+                    disponible: true,
+                  })}
+                >
+                  Agregar
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -327,7 +333,7 @@ async function enviarPedido() {
   // Arma el objeto con la forma exacta que espera la API: alumno, horario, y lista de productos con sus cantidades
   const pedido = {
 
-    id_alumno: 1, // Fijo por ahora (hardcodeado); a futuro debería venir del alumno realmente logueado
+    id_alumno: Number(localStorage.getItem('id')), // Obtiene el ID del alumno logueado desde localStorage, que se guardó al iniciar sesión
 
     horario_retiro: horario,
 
@@ -342,24 +348,13 @@ async function enviarPedido() {
   }
 
   // "await" pausa la ejecución de la función hasta que el servidor responda, sin bloquear el resto de la app
-  const respuesta = await fetch(
-
+const respuesta = await authFetch(
     "http://127.0.0.1:8000/api/pedidos/crear/",
-
     {
-
-      method: "POST", // POST porque se está CREANDO un pedido nuevo, no solo consultando datos
-
-      headers: {
-
-        "Content-Type": "application/json" // Le avisa al servidor que el "body" que le mandamos es un JSON
-
-      },
-
-      body: JSON.stringify(pedido) // Convierte el objeto "pedido" a texto plano, porque así viaja por HTTP
-
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pedido)
     }
-
   )
 
   const datos = await respuesta.json() // Convierte la respuesta del servidor de vuelta a un objeto JS
@@ -585,7 +580,14 @@ function Catalogo() {
   const [undoItem, setUndoItem]   = useState(null) // Guarda el último producto eliminado, por si el usuario quiere deshacerlo
   const undoTimerRef              = useRef(null) // Referencia al temporizador que hace desaparecer el toast de "deshacer"
   const UNDO_DURACION             = 3500 // ms — cuánto tiempo queda visible el toast antes de desaparecer solo
+  const [menuDelDiaBackend, setMenuDelDiaBackend] = useState(null)
 
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/menu-dia/actual/')
+      .then(response => response.json())
+      .then(data => setMenuDelDiaBackend(data))
+      .catch(error => console.error(error))
+  }, [])
   // Cada vez que el carrito cambia, se vuelve a guardar automáticamente en localStorage
   useEffect(() => {
     guardarCarritoLocal(carrito)
@@ -616,7 +618,7 @@ function Catalogo() {
   // volver a llamarla después de confirmar un pedido, para reflejar el stock actualizado
   function cargarProductos() {
 
-  fetch("http://127.0.0.1:8000/api/productos/")
+  fetch("http://127.0.0.1:8000/api/productos/disponibles/")
     .then(response => response.json())
     .then(data => {
 
@@ -733,6 +735,18 @@ useEffect(() => {
   const totalCarrito   = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
   const cantidadTotal  = carrito.reduce((acc, item) => acc + item.cantidad, 0)
 
+  const itemsCarrusel = [
+  ...(menuDelDiaBackend ? [{
+    id: `menu-${menuDelDiaBackend.id_menu}`,
+    tipo: 'MENÚ DEL DÍA',
+    nombre: menuDelDiaBackend.descripcion,
+    desc: 'Precio especial del día',
+    precio: Number(menuDelDiaBackend.precio),
+    comprable: false,
+  }] : []),
+  ...menuYpromociones.filter(item => item.tipo === 'PROMOCIÓN'),
+]
+
   return (
     <div className="catalogo-layout">
       <NavbarAlumno cantidadCarrito={cantidadTotal} onAbrirCarrito={() => setMostrarCarrito(true)} />
@@ -741,7 +755,7 @@ useEffect(() => {
         {/* Carrusel de menú del día y promociones, arriba de todo */}
         <div className="catalogo-banner-menu">
           <h2 className="catalogo-banner-titulo">Promociones y Menú del Día</h2>
-          <CarruselMenu items={menuYpromociones} onAgregar={handleAgregar} />
+          <CarruselMenu items={itemsCarrusel} onAgregar={handleAgregar} />
         </div>
 
         {/* Fila de botones de filtro por categoría, con "Todos" fijo primero y el resto según venga del backend */}

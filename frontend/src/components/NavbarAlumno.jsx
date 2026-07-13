@@ -67,7 +67,7 @@ function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
         <div className="navbar-alumno-footer">
           <div className="navbar-alumno-usuario">
             <img src={iconUsuario} alt="Usuario" />
-            <span>Alumno</span>
+            <span>{localStorage.getItem('nombre')}</span> {/* Muestra el nombre del usuario logueado, que se guardó en localStorage al iniciar sesión */}
           </div>
 
           <div className="navbar-alumno-acciones">

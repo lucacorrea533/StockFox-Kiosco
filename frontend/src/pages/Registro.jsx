@@ -15,6 +15,7 @@ function Registro() {
   const [mostrarPassword, setMostrarPassword] = useState(false) // Mostrar/ocultar campo de contraseña
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false) // Mostrar/ocultar campo de confirmar contraseña
   const [nombre, setNombre] = useState('')
+  const [apellido, setApellido] = useState('')
   const [anio, setAnio] = useState('')
   const [division, setDivision] = useState('')
   const [usuario, setUsuario] = useState('')
@@ -24,19 +25,23 @@ function Registro() {
   const [exito, setExito] = useState(false) // Muestra el mensaje de "cuenta creada" al terminar
 
   // Valida todos los campos del formulario (nombre, año, división, usuario, contraseñas) antes de registrar
-  function handleSubmit() {
+async function handleSubmit() {
     const nuevosErrores = {}
 
-// Los if a continuación verifican que cada campo del formulario esté completo y cumpla con las condiciones mínimas. Si algún campo no cumple, se agrega un mensaje de error al objeto `nuevosErrores`. Al final, si no hay errores, se muestra un mensaje de éxito y se redirige al catálogo después de 1.5 segundos.
     if (!nombre.trim())
-      nuevosErrores.nombre = 'Ingresá tu nombre completo.'
+      nuevosErrores.nombre = 'Ingresá tu nombre.'
     else if (nombre.trim().length < 2)
       nuevosErrores.nombre = 'Mínimo 2 caracteres.'
 
-  if (!anio)
-    nuevosErrores.anio = 'Seleccioná el año.'
-  if (!division)
-    nuevosErrores.division = 'Seleccioná la división.'
+    if (!apellido.trim())
+      nuevosErrores.apellido = 'Ingresá tu apellido.'
+    else if (apellido.trim().length < 2)
+      nuevosErrores.apellido = 'Mínimo 2 caracteres.'
+
+    if (!anio)
+      nuevosErrores.anio = 'Seleccioná el año.'
+    if (!division)
+      nuevosErrores.division = 'Seleccioná la división.'
 
     if (!usuario.trim())
       nuevosErrores.usuario = 'Elegí un nombre de usuario.'
@@ -51,10 +56,40 @@ function Registro() {
 
     setErrores(nuevosErrores)
 
-    // Si no hay errores, muestra el mensaje de éxito y redirige después de 1.5 segundos
-    if (Object.keys(nuevosErrores).length === 0) {
+    if (Object.keys(nuevosErrores).length > 0) return
+
+    try {
+      const respuesta = await fetch("http://127.0.0.1:8000/api/auth/registro/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombre.trim(),
+          apellido: apellido.trim(),
+          anio: Number(anio.replace('°', '')),
+          division: Number(division),
+          usuario: usuario.trim(),
+          password: contrasena
+        })
+      })
+
+      const datos = await respuesta.json()
+
+      if (!respuesta.ok) {
+        setErrores({ usuario: datos.usuario?.[0] || datos.error || 'No se pudo completar el registro.' })
+        return
+      }
+
+      localStorage.setItem('access', datos.access)
+      localStorage.setItem('refresh', datos.refresh)
+      localStorage.setItem('tipo', datos.tipo)
+      localStorage.setItem('nombre', datos.nombre)
+      localStorage.setItem('id', datos.id)
+
       setExito(true)
       setTimeout(() => navigate('/catalogo'), 1500)
+
+    } catch (error) {
+      setErrores({ usuario: 'No se pudo conectar con el servidor.' })
     }
   }
 
@@ -77,18 +112,34 @@ function Registro() {
         <div className="registro-form">
 
           {/* Nombre completo */}
-          <div className="registro-campo">
-            <label htmlFor="nombre">Nombre Completo *</label>
-            <div className={`registro-input-wrapper ${errores.nombre ? 'input-error' : ''}`}>
-              <input
-                type="text"
-                id="nombre"
-                placeholder="Ej: Juan Pérez"
-                value={nombre}
-                onChange={e => setNombre(e.target.value)}
-              />
+          <div className="registro-fila-curso">
+            <div className="registro-campo">
+              <label htmlFor="nombre">Nombre *</label>
+              <div className={`registro-input-wrapper ${errores.nombre ? 'input-error' : ''}`}>
+                <input
+                  type="text"
+                  id="nombre"
+                  placeholder="Ej: Juan"
+                  value={nombre}
+                  onChange={e => setNombre(e.target.value)}
+                />
+              </div>
+              {errores.nombre && <p className="registro-error">⚠ {errores.nombre}</p>}
             </div>
-            {errores.nombre && <p className="registro-error">⚠ {errores.nombre}</p>}
+
+            <div className="registro-campo">
+              <label htmlFor="apellido">Apellido *</label>
+              <div className={`registro-input-wrapper ${errores.apellido ? 'input-error' : ''}`}>
+                <input
+                  type="text"
+                  id="apellido"
+                  placeholder="Ej: Pérez"
+                  value={apellido}
+                  onChange={e => setApellido(e.target.value)}
+                />
+              </div>
+              {errores.apellido && <p className="registro-error">⚠ {errores.apellido}</p>}
+            </div>
           </div>
 
           {/* Año y división en la misma fila, para armar el curso del alumno */}

@@ -20,6 +20,12 @@ from django.db import IntegrityError
 
 from django.db import transaction
 
+from django.db.models import Sum
+from django.utils import timezone
+import datetime
+
+from django.db.models import Sum, F
+
 
 from .models import (
     Productos,
@@ -29,8 +35,10 @@ from .models import (
     Alumnos,
     Ventas,
     DetalleVenta,
-    Usuarios
-)#Consulta los modelos de la bbdd
+    Usuarios,
+    GastosOperativos,
+    MenuDia,
+) #Consulta los modelos de la bbdd
 
 from .serializers import ( # Importamos los serializadores que convertirán objetos a JSON
     ProductoSerializer,
@@ -42,7 +50,13 @@ from .serializers import ( # Importamos los serializadores que convertirán obje
     RegistroVentaPresencialSerializer,
     VentaSerializer,
     RegistroAlumnoSerializer,
-    LoginSerializer
+    LoginSerializer,
+    UsuarioSerializer,
+    AlumnoSerializer,
+    CrearUsuarioSerializer,
+    ActualizarUsuarioSerializer,
+    GastoOperativoSerializer,
+    MenuDiaSerializer,
 )
 
 #=====================================================================================
@@ -938,6 +952,7 @@ def login(request):
     "access": access,
     "refresh": refresh,
     "tipo": tipo,
+    "id": usuario.id_usuario if tipo == "usuario" else usuario.id_alumno,
     "nombre": usuario.nombre,
     "usuario": usuario.usuario,
     "rol": getattr(usuario, "rol", None)
@@ -966,8 +981,343 @@ def registro(request):
             "access": access,
             "refresh": refresh,
             "tipo": "alumno",
+            "id": alumno.id_alumno,  # ← nueva
             "usuario": alumno.usuario,
             "nombre": alumno.nombre,
         },
         status=status.HTTP_201_CREATED
     )
+
+#=====================================================================================
+
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada")
+def listar_usuarios(request):
+
+    usuarios = Usuarios.objects.all()
+
+    serializer = UsuarioSerializer(
+        usuarios,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+#=====================================================================================
+
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada")
+def listar_alumnos(request):
+
+    alumnos = Alumnos.objects.all()
+
+    serializer = AlumnoSerializer(
+        alumnos,
+        many=True
+    )
+
+    return Response(serializer.data)
+
+#=====================================================================================
+
+@api_view(["POST"])
+@login_requerido
+@roles_permitidos("Encargada")
+def crear_usuario(request):
+
+    datos = request.data.copy()
+    datos["rol"] = "Ayudante"  # Forzamos el rol: desde acá solo se pueden crear Ayudantes
+
+    serializer = CrearUsuarioSerializer(data=datos)
+
+    if serializer.is_valid():
+        usuario = serializer.save()
+        return Response(
+            UsuarioSerializer(usuario).data,  # Respuesta sin exponer contrasena_hash
+            status=status.HTTP_201_CREATED
+        )
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+#=====================================================================================
+
+@api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada")
+def actualizar_usuario(request, id_usuario):
+
+    try:
+        usuario = Usuarios.objects.get(id_usuario=id_usuario)
+    except Usuarios.DoesNotExist:
+        return Response(
+            {"error": "Usuario no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = ActualizarUsuarioSerializer(
+        usuario,
+        data=request.data,
+        partial=True
+    )
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(UsuarioSerializer(usuario).data)
+
+    return Response(
+        serializer.errors,
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+#=====================================================================================
+
+@api_view(["DELETE"])
+@login_requerido
+@roles_permitidos("Encargada")
+def eliminar_usuario(request, id_usuario):
+
+    try:
+        usuario = Usuarios.objects.get(id_usuario=id_usuario)
+    except Usuarios.DoesNotExist:
+        return Response(
+            {"error": "Usuario no encontrado"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if usuario.rol == "Encargada":
+        return Response(
+            {"error": "No se puede eliminar a una Encargada"},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    usuario.delete()
+
+    return Response(
+        {"mensaje": "Usuario eliminado correctamente"},
+        status=status.HTTP_200_OK
+    )
+
+#=====================================================================================
+
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
+def listar_gastos(request):
+
+    gastos = GastosOperativos.objects.all().order_by("-fecha")
+
+    serializer = GastoOperativoSerializer(gastos, many=True)
+
+    return Response(serializer.data)
+
+#=====================================================================================
+
+@api_view(["POST"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
+def crear_gasto(request):
+
+    try:
+        usuario = Usuarios.objects.get(id_usuario=request.usuario["id"])
+    except Usuarios.DoesNotExist:
+        return Response({"error": "Usuario no válido"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = GastoOperativoSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save(id_usuario=usuario)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#=====================================================================================
+
+@api_view(["DELETE"])
+@login_requerido
+@roles_permitidos("Encargada")
+def eliminar_gasto(request, id_gasto):
+
+    try:
+        gasto = GastosOperativos.objects.get(id_gasto=id_gasto)
+    except GastosOperativos.DoesNotExist:
+        return Response({"error": "Gasto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    gasto.delete()
+
+    return Response({"mensaje": "Gasto eliminado correctamente"}, status=status.HTTP_200_OK)
+
+#=====================================================================================
+
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
+def resumen_ventas(request):
+
+    periodo = request.GET.get("periodo", "semana")  # dia | semana | mes
+    ahora = timezone.now()
+
+    if periodo == "dia":
+        desde = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
+    elif periodo == "mes":
+        desde = ahora - datetime.timedelta(days=30)
+    else:
+        desde = ahora - datetime.timedelta(days=7)
+
+    ventas = Ventas.objects.filter(fecha_hora__gte=desde)
+
+    total_vendido = ventas.aggregate(total=Sum("total"))["total"] or 0
+    cantidad_ventas = ventas.count()
+
+    gastos = GastosOperativos.objects.filter(fecha__gte=desde.date())
+    total_gastos = gastos.aggregate(total=Sum("monto"))["total"] or 0
+
+    ganancia_neta = float(total_vendido) - float(total_gastos)
+
+    # Ventas agrupadas por día, para el gráfico de barras
+    ventas_por_dia = {}
+    for venta in ventas:
+        dia = venta.fecha_hora.strftime("%d/%m")
+        ventas_por_dia[dia] = ventas_por_dia.get(dia, 0) + float(venta.total)
+
+    barras = [{"dia": k, "valor": v} for k, v in ventas_por_dia.items()]
+
+    # Ventas agrupadas por categoría, para el gráfico de torta
+    detalles = DetalleVenta.objects.filter(id_venta__in=ventas)
+
+    por_categoria = {}
+    for detalle in detalles:
+        categoria = detalle.id_producto.id_categoria.nombre
+        subtotal = float(detalle.cantidad * detalle.precio_unitario)
+        por_categoria[categoria] = por_categoria.get(categoria, 0) + subtotal
+
+    total_categorias = sum(por_categoria.values()) or 1
+    colores = ['#5c2d0a', '#bf5902', '#e8813a', '#ffaa6f', '#ffe3cf']
+
+    torta = [
+        {
+            "label": cat,
+            "porcentaje": round((valor / total_categorias) * 100),
+            "color": colores[i % len(colores)]
+        }
+        for i, (cat, valor) in enumerate(por_categoria.items())
+    ]
+
+    # Ranking de productos más vendidos
+    ranking = {}
+    for detalle in detalles:
+        nombre = detalle.id_producto.nombre
+        ranking[nombre] = ranking.get(nombre, 0) + detalle.cantidad
+
+    top = sorted(ranking.items(), key=lambda x: x[1], reverse=True)[:5]
+
+    top_formateado = [
+        {"pos": i + 1, "nombre": nombre, "unidades": cantidad}
+        for i, (nombre, cantidad) in enumerate(top)
+    ]
+
+    return Response({
+        "total_vendido": total_vendido,
+        "cantidad_ventas": cantidad_ventas,
+        "total_gastos": total_gastos,
+        "ganancia_neta": ganancia_neta,
+        "barras": barras,
+        "torta": torta,
+        "top": top_formateado
+    })
+
+    #=====================================================================================
+
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
+def notificaciones_encargada(request):
+
+    productos_bajo = Productos.objects.filter(
+        disponible=1,
+        stock__lte=F("stock_minimo")
+    )
+
+    alertas = [
+        f"Stock bajo: '{p.nombre}' tiene {p.stock} unidades (mínimo {p.stock_minimo})."
+        for p in productos_bajo
+    ]
+
+    pendientes = Pedidos.objects.filter(estado="pendiente").count()
+
+    if pendientes > 0:
+        plural = "s" if pendientes != 1 else ""
+        alertas.append(f"Hay {pendientes} pedido{plural} pendiente{plural} por entregar.")
+
+    return Response({"alertas": alertas})
+#=====================================================================================
+
+@api_view(["GET"])
+def obtener_menu_dia(request):
+
+    menu = MenuDia.objects.order_by("-fecha", "-id_menu").first()
+
+    if menu is None:
+        return Response(None)
+
+    serializer = MenuDiaSerializer(menu)
+
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+@login_requerido
+@roles_permitidos("Encargada")
+def guardar_menu_dia(request):
+
+    try:
+        usuario = Usuarios.objects.get(id_usuario=request.usuario["id"])
+    except Usuarios.DoesNotExist:
+        return Response({"error": "Usuario no válido"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = MenuDiaSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    MenuDia.objects.all().delete()  # Solo puede existir un menú del día activo a la vez
+
+    menu = serializer.save(id_usuario=usuario, fecha=timezone.now().date())
+
+    return Response(MenuDiaSerializer(menu).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["DELETE"])
+@login_requerido
+@roles_permitidos("Encargada")
+def eliminar_menu_dia(request):
+
+    MenuDia.objects.all().delete()
+
+    return Response({"mensaje": "Menú del día eliminado correctamente"}, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
+def productos_stock_bajo(request):
+
+    productos = Productos.objects.filter(
+        disponible=1,
+        stock__lte=F("stock_minimo")
+    )
+
+    data = [
+        {
+            "id": p.id_producto,
+            "nombre": p.nombre,
+            "stock": p.stock,
+            "stock_minimo": p.stock_minimo,
+        }
+        for p in productos
+    ]
+
+    return Response(data)

@@ -408,3 +408,22 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Estados vacíos (sin alertas / sin ventas en el período) ───── */
+.alertas-vacio {
+  font-size: 0.85rem;
+  color: var(--marron-oscuro);
+  opacity: 0.55;
+  font-family: 'Lexend', sans-serif;
+  padding: 0.5rem 0;
+}
+
+.grafico-vacio {
+  width: 100%;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--marron-oscuro);
+  opacity: 0.55;
+  font-family: 'Lexend', sans-serif;
+  align-self: center;
+}
