@@ -1,3 +1,8 @@
+# El archivo urls.py define todas las rutas o endpoints de la API. 
+# Su función es indicar qué función (vista) debe ejecutarse cuando el cliente realiza una solicitud a una dirección determinada. 
+
+
+
 from django.urls import path
 
 from .views import (
@@ -44,13 +49,13 @@ from .views import (
 
 urlpatterns = [
     path(
-        "productos/",
-        listar_productos,
-        name="listar_productos"
+        "productos/", # Dirección solicitada por el frontend
+        listar_productos, # Función/Vista que se ejecutará al acceder a esa URL
+        name="listar_productos" # Nombre interno que Django utiliza para identificar esa ruta 
     ),
     
      path(
-        "productos/<int:id_producto>/",
+        "productos/<int:id_producto>/", # Aquí la URL recibe un parámetro de tipo (número entero)
         obtener_producto,
         name="obtener_producto"
     ),

@@ -1,3 +1,10 @@
+# El archivo serializers.py se encarga de convertir los datos entre los modelos de Django y el formato JSON que utiliza la API. 
+# Además, valida que la información recibida desde el frontend sea correcta antes de guardarla en la base de datos. 
+# Los serializers de DRF actúan como traductor entre el backend y el frontend
+# Serializar: Acción de convertir objetos de Python o de la BBDD en JSON para enviarlos al frontend
+# Deserializar: Convertir JSOn en objetos Python, validarlos y permitir guardarlos en la bbdd
+
+
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
 from .models import (
@@ -12,6 +19,9 @@ from .models import (
     GastosOperativos,
     MenuDia,
 )
+
+
+# Serialzier que convierte y valida la información de los productos
 
 class ProductoSerializer(serializers.ModelSerializer):
 
@@ -43,6 +53,8 @@ class ProductoSerializer(serializers.ModelSerializer):
         ]
 
 
+# Maneja las categorías de los productos
+
 class CategoriaProductoSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -50,12 +62,15 @@ class CategoriaProductoSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+# Maneja el detalle de cada pedido
+
 class DetallePedidoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DetallePedido
         fields = "__all__"
 
+# Devuelve los pedidos junto con información adicional como el alumno, el curso y los productos
 
 class PedidoSerializer(serializers.ModelSerializer):
 
@@ -123,17 +138,23 @@ class PedidoSerializer(serializers.ModelSerializer):
 
         ]
 
+# Maneja las ventas
+
 class VentaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ventas
         fields = "__all__"
 
+# Maneja el detalle de cada venta
+
 class DetalleVentaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DetalleVenta
         fields = "__all__"
+
+# Valida los prodcutos enviador al registrar una venta
 
 class ProductoVentaSerializer(serializers.Serializer):
 
@@ -146,6 +167,8 @@ class ProductoVentaSerializer(serializers.Serializer):
         }
     )
 
+# Valida toda la información necesaria para registrar una venta presencial
+
 class RegistroVentaPresencialSerializer(serializers.Serializer):
 
     id_usuario = serializers.IntegerField()
@@ -154,7 +177,7 @@ class RegistroVentaPresencialSerializer(serializers.Serializer):
         many=True
     )
 
-
+# Valida los datos de un alumno niuevo y cifra su contraseña antes de guardarla
 
 class RegistroAlumnoSerializer(serializers.ModelSerializer):
 
@@ -186,6 +209,7 @@ class RegistroAlumnoSerializer(serializers.ModelSerializer):
 
         return alumno
 
+# Valida el usuario y la contraseña durante el inicio de sesión 
 
 class LoginSerializer(serializers.Serializer):
     
@@ -235,6 +259,7 @@ class LoginSerializer(serializers.Serializer):
             "Usuario o contraseña incorrectos."
         )
 
+# Convierte la información de los usuarios del personal
 
 class UsuarioSerializer(serializers.ModelSerializer):
 
@@ -242,6 +267,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuarios
         fields = ["id_usuario", "nombre", "apellido", "usuario", "rol"]
 
+# Convierte la infromación de los alumnos y agrega el curso
 
 class AlumnoSerializer(serializers.ModelSerializer):
 
@@ -253,6 +279,8 @@ class AlumnoSerializer(serializers.ModelSerializer):
 
     def get_curso(self, obj):
         return f"{obj.anio}°{obj.division}°"
+
+# Valida y crea nuevos usuarios del personal
 
 class CrearUsuarioSerializer(serializers.ModelSerializer):
 
@@ -270,6 +298,7 @@ class CrearUsuarioSerializer(serializers.ModelSerializer):
         )
         return usuario
 
+# Valida y actualiza los datos de un usuario existente
 
 class ActualizarUsuarioSerializer(serializers.ModelSerializer):
 
@@ -292,11 +321,15 @@ class ActualizarUsuarioSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
+# Maneja los gastos operativos
+
 class GastoOperativoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GastosOperativos
         fields = ["id_gasto", "descripcion", "monto", "fecha", "categoria"]
+
+# Maneja la información del menú del día 
 
 class MenuDiaSerializer(serializers.ModelSerializer):
 

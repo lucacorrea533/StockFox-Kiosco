@@ -1,3 +1,8 @@
+# El archivo jwt_utils.py se encarga de generar los tokens JWT que utiliza el sistema para autenticar a los usuarios. 
+# Crea tanto el Access Token, que permite acceder a la API durante un tiempo limitado
+# Como el Refresh Token, que sirve para obtener un nuevo Access Token cuando este expira. 
+
+# Se importan las herramientas necesarias para crear tokens JWT, trabajar con fechas y horas y acceder a la SECRET_KEY del proyecto
 import jwt
 import datetime
 
