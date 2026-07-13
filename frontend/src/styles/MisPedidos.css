@@ -1,20 +1,23 @@
-/* Este archivo contiene los estilos CSS para la página de "Mis Pedidos". Define el diseño general de la página, los estilos para los tabs de estado de pedidos, las tarjetas individuales de cada pedido, y el estado vacío cuando no hay pedidos. Se ha diseñado con un enfoque en la claridad y facilidad de uso, utilizando una paleta de colores cálidos y una tipografía legible. */
+/* Estilos de la página "Mis Pedidos" del Alumno: layout general, tabs de
+   estado, tarjetas individuales de pedido, y el estado vacío cuando no hay
+   pedidos para mostrar. */
 
 /* ── LAYOUT ──────────────────────────────────────────────────────────────────── */
-/* Contenedor principal de la página, que ocupa toda la altura de la ventana y tiene un fondo naranja pastel */
+/* Contenedor principal de la página, ocupa toda la altura de la ventana con fondo naranja pastel */
 .mispedidos-layout {
   min-height: 100vh;
   background-color: var(--naranja-pastel);
 }
 
-.mispedidos-contenido { /* Contenedor del contenido principal, que se desplaza hacia la derecha para dejar espacio al navbar fijo */
-  margin-left: 350px; /* Deja libre el espacio exacto que ocupa el navbar fijo, para que el contenido no quede tapado debajo */
+/* Contenido principal, desplazado a la derecha para dejar espacio al navbar fijo */
+.mispedidos-contenido {
+  margin-left: 350px; /* Deja libre el espacio exacto que ocupa el navbar fijo */
   padding: 30px;
   min-height: 100vh;
 }
 
 /* ── HEADER ──────────────────────────────────────────────────────────────────── */
-/* Cabecera de la página, que contiene el título y el ícono de "Mis Pedidos" */
+/* Cabecera de la página, con el ícono y el título "Mis Pedidos" */
 .mispedidos-header {
   display: flex;
   align-items: center;
@@ -22,15 +25,16 @@
   margin-bottom: 20px;
 }
 
-.mispedidos-titulo-icono { /* Ícono de "Mis Pedidos" a la izquierda del título */
+/* Ícono de "Mis Pedidos" a la izquierda del título */
+.mispedidos-titulo-icono {
   width: 32px;
   height: 32px;
   object-fit: contain;
-  /* Recolorea el ícono PNG original al marrón oscuro del proyecto, usando el mismo truco de filtros que en los navbars */
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
-.mispedidos-titulo { /* Título de la página, que dice "Mis Pedidos" */
+/* Título de la página */
+.mispedidos-titulo {
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--marron-oscuro);
@@ -38,16 +42,17 @@
 }
 
 /* ── TABS ─────────────────────────────────────────────────────────────────────── */
-/* Contenedor de las pestañas de filtro de pedidos (Todos, Pendientes, Listos, Entregados) */
+/* Contenedor de las pestañas de filtro (Todos, Pendientes, Listos, Entregados) */
 .mispedidos-tabs {
   display: flex;
   gap: 4px;
   margin-bottom: 24px;
-  border-bottom: 2px solid var(--naranja); /* Línea que separa las pestañas del contenido, como en cualquier sistema de tabs */
+  border-bottom: 2px solid var(--naranja); /* Línea que separa las pestañas del contenido */
   padding-bottom: 0;
 }
 
-.mispedidos-tab-btn { /* Botón de cada pestaña, que indica el estado de los pedidos que se van a mostrar al hacer click */
+/* Botón de cada pestaña */
+.mispedidos-tab-btn {
   background: none;
   border: none;
   padding: 8px 16px;
@@ -55,22 +60,22 @@
   font-weight: 600;
   color: var(--marron-naranja);
   cursor: pointer;
-  border-radius: 8px 8px 0 0; /* Solo redondea las esquinas de ARRIBA, para que parezca una "solapa" pegada al borde inferior */
+  border-radius: 8px 8px 0 0; /* Solo redondea las esquinas de ARRIBA, como una "solapa" */
   transition: background-color 0.15s, color 0.15s;
   display: flex;
   align-items: center;
   gap: 6px;
   position: relative;
-  bottom: -2px; /* Ajuste fino de 2px para que el borde de la pestaña se superponga justo con la línea divisoria de abajo */
+  bottom: -2px; /* Ajuste fino para que el borde se superponga con la línea divisoria de abajo */
 }
 
+/* Resalta la pestaña al pasar el mouse */
 .mispedidos-tab-btn:hover {
   background-color: var(--naranja-claro);
   color: var(--marron-oscuro);
 }
 
-/* Pestaña actualmente seleccionada: se resalta con el mismo color de fondo que el contenido de abajo,
-   dando la sensación visual de que está "conectada" con lo que se ve debajo */
+/* Pestaña seleccionada: mismo color de fondo que el contenido de abajo, para dar sensación de "conectada" */
 .mispedidos-tab-btn.activo {
   background-color: var(--naranja-claro);
   color: var(--marron-oscuro);
@@ -78,7 +83,7 @@
   font-weight: 700;
 }
 
-/* El numerito que indica cuántos pedidos hay en esa categoría */
+/* Numerito que indica cuántos pedidos hay en esa categoría */
 .mispedidos-tab-contador {
   background-color: var(--naranja);
   color: white;
@@ -88,21 +93,22 @@
   font-weight: 700;
 }
 
-.mispedidos-tab-btn.activo .mispedidos-tab-contador { 
-  background-color: var(--marron-oscuro); /* Cuando la pestaña está activa, el numerito cambia de color para que siga contrastando bien */
+/* Cuando la pestaña está activa, el numerito cambia de color para seguir contrastando bien */
+.mispedidos-tab-btn.activo .mispedidos-tab-contador {
+  background-color: var(--marron-oscuro);
 }
 
 /* ── SECCIÓN ─────────────────────────────────────────────────────────────────── */
-/* Contenedor de la sección que muestra los pedidos filtrados según la pestaña seleccionada */
+/* Contenedor de la sección que muestra los pedidos filtrados según la pestaña activa */
 .mispedidos-seccion {
   display: flex;
   flex-direction: column;
-  gap: 14px; /* Separación entre cada tarjeta de pedido */
+  gap: 14px;
   margin-bottom: 8px;
 }
 
 /* ── SEPARADOR HISTORIAL ─────────────────────────────────────────────────────── */
-/* Separador visual que indica el inicio del historial de pedidos, con la palabra "HISTORIAL" en el medio y líneas a los costados */
+/* Separador visual con la palabra "HISTORIAL" en el medio y líneas a los costados */
 .mispedidos-separador {
   display: flex;
   align-items: center;
@@ -110,30 +116,29 @@
   margin: 28px 0 16px;
 }
 
-/* Genera las dos líneas horizontales a los costados de la palabra "HISTORIAL",
-   usando pseudo-elementos en vez de agregar divs extra en el HTML */
-   /* O sea, en vez de escribir <div class="linea"></div> HISTORIAL <div class="linea"></div> en el JSX,
-      se hace todo con CSS, para que el HTML quede más limpio y semántico */
+/* Genera las dos líneas a los costados de "HISTORIAL" con pseudo-elementos,
+   en vez de agregar divs extra en el JSX */
 .mispedidos-separador::before,
 .mispedidos-separador::after {
   content: '';
-  flex: 1; /* Cada línea ocupa el espacio libre restante a cada lado del texto, repartido en partes iguales */
+  flex: 1;
   height: 1px;
   background-color: var(--naranja);
   opacity: 0.5;
 }
 
-.mispedidos-separador-label { /* La palabra "HISTORIAL" en el medio del separador */
+/* La palabra "HISTORIAL" en el medio del separador */
+.mispedidos-separador-label {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--marron-naranja);
-  letter-spacing: 0.08em; /* Separa un poco las letras entre sí, típico de los textos en mayúscula tipo "etiqueta" */
-  text-transform: uppercase; /* Fuerza a que el texto se vea en mayúsculas, sin importar cómo esté escrito en el JSX */
-  white-space: nowrap; /* Evita que la palabra "HISTORIAL" se corte en dos líneas */
+  letter-spacing: 0.08em;
+  text-transform: uppercase; /* Fuerza mayúsculas sin importar cómo esté escrito en el JSX */
+  white-space: nowrap;
 }
 
 /* ── TARJETA DE PEDIDO ───────────────────────────────────────────────────────── */
-/* Cada pedido se muestra dentro de una tarjeta rectangular con fondo naranja claro, que contiene la información del pedido y los productos incluidos */
+/* Tarjeta rectangular con la info del pedido y los productos incluidos */
 .mispedidos-card {
   background-color: var(--naranja-claro);
   border-radius: 14px;
@@ -142,33 +147,36 @@
   flex-direction: column;
   gap: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.15s; /* Permite que el "levantamiento" al pasar el mouse se vea animado, no brusco */
+  transition: transform 0.15s;
 }
 
-/* Efecto sutil: la tarjeta se "levanta" un poquito al pasar el mouse por encima */
+/* La tarjeta se "levanta" un poquito al pasar el mouse por encima */
 .mispedidos-card:hover {
   transform: translateY(-1px);
 }
 
-/* Entregados: más apagados, para diferenciarlos visualmente de los pedidos todavía activos */
+/* Entregados: más apagados, para diferenciarlos de los pedidos todavía activos */
 .mispedidos-card.card-entregado {
   opacity: 0.72;
 }
 
 /* ── CABECERA DE TARJETA ─────────────────────────────────────────────────────── */
+/* Fila superior de la tarjeta: info del pedido a la izquierda, badge de estado a la derecha */
 .mispedidos-card-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Info del pedido a la izquierda, badge de estado a la derecha */
+  justify-content: space-between;
   gap: 12px;
 }
 
+/* Bloque de ícono + número/fecha de pedido, a la izquierda de la cabecera */
 .mispedidos-card-header-izq {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* Ícono de pedido */
 .mispedidos-card-icono {
   width: 22px;
   height: 22px;
@@ -177,13 +185,15 @@
   flex-shrink: 0;
 }
 
+/* Número de pedido (ej. "Pedido #0001") */
 .mispedidos-card-numero {
   font-size: 1rem;
   font-weight: 700;
   color: var(--marron-oscuro);
-  display: block; /* Fuerza que ocupe toda la línea, para que la fecha de abajo quede en su propio renglón */
+  display: block; /* Ocupa toda la línea, para que la fecha quede en su propio renglón */
 }
 
+/* Fecha y hora del pedido, debajo del número */
 .mispedidos-card-fecha {
   font-size: 0.78rem;
   color: var(--marron-naranja);
@@ -191,17 +201,17 @@
 }
 
 /* ── BADGES DE ESTADO ────────────────────────────────────────────────────────── */
-/* Cada pedido tiene un badge que indica su estado actual (pendiente, listo para retirar, entregado) */
+/* Badge que indica el estado actual del pedido (pendiente, listo, entregado) */
 .mispedidos-estado-badge {
   padding: 5px 14px;
-  border-radius: 20px; /* Bien redondeado, forma de "píldora" típica de un badge de estado */
+  border-radius: 20px; /* Forma de "píldora" típica de un badge de estado */
   font-size: 0.82rem;
   font-weight: 700;
-  white-space: nowrap; /* El texto del estado nunca se corta en dos líneas, aunque el espacio sea justo */
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
-/* Cada estado tiene su propia combinación de colores para diferenciarse rápido a simple vista */
+/* Cada estado tiene su propia combinación de colores para diferenciarse a simple vista */
 .estado-pendiente {
   background-color: var(--naranja-pastel);
   color: var(--marron-oscuro);
@@ -220,7 +230,7 @@
 }
 
 /* ── BANNER LISTO ────────────────────────────────────────────────────────────── */
-/* Cartel destacado que aparece solo en los pedidos que están en estado "listo para retirar" */
+/* Cartel destacado que aparece solo en los pedidos en estado "listo para retirar" */
 .mispedidos-banner-listo {
   background-color: var(--naranja);
   border-radius: 8px;
@@ -233,18 +243,19 @@
   color: white;
 }
 
+/* Ícono de reloj dentro del banner, en blanco para contrastar con el fondo naranja */
 .mispedidos-banner-icono {
   width: 18px;
   height: 18px;
   object-fit: contain;
-  filter: brightness(0) invert(1); /* Ícono en blanco puro, para que contraste bien contra el fondo naranja del banner */
+  filter: brightness(0) invert(1);
   flex-shrink: 0;
 }
 
 /* ── ITEMS ───────────────────────────────────────────────────────────────────── */
-/* Lista de productos incluidos en el pedido, con su nombre a la izquierda y su precio a la derecha */
+/* Lista de productos del pedido, nombre a la izquierda y precio a la derecha */
 .mispedidos-items {
-  list-style: none; /* Saca los puntitos/números que trae una lista <ul>/<li> por defecto */
+  list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
@@ -252,10 +263,11 @@
   gap: 4px;
 }
 
+/* Cada fila de producto dentro de la lista */
 .mispedidos-items li {
   display: flex;
-  justify-content: space-between; /* Nombre del producto a la izquierda, precio a la derecha */
-  align-items: baseline; /* Alinea el texto por su línea base, para que se vea prolijo aunque los tamaños de fuente varíen */
+  justify-content: space-between;
+  align-items: baseline;
   gap: 8px;
   font-size: 0.88rem;
   color: var(--marron-oscuro);
@@ -268,27 +280,30 @@
   flex-shrink: 0;
 }
 
+/* Nombre del producto, empuja el precio hacia la derecha */
 .mispedidos-item-nombre {
-  flex: 1; /* Ocupa todo el espacio libre disponible, empujando el precio hacia la derecha */
+  flex: 1;
 }
 
+/* Precio del producto */
 .mispedidos-item-precio {
   font-weight: 600;
   color: var(--marron-naranja);
-  white-space: nowrap; /* El precio nunca se corta en dos líneas */
+  white-space: nowrap;
 }
 
 /* ── PIE DE TARJETA ──────────────────────────────────────────────────────────── */
-/* Pie de la tarjeta, que contiene el horario de retiro a la izquierda y el total a pagar a la derecha */
+/* Pie de la tarjeta: horario de retiro a la izquierda, total a pagar a la derecha */
 .mispedidos-card-footer {
   display: flex;
-  justify-content: space-between; /* Horario de retiro a la izquierda, total a pagar a la derecha */
+  justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(191, 89, 2, 0.2); /* Línea sutil que separa el pie del resto de la tarjeta */
+  border-top: 1px solid rgba(191, 89, 2, 0.2);
   padding-top: 10px;
   margin-top: 2px;
 }
 
+/* Texto de horario de retiro/entregado */
 .mispedidos-retiro {
   display: flex;
   align-items: center;
@@ -297,15 +312,17 @@
   color: var(--marron-naranja);
 }
 
+/* Ícono de reloj junto al horario de retiro */
 .mispedidos-retiro-icono {
   width: 14px;
   height: 14px;
   object-fit: contain;
-  /* Filtro distinto a los demás: en vez de marrón oscuro, tiñe el ícono de un tono más anaranjado/tostado */
+  /* Filtro distinto a los demás: tiñe el ícono de un tono más anaranjado/tostado en vez de marrón oscuro */
   filter: brightness(0) saturate(100%) invert(40%) sepia(60%) saturate(500%) hue-rotate(10deg);
   flex-shrink: 0;
 }
 
+/* Total a pagar del pedido */
 .mispedidos-total {
   font-size: 1rem;
   font-weight: 700;
@@ -326,13 +343,15 @@
   margin-top: 8px;
 }
 
+/* Ícono de advertencia, semitransparente para que se vea "apagado"/neutro y no como un error */
 .mispedidos-vacio-icono {
   width: 52px;
   height: 52px;
   object-fit: contain;
-  opacity: 0.5; /* Semitransparente a propósito, para que se vea "apagado"/neutro y no como un error */
+  opacity: 0.5;
 }
 
+/* Título del estado vacío */
 .mispedidos-vacio-titulo {
   font-size: 1.1rem;
   font-weight: 700;
@@ -340,12 +359,14 @@
   margin: 0;
 }
 
+/* Subtítulo del estado vacío */
 .mispedidos-vacio-sub {
   font-size: 0.88rem;
   color: var(--marron-naranja);
   margin: 0;
 }
 
+/* Botón "Ir al catálogo" del estado vacío */
 .mispedidos-vacio-btn {
   margin-top: 8px;
   padding: 10px 24px;
@@ -359,6 +380,7 @@
   transition: background-color 0.2s;
 }
 
+/* Oscurece el botón al pasar el mouse */
 .mispedidos-vacio-btn:hover {
   background-color: var(--marron-naranja);
 }

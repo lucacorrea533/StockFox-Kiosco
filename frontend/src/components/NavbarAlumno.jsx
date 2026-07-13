@@ -1,6 +1,12 @@
-/* Este componente representa la barra de navegación para el alumno, con enlaces a catálogo y mis pedidos, además de opciones para ver el carrito y cerrar sesión. */
+/*
+ * NavbarAlumno.jsx
+ * Barra de navegación lateral para el rol Alumno.
+ * Da acceso a Catálogo y Mis Pedidos, muestra el usuario logueado, el ícono
+ * del carrito (con cantidad) y el cierre de sesión con confirmación.
+ */
+// Un navbar significa que es una barra de navegación lateral, que permite al usuario moverse entre distintas secciones de la aplicación. En este caso, el navbar es específico para el rol Alumno, y por eso solo tiene links a Catálogo y Mis Pedidos. Además, muestra el nombre del usuario logueado (traído del localStorage), un ícono de carrito con la cantidad de productos que hay en él (si hay alguno), y un ícono de cierre de sesión que abre un modal de confirmación antes de cerrar la sesión.
 
-/* Importa React y hooks necesarios, así como componentes y assets (imágenes e íconos) */ /*Los hooks son funciones especiales de React que permiten usar estado y otras características de React en componentes funcionales. */
+// Importaciones de React, React Router y otros componentes/recursos
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import logoKiosco from '../assets/logos/RecoKiosco2.png'
@@ -12,80 +18,64 @@ import iconCarrito from '../assets/icons/VentasBoton.png'
 import ConfirmModal from './ConfirmModal'
 import '../styles/NavbarAlumno.css'
 
-// Recibe 3 props desde la vista que lo use:
-// - cantidadCarrito: número de productos en el carrito (para mostrar el globito rojo). Por defecto 0.
-// - onAbrirCarrito: función que se ejecuta al clickear el ícono del carrito (la define la vista padre, ej. Catálogo)
-// - onCerrarSesion: función que se ejecuta al confirmar el cierre de sesión (la define quien use este navbar)
-// Esta función basicamente renderiza la barra de navegación y maneja la lógica de abrir el carrito y cerrar sesión, incluyendo un modal de confirmación para el cierre de sesión.
-function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
-  const [confirmando, setConfirmando] = useState(false) // Controla si el modal de "¿Seguro que querés cerrar sesión?" está visible
-  const navigate = useNavigate() // Hook de React Router que permite cambiar de página por código (sin que el usuario clickee un link)
+// Links de navegación del alumno: ruta, ícono y etiqueta
+const LINKS = [
+  { to: '/catalogo', icon: iconCatalogo, label: 'Catálogo' },
+  { to: '/mis-pedidos', icon: iconMisPedidos, label: 'Mis Pedidos' },
+]
 
-  // Se ejecuta solo cuando el usuario confirma el cierre de sesión en el modal
+// Props:
+// - cantidadCarrito: cantidad de productos en el carrito, para el badge (default 0)
+// - onAbrirCarrito: acción al clickear el ícono del carrito (la define la vista padre)
+// - onCerrarSesion: acción al confirmar el cierre de sesión (la define quien use el navbar)
+// Los props son opcionales, para que el navbar pueda usarse en vistas donde no haya carrito ni cierre de sesión (ej. login)
+// Signfiica que si la vista padre no pasa estas funciones, el navbar no rompe, solo no hace nada al clickear esos íconos.
+function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
+  const [confirmando, setConfirmando] = useState(false) // Modal de "¿Seguro que querés cerrar sesión?"
+  const navigate = useNavigate()
+
+  // Se ejecuta solo si se confirma el cierre de sesión en el modal
   const confirmarCierre = () => {
-    setConfirmando(false) // Cierra el modal de confirmación
-    onCerrarSesion?.() // El "?." (optional chaining) evita un error si la vista padre no pasó esta función; si existe, la ejecuta
-    navigate('/login') // Redirige a la pantalla de login
+    setConfirmando(false)
+    onCerrarSesion?.() // Optional chaining: no rompe si la vista padre no pasó esta función
+    navigate('/login')
   }
 
-  return (
+  return ( // Renderiza la barra de navegación lateral, el ícono del carrito con badge, y el modal de confirmación de cierre de sesión
     <>
       <nav className="navbar-alumno">
 
-        {/* Logo, siempre fijo arriba de todo */}
+        {/* Logo */}
         <div className="navbar-alumno-logo">
           <img src={logoKiosco} alt="RecoKiosco2" />
         </div>
 
-        {/* Links de navegación: Catálogo y Mis Pedidos */}
+        {/* Links: NavLink marca automáticamente la ruta activa con la clase "activo" */}
         <div className="navbar-alumno-links">
-          {/* NavLink es como un <Link> normal, pero sabe automáticamente en qué página estás parado.
-              La función que recibe className evalúa "isActive": si la URL actual coincide con "to",
-              le agrega la clase "activo" para resaltarlo visualmente (ver NavbarAlumno.css) */}
-          <NavLink
-            to="/catalogo"
-            className={({ isActive }) =>
-              isActive ? 'navbar-alumno-item activo' : 'navbar-alumno-item'
-            }
-          >
-            <img src={iconCatalogo} alt="Catálogo" />
-            <span>Catálogo</span>
-          </NavLink>
-
-          <NavLink
-            to="/mis-pedidos"
-            className={({ isActive }) =>
-              isActive ? 'navbar-alumno-item activo' : 'navbar-alumno-item'
-            }
-          >
-            <img src={iconMisPedidos} alt="Mis Pedidos" />
-            <span>Mis Pedidos</span>
-          </NavLink>
+          {LINKS.map(link => (
+            <NavLink key={link.to} to={link.to} className={({ isActive }) => `navbar-alumno-item ${isActive ? 'activo' : ''}`}>
+              <img src={link.icon} alt={link.label} />
+              <span>{link.label}</span>
+            </NavLink>
+          ))}
         </div>
 
-        {/* Footer — usuario logueado y accesos rápidos (carrito, cerrar sesión) */}
+        {/* Footer: usuario logueado + accesos rápidos */}
         <div className="navbar-alumno-footer">
           <div className="navbar-alumno-usuario">
             <img src={iconUsuario} alt="Usuario" />
-            <span>{localStorage.getItem('nombre')}</span> {/* Muestra el nombre del usuario logueado, que se guardó en localStorage al iniciar sesión */}
+            <span>{localStorage.getItem('nombre')}</span>
           </div>
 
           <div className="navbar-alumno-acciones">
-            {/* Ícono del carrito: al clickear ejecuta la función que pasó la vista padre (onAbrirCarrito).
-                Si hay productos en el carrito, muestra un globito con la cantidad */}
+            {/* Carrito: ejecuta la función que pasó la vista padre; badge solo si hay productos */}
             <div className="navbar-icon-btn" onClick={onAbrirCarrito} title="Carrito">
               <img src={iconCarrito} alt="Carrito" />
-              {cantidadCarrito > 0 && (
-                <span className="navbar-carrito-badge">{cantidadCarrito}</span>
-              )}
+              {cantidadCarrito > 0 && <span className="navbar-carrito-badge">{cantidadCarrito}</span>}
             </div>
 
-            {/* Ícono de cerrar sesión: no cierra sesión directo, primero abre el modal de confirmación */}
-            <div
-              className="navbar-icon-btn navbar-icon-btn-peligro"
-              onClick={() => setConfirmando(true)}
-              title="Cerrar Sesión"
-            >
+            {/* Cerrar sesión: primero abre el modal de confirmación */}
+            <div className="navbar-icon-btn navbar-icon-btn-peligro" onClick={() => setConfirmando(true)} title="Cerrar Sesión">
               <img src={iconCerrarSesion} alt="Cerrar Sesión" />
             </div>
           </div>
@@ -93,8 +83,7 @@ function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
 
       </nav>
 
-      {/* El modal de confirmación solo se renderiza si "confirmando" es true.
-          Si el usuario cancela, simplemente se vuelve a ocultar sin hacer nada más */}
+      {/* Modal de confirmación, solo si "confirmando" es true */}
       {confirmando && (
         <ConfirmModal
           titulo="Cerrar sesión"

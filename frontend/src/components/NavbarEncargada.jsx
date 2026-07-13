@@ -1,8 +1,15 @@
-/* Este componente representa la barra de navegación para la encargada, con enlaces a todas las secciones del panel administrativo (productos, ventas, informes, proveedores, pedidos, usuarios), además de notificaciones y opciones para cerrar sesión. */
+/*
+ * NavbarEncargada.jsx
+ * Barra de navegación lateral para los roles Encargada/Ayudante (panel admin).
+ * Da acceso a todas las secciones (Inicio, Productos, Ventas, Informes,
+ * Proveedores, Pedidos, Usuarios), muestra notificaciones de stock bajo
+ * (traídas del backend) y el cierre de sesión con confirmación.
+ */
 
-/* Importa React y hooks necesarios, así como componentes y assets (imágenes e íconos) */ /*Los hooks son funciones especiales de React que permiten usar estado y otras características de React en componentes funcionales. */
+// Importaciones de React, React Router y otros componentes/recursos
 import { useState, useEffect } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+import { authFetch } from '../api/authFetch'
 import logoKiosco from '../assets/logos/RecoKiosco2.png'
 import iconInicio from '../assets/icons/InicioBoton.png'
 import iconProductos from '../assets/icons/ProductosSimbolo.png'
@@ -18,171 +25,104 @@ import iconCerrarSesion from '../assets/icons/SimboloCerrarSesion.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import ConfirmModal from './ConfirmModal'
 import '../styles/NavbarEncargada.css'
-import { authFetch } from '../api/authFetch'
 
-// Componente principal de la barra de navegación para la encargada. Recibe una función onCerrarSesion como prop, que se ejecuta cuando la encargada confirma que quiere cerrar sesión.
+// Secciones del panel admin: ruta, ícono y etiqueta.
+// "end: true" en Inicio evita que se marque activo también en subrutas (ej. /admin/productos)
+const LINKS = [
+  { to: '/admin', end: true, icon: iconInicio, label: 'Inicio' },
+  { to: '/admin/productos', icon: iconProductos, label: 'Productos' },
+  { to: '/admin/ventas', icon: iconVentas, label: 'Ventas' },
+  { to: '/admin/informes', icon: iconInformes, label: 'Informes' },
+  { to: '/admin/proveedores', icon: iconProveedores, label: 'Proveedores' },
+  { to: '/admin/pedidos', icon: iconPedidos, label: 'Pedidos' },
+  { to: '/admin/usuarios', icon: iconUsuarios, label: 'Usuarios' },
+]
+
+// Props: onCerrarSesion, ejecutada al confirmar el cierre de sesión
 function NavbarEncargada({ onCerrarSesion }) {
-  const [alertasStock, setAlertasStock] = useState([])   // ya no viene por prop
+  const [alertasStock, setAlertasStock] = useState([]) // Notificaciones de stock bajo, vienen del backend
   const [mostrarNotificaciones, setMostrarNotificaciones] = useState(false)
   const [mostrarOpciones, setMostrarOpciones] = useState(false)
   const [confirmando, setConfirmando] = useState(false)
   const navigate = useNavigate()
 
+  // Trae las alertas de stock al montar el componente
   useEffect(() => {
-    authFetch("http://127.0.0.1:8000/api/notificaciones/")
+    authFetch("http://127.0.0.1:8000/api/notificaciones/") // Llama al endpoint de notificaciones del backend, que devuelve un JSON con las alertas de stock bajo
       .then(response => response.json())
       .then(data => setAlertasStock(data.alertas || []))
       .catch(error => console.error(error))
   }, [])
 
-  // Abre/cierra el dropdown de notificaciones. Si estaba abierto el de opciones, lo cierra
-  // (para que no queden los dos dropdowns abiertos al mismo tiempo, tapándose entre sí) // los dropdowns son los menús que se abren al clickear la campana de notificaciones o el ícono de opciones
+  // Abre/cierra el dropdown de notificaciones; cierra el de opciones para que no se tapen entre sí
   const toggleNotificaciones = () => {
-    setMostrarNotificaciones((prev) => !prev) // (prev) => !prev invierte el valor actual: si estaba abierto lo cierra y viceversa
+    setMostrarNotificaciones(prev => !prev)
     setMostrarOpciones(false)
   }
 
-  // Igual que arriba, pero para el dropdown de opciones. Cierra notificaciones si estaban abiertas
+  // Igual que arriba, pero para el dropdown de opciones
   const toggleOpciones = () => {
-    setMostrarOpciones((prev) => !prev)
+    setMostrarOpciones(prev => !prev)
     setMostrarNotificaciones(false)
   }
 
-  // Se ejecuta al clickear "Cerrar Sesión" dentro del dropdown de opciones:
-  // cierra el dropdown y abre el modal de confirmación (todavía no cierra la sesión)
+  // Clickear "Cerrar Sesión" en el dropdown: cierra el dropdown y abre el modal de confirmación
   const pedirConfirmacion = () => {
     setMostrarOpciones(false)
     setConfirmando(true)
   }
 
-  // Se ejecuta solo si la encargada confirma en el modal que sí quiere cerrar sesión
+  // Se ejecuta solo si se confirma el cierre de sesión en el modal
   const confirmarCierre = () => {
-    setConfirmando(false) // Cierra el modal
-    onCerrarSesion?.() // Ejecuta la función que le haya pasado la vista padre (si existe)
-    navigate('/login') // Redirige al login
+    setConfirmando(false)
+    onCerrarSesion?.()
+    navigate('/login')
   }
 
-  return ( // Renderiza la barra de navegación y los dropdowns/modales según el estado actual
+  return ( // Renderiza la barra de navegación lateral, los dropdowns de notificaciones y opciones, y el modal de confirmación de cierre de sesión
     <>
       <nav className="navbar-encargada">
 
-        {/* Logo arriba */}
+        {/* Logo */}
         <div className="navbar-encargada-logo">
           <img src={logoKiosco} alt="RecoKiosco" />
         </div>
 
-        {/* Links a cada sección del panel administrativo.
-            "end" en el primer NavLink hace que solo se marque como activo en la ruta EXACTA "/admin",
-            y no también cuando la URL es, por ejemplo, "/admin/productos" */}
+        {/* Links a cada sección del panel admin */}
         <div className="navbar-encargada-links">
-          <NavLink
-            to="/admin"
-            end
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconInicio} alt="Inicio" />
-            <span>Inicio</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/productos"
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconProductos} alt="Productos" />
-            <span>Productos</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/ventas"
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconVentas} alt="Ventas" />
-            <span>Ventas</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/informes"
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconInformes} alt="Informes" />
-            <span>Informes</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/proveedores"
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconProveedores} alt="Proveedores" />
-            <span>Proveedores</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/pedidos"
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconPedidos} alt="Pedidos" />
-            <span>Pedidos</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/usuarios"
-            className={({ isActive }) =>
-              isActive ? 'navbar-encargada-item activo' : 'navbar-encargada-item'
-            }
-          >
-            <img src={iconUsuarios} alt="Usuarios" />
-            <span>Usuarios</span>
-          </NavLink>
+          {LINKS.map(link => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              className={({ isActive }) => `navbar-encargada-item ${isActive ? 'activo' : ''}`}
+            >
+              <img src={link.icon} alt={link.label} />
+              <span>{link.label}</span>
+            </NavLink>
+          ))}
         </div>
 
-        {/* Footer — usuario logueado y accesos rápidos (notificaciones, opciones) */}
+        {/* Footer: usuario logueado + accesos rápidos */}
         <div className="navbar-encargada-footer">
           <div className="navbar-encargada-usuario">
             <img src={iconUsuario} alt="Usuario" />
-            <span>{localStorage.getItem('nombre')}</span> {/* Muestra el nombre del usuario logueado, que se guardó en localStorage al iniciar sesión */}
+            <span>{localStorage.getItem('nombre')}</span>
           </div>
 
           <div className="navbar-encargada-acciones">
 
-            {/* Campana de notificaciones */}
+            {/* Notificaciones de stock bajo */}
             <div className="navbar-icon-wrapper">
-              <img
-                src={iconNotificaciones}
-                alt="Notificaciones"
-                onClick={toggleNotificaciones}
-              />
-              {/* El globito con el número solo aparece si hay al menos una notificación */}
-              {alertasStock.length > 0 && (
-                  <span className="navbar-notif-badge">
-                      {alertasStock.length}
-                  </span>
-              )}
+              <img src={iconNotificaciones} alt="Notificaciones" onClick={toggleNotificaciones} />
+              {alertasStock.length > 0 && <span className="navbar-notif-badge">{alertasStock.length}</span>}
 
-              {/* Dropdown que lista las notificaciones, solo visible si mostrarNotificaciones es true */}
               {mostrarNotificaciones && (
                 <div className="navbar-dropdown">
                   <p className="navbar-dropdown-titulo">Notificaciones</p>
-                  {/* .map() recorre el array de notificaciones y genera un bloque HTML por cada una.
-                      "key={n.id}" es obligatorio en React para que sepa identificar cada elemento de la lista */}
                   {alertasStock.map((mensaje, index) => (
                     <div className="navbar-notif-item" key={index}>
-                      <img
-                        src={iconAdvertencia}
-                        alt="Advertencia"
-                      />
-
+                      <img src={iconAdvertencia} alt="Advertencia" />
                       <span>{mensaje}</span>
                     </div>
                   ))}
@@ -190,14 +130,9 @@ function NavbarEncargada({ onCerrarSesion }) {
               )}
             </div>
 
-            {/* Ícono de opciones (las 3 líneas), abre un menú con "Cerrar Sesión" */}
+            {/* Opciones: cerrar sesión */}
             <div className="navbar-icon-wrapper">
-              <img
-                src={iconOpciones}
-                alt="Opciones"
-                onClick={toggleOpciones}
-              />
-
+              <img src={iconOpciones} alt="Opciones" onClick={toggleOpciones} />
               {mostrarOpciones && (
                 <div className="navbar-dropdown">
                   <div className="navbar-dropdown-item" onClick={pedirConfirmacion}>
@@ -213,7 +148,7 @@ function NavbarEncargada({ onCerrarSesion }) {
 
       </nav>
 
-      {/* Modal de confirmación de cierre de sesión, solo se muestra si "confirmando" es true */}
+      {/* Modal de confirmación de cierre de sesión */}
       {confirmando && (
         <ConfirmModal
           titulo="Cerrar sesión"

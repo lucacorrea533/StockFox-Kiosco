@@ -1,7 +1,10 @@
-/* Archivo de estilos globales del proyecto. Define la paleta de colores, tipografía y variables CSS compartidas entre todos los componentes. */
+/* Archivo de estilos globales del proyecto. Define la paleta de colores, tipografía y variables CSS 
+compartidas entre todos los componentes. */
 /* Aun así, este archivo define nada de lo que se ve en RecoKiosco
-/* Se basa en la plantilla Vite original, que es un proyecto de ejemplo para crear aplicaciones web modernas con React y Vite. */
-/* El diseño real esta en global.css, que importa este archivo y agrega la tipografía Lexend y otros estilos específicos del proyecto. */
+/* Se basa en la plantilla Vite original, que es un proyecto de ejemplo para crear aplicaciones web 
+modernas con React y Vite. */
+/* El diseño real esta en global.css, que importa este archivo y agrega la tipografía Lexend y otros 
+estilos específicos del proyecto. */
 
 :root {
   /* Paleta de colores por defecto de la plantilla Vite (modo claro) */

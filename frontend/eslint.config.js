@@ -1,4 +1,12 @@
-// Configuración de ESLint: revisa el código en busca de errores y malas prácticas de React/JS antes de que lleguen a producción
+// Configuración de ESLint: revisa el código en busca de errores y malas prácticas de React/JS antes 
+// de que lleguen a producción
+
+// ESLint es una herramienta que analiza el código fuente para encontrar errores, inconsistencias y malas 
+// prácticas. Ayuda a mantener un código limpio y consistente, y a prevenir errores antes de que lleguen 
+// a producción. En este proyecto, se utiliza ESLint con configuraciones específicas para React y Vite, 
+// asegurando que el código cumpla con las mejores prácticas de desarrollo web moderno.
+
+// Importes de módulos necesarios para la configuración de ESLint
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

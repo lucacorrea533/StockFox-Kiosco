@@ -1,5 +1,7 @@
-// Este archivo define la estructura de rutas de la aplicación y qué componente se renderiza en cada ruta. Es el punto de entrada para la navegación entre vistas.
-// import realiza la importación de módulos y componentes necesarios para la aplicación. En este caso, se importan los componentes de React Router y las vistas de la aplicación.
+// Este archivo define la estructura de rutas de la aplicación y qué componente se renderiza en cada ruta.
+// Es el punto de entrada para la navegación entre vistas.
+// import realiza la importación de módulos y componentes necesarios para la aplicación. En este caso, 
+// se importan los componentes de React Router y las vistas de la aplicación.
 
 // React Router - Sirve para manejar el enrutamiento entre las diferentes vistas
 import { BrowserRouter, Routes, Route } from 'react-router-dom'

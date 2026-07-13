@@ -1,43 +1,51 @@
+/* Estilos de la vista Catálogo del Alumno: layout general, banner de menú del
+   día/promociones y su carrusel, filtros de categoría, buscador, grilla de
+   productos, botón flotante del carrito, y todos los modales (producto,
+   variantes, carrito, confirmación) junto con el toast de "deshacer". */
+
 /* ── FONT ────────────────────────────────────────────────────────────────────── */
 /* Se importa Lexend, la tipografía oficial del proyecto */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;900&display=swap');
 
-/* Forzar Lexend en toda la vista de Catálogo y sus hijos */
+/* Fuerza Lexend en toda la vista de Catálogo y sus hijos */
 .catalogo-layout,
 .catalogo-layout * {
   font-family: 'Lexend', sans-serif;
 }
 
 /* ── LAYOUT ──────────────────────────────────────────────────────────────────── */
-/* Contenedor principal del catálogo, que ocupa toda la pantalla y tiene un fondo naranja pastel */
+/* Contenedor principal del catálogo, ocupa toda la pantalla con fondo naranja pastel */
 .catalogo-layout {
-  min-height: 100vh; /* Ocupa como mínimo toda la pantalla, aunque haya poco contenido */
+  min-height: 100vh;
   background-color: var(--naranja-pastel);
 }
 
-.catalogo-contenido { /* Contenedor interno que centra el contenido y deja espacio para la navbar fija de la izquierda */
-  margin-left: 350px; /* Deja el espacio libre para la navbar fija de la izquierda */
+/* Contenedor interno que centra el contenido y deja espacio para la navbar fija de la izquierda */
+.catalogo-contenido {
+  margin-left: 350px;
   padding: 30px;
   min-height: 100vh;
 }
 
 /* ── BANNER MENÚ DEL DÍA ─────────────────────────────────────────────────────── */
-/* Banner que muestra el menú del día o promociones especiales, con un título y un carrusel de cards */
+/* Banner que envuelve el título y el carrusel de menú del día / promociones */
 .catalogo-banner-menu {
   margin-bottom: 24px;
 }
 
-.catalogo-banner-titulo { /* Título del banner, por ejemplo "Menú del día" o "Promociones" */
+/* Título del banner, ej. "Promociones y Menú del Día" */
+.catalogo-banner-titulo {
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--marron-oscuro);
   margin-bottom: 12px;
 }
 
-.catalogo-banner-cards { /* Contenedor de las cards del menú del día, que se muestran en un carrusel horizontal */
+/* Contenedor alternativo de cards del menú (sin carrusel), por si no entran todas en una fila */
+.catalogo-banner-cards {
   display: flex;
   gap: 16px;
-  flex-wrap: wrap; /* Si no entran todas las cards, bajan de línea */
+  flex-wrap: wrap;
   margin-bottom: 28px;
 }
 
@@ -53,37 +61,51 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.menu-card-tipo { /* Tipo de producto (ej: "Combo", "Promo", "Menú del día") */
+/* Tipo de la card (ej: "Combo", "Promo", "Menú del día") */
+.menu-card-tipo {
   font-size: 0.75rem;
   color: var(--marron-naranja);
   font-weight: 600;
 }
 
-.menu-card-nombre { /* Nombre del producto (ej: "Combo Hamburguesa + Papas") */
+/* Nombre del producto/promo (ej: "Combo Hamburguesa + Papas") */
+.menu-card-nombre {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--marron-oscuro);
   line-height: 1.3;
 }
 
-.menu-card-desc { /* Descripción corta del producto (ej: "Incluye bebida y postre") */
+/* Descripción corta (ej: "Incluye bebida y postre") */
+.menu-card-desc {
   font-size: 0.78rem;
   color: var(--marron-naranja);
 }
 
-.menu-card-footer { /* Pie de la card, que contiene el precio y el botón de agregar al carrito */
+/* Pie de la card, con el precio y el botón de agregar */
+.menu-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 8px;
 }
 
-.menu-card-precio { /* Precio del producto (ej: "$450") */
+/* Precio del producto/promo */
+.menu-card-precio {
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
-.menu-card-btn { /* Botón de agregar al carrito dentro de la card del menú del día */
+/* Texto informativo para las cards no comprables (ej. menú del día): reemplaza al botón de agregar */
+.menu-card-info {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--marron-naranja);
+  font-style: italic;
+}
+
+/* Botón de agregar al carrito dentro de la card del menú del día */
+.menu-card-btn {
   padding: 6px 14px;
   font-size: 0.82rem;
   border-radius: 20px;
@@ -95,12 +117,13 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Oscurece el botón al pasar el mouse */
 .menu-card-btn:hover {
   background-color: var(--marron-naranja);
 }
 
 /* ── FILTROS DE CATEGORÍA ────────────────────────────────────────────────────── */
-/* Fila de íconos que filtran el catálogo por categoría (scrollable horizontalmente) */
+/* Fila de íconos que filtran el catálogo por categoría */
 .catalogo-categorias {
   display: flex;
   flex-wrap: wrap;
@@ -109,7 +132,8 @@
   align-items: center;
 }
 
-.catalogo-cat-btn { /* Botón individual de categoría, que contiene un ícono y se puede seleccionar */
+/* Botón individual de categoría, contiene un ícono y se puede seleccionar */
+.catalogo-cat-btn {
   background: none;
   border: none;
   padding: 0;
@@ -120,19 +144,21 @@
   display: block;
 }
 
-.catalogo-cat-btn img { /* Ícono de la categoría dentro del botón */
+/* Ícono de la categoría dentro del botón */
+.catalogo-cat-btn img {
   height: 30px;
   width: auto;
   display: block;
   border-radius: 14px;
 }
 
+/* Se agranda un poco y se atenúa al pasar el mouse */
 .catalogo-cat-btn:hover {
   opacity: 0.8;
   transform: scale(1.04);
 }
 
-/* Categoría actualmente seleccionada se marca con un borde grueso */
+/* Categoría actualmente seleccionada, marcada con un borde grueso */
 .catalogo-cat-btn.activo {
   outline: 3px solid var(--marron-oscuro);
   border-radius: 14px;
@@ -140,7 +166,7 @@
 }
 
 /* ── BUSCADOR ────────────────────────────────────────────────────────────────── */
-/* Barra de búsqueda que filtra los productos por nombre, con un ícono de lupa a la izquierda */
+/* Barra de búsqueda que filtra los productos por nombre, con ícono de lupa a la izquierda */
 .catalogo-buscador {
   display: flex;
   align-items: center;
@@ -152,13 +178,15 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
-.catalogo-buscador-icono { /* Ícono de lupa dentro del buscador */
+/* Ícono de lupa dentro del buscador */
+.catalogo-buscador-icono {
   width: 22px;
   height: 22px;
-  flex-shrink: 0; /* Que no se achique si el input crece */
+  flex-shrink: 0;
 }
 
-.catalogo-buscador input { /* Input de texto donde el usuario escribe su búsqueda */
+/* Input de texto donde el alumno escribe su búsqueda */
+.catalogo-buscador input {
   border: none;
   background: transparent;
   outline: none;
@@ -168,29 +196,33 @@
   font-family: 'Lexend', sans-serif;
 }
 
-.catalogo-buscador input::placeholder { /* Placeholder del input, que dice "Buscar productos..." */
+/* Placeholder del input de búsqueda */
+.catalogo-buscador input::placeholder {
   color: var(--marron-naranja);
 }
 
 /* ── GRILLA ──────────────────────────────────────────────────────────────────── */
-/* Grilla de productos: 4 columnas en desktop (2 en mobile, ver breakpoints aparte, aunque el Responive no se realizó completamente) */
+/* Grilla de productos: 4 columnas fijas en desktop (el responsive mobile no se completó del todo) */
 .catalogo-grilla {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
-.catalogo-card-wrapper { /* Cada producto se muestra dentro de un contenedor que tiene un pequeño efecto al pasar el mouse */
+/* Contenedor clickeable de cada producto, con un pequeño efecto al pasar el mouse */
+.catalogo-card-wrapper {
   cursor: pointer;
   transition: transform 0.15s;
 }
 
+/* Efecto de "levantado" al pasar el mouse sobre un producto */
 .catalogo-card-wrapper:hover {
-  transform: scale(1.02); /* Pequeño efecto de "levantado" al pasar el mouse */
+  transform: scale(1.02);
 }
 
 /* ── BOTÓN FLOTANTE CARRITO ──────────────────────────────────────────────────── */
-/* Botón fijo abajo a la derecha que muestra el carrito con cantidad y total */
+/* Botón fijo abajo a la derecha que muestra el carrito con cantidad y total.
+   Se repite más abajo con el mismo estilo para que también se vea igual en MisPedidos.jsx */
 .catalogo-carrito-flotante {
   position: fixed;
   bottom: 30px;
@@ -212,14 +244,16 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Se aclara al pasar el mouse */
 .catalogo-carrito-flotante:hover {
   background-color: var(--naranja);
 }
 
-.catalogo-carrito-flotante img { /* Ícono del carrito dentro del botón flotante */
+/* Ícono del carrito dentro del botón flotante, forzado a blanco sin necesitar otro asset */
+.catalogo-carrito-flotante img {
   width: 24px;
   height: 24px;
-  filter: brightness(0) invert(1); /* Fuerza el ícono a blanco sin necesitar otro asset */
+  filter: brightness(0) invert(1);
 }
 
 /* Numerito redondo con la cantidad de productos en el carrito */
@@ -236,6 +270,7 @@
   font-weight: 700;
 }
 
+/* Texto del total al lado del badge */
 .catalogo-carrito-total {
   font-size: 0.9rem;
 }
@@ -263,6 +298,7 @@
   position: relative;
 }
 
+/* Botón de cerrar (✕), flotando arriba a la derecha del modal */
 .modal-cerrar {
   position: absolute;
   top: 10px;
@@ -276,61 +312,71 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Se tiñe de naranja al pasar el mouse */
 .modal-cerrar:hover {
   background: none;
   color: var(--naranja);
 }
 
-.modal-producto-imagen { /* Contenedor de la imagen del producto dentro del modal */
+/* Contenedor de la imagen del producto dentro del modal */
+.modal-producto-imagen {
   width: 100%;
   height: 200px;
   background-color: var(--naranja-claro);
   overflow: hidden;
 }
 
-.modal-producto-imagen img { /* Imagen del producto dentro del modal, que se ajusta al contenedor */
+/* Imagen del producto dentro del modal, recortada para llenar el contenedor */
+.modal-producto-imagen img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.modal-producto-imagen .card-producto-placeholder { /* Placeholder de la imagen del producto dentro del modal, que se muestra mientras carga la imagen real */
+/* Placeholder (sin foto) dentro del modal de producto */
+.modal-producto-imagen .card-producto-placeholder {
   width: 100%;
   height: 100%;
 }
 
-.modal-producto-info { /* Contenedor de la información del producto dentro del modal: nombre, descripción, precio y botón */
+/* Contenedor de la info del producto dentro del modal: nombre, descripción, precio y botón */
+.modal-producto-info {
   padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.modal-producto-categoria { /* Nombre de la categoría del producto dentro del modal (ej: "Bebidas", "Snacks") */
+/* Categoría del producto dentro del modal (ej: "Bebidas", "Snacks") */
+.modal-producto-categoria {
   font-size: 0.78rem;
   color: var(--marron-naranja);
   font-weight: 600;
 }
 
-.modal-producto-nombre { /* Nombre del producto dentro del modal (ej: "Coca-Cola 500ml") */
+/* Nombre del producto dentro del modal */
+.modal-producto-nombre {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
-.modal-producto-desc { /* Descripción del producto dentro del modal (ej: "Refresco de cola, sin azúcar") */
+/* Descripción del producto dentro del modal */
+.modal-producto-desc {
   font-size: 0.88rem;
   color: #555;
   line-height: 1.4;
 }
 
-.modal-producto-precio { /* Precio del producto dentro del modal (ej: "$150") */
+/* Precio del producto dentro del modal */
+.modal-producto-precio {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--marron-oscuro);
   margin-top: 4px;
 }
 
+/* Botón de "Agregar al carrito" / "Sin stock" dentro del modal de producto */
 .modal-producto-btn {
   margin-top: 8px;
   padding: 10px;
@@ -348,6 +394,7 @@
   overflow-y: auto; /* Scroll si hay muchas variantes */
 }
 
+/* Texto "Elegí una opción:" arriba de la lista de variantes */
 .modal-variantes-label {
   font-size: 0.85rem;
   font-weight: 600;
@@ -356,6 +403,7 @@
   margin-bottom: 2px;
 }
 
+/* Lista de variantes disponibles, apiladas verticalmente */
 .modal-variantes-opciones {
   display: flex;
   flex-direction: column;
@@ -377,29 +425,33 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Resalta el borde al pasar el mouse */
 .modal-variante-btn:hover {
   border-color: var(--naranja);
   background-color: var(--naranja-claro);
 }
 
-/* Variante elegida por el alumno */
+/* Variante actualmente elegida por el alumno */
 .modal-variante-btn.activo {
   border-color: var(--marron-oscuro);
   background-color: var(--naranja-pastel);
 }
 
+/* Nombre de la variante (ej: "Grande") */
 .modal-variante-label {
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--marron-oscuro);
 }
 
+/* Precio de esa variante puntual */
 .modal-variante-precio {
   font-size: 0.88rem;
   font-weight: 700;
   color: var(--marron-naranja);
 }
 
+/* Texto extra opcional de la variante (ej. aclaración de tamaño) */
 .modal-variante-extra {
   font-size: 0.78rem;
   color: var(--marron-naranja);
@@ -422,6 +474,7 @@
   gap: 0;
 }
 
+/* Columna izquierda del modal: lista de productos del pedido */
 .modal-carrito-izq {
   flex: 1;
   padding: 24px;
@@ -430,12 +483,14 @@
   gap: 12px;
 }
 
+/* Título "Tu Pedido" */
 .modal-carrito-titulo {
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
+/* Subtítulo "Productos seleccionados" */
 .modal-carrito-subtitulo {
   font-size: 0.85rem;
   color: var(--marron-naranja);
@@ -462,6 +517,7 @@
   gap: 10px;
 }
 
+/* Miniatura de la imagen del producto dentro del carrito */
 .modal-carrito-item-imagen {
   width: 48px;
   height: 48px;
@@ -470,17 +526,20 @@
   flex-shrink: 0;
 }
 
+/* Placeholder (sin foto) dentro de la miniatura del carrito */
 .modal-carrito-item-imagen .card-producto-placeholder {
   width: 100%;
   height: 100%;
 }
 
+/* Bloque de nombre + precio unitario del producto en el carrito */
 .modal-carrito-item-info {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
+/* Nombre del producto en el carrito */
 .modal-carrito-item-nombre {
   font-weight: 700;
   font-size: 0.9rem;
@@ -488,6 +547,7 @@
   line-height: 1.3;
 }
 
+/* Precio unitario del producto en el carrito */
 .modal-carrito-item-precio {
   font-size: 0.78rem;
   color: var(--marron-naranja);
@@ -500,6 +560,7 @@
   gap: 8px;
 }
 
+/* Botones circulares de + y - */
 .modal-carrito-item-controles button {
   width: 28px;
   height: 28px;
@@ -514,13 +575,15 @@
   font-family: 'Lexend', sans-serif;
 }
 
-.modal-carrito-item-controles span { /* Muestra la cantidad de cada producto en el carrito */
+/* Cantidad actual del producto, entre los botones + y - */
+.modal-carrito-item-controles span {
   font-weight: 700;
   color: var(--marron-oscuro);
   min-width: 20px;
   text-align: center;
 }
 
+/* Subtotal del producto (precio x cantidad) */
 .modal-carrito-item-subtotal {
   font-weight: 700;
   color: var(--marron-oscuro);
@@ -542,6 +605,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Se invierte a fondo marrón oscuro con texto blanco al pasar el mouse */
 .modal-seguir-btn:hover {
   background-color: var(--marron-oscuro);
   color: white;
@@ -560,6 +624,7 @@
   flex-shrink: 0;
 }
 
+/* Título "Resumen" */
 .modal-resumen h3 {
   font-size: 1rem;
   font-weight: 700;
@@ -567,6 +632,7 @@
   margin-bottom: 8px;
 }
 
+/* Cada fila del resumen: nombre x cantidad, y su subtotal */
 .modal-resumen-fila {
   display: flex;
   justify-content: space-between;
@@ -576,11 +642,13 @@
   gap: 8px;
 }
 
+/* El texto (nombre) ocupa el espacio libre, empujando el precio a la derecha */
 .modal-resumen-fila span:first-child {
   flex: 1;
   line-height: 1.3;
 }
 
+/* Fila del total general, separada con una línea arriba */
 .modal-resumen-total {
   display: flex;
   justify-content: space-between;
@@ -592,6 +660,7 @@
   margin-top: 4px;
 }
 
+/* Título "Elegir horario de retiro" */
 .modal-horarios h3 {
   font-size: 0.95rem;
   font-weight: 700;
@@ -599,13 +668,14 @@
   margin-bottom: 8px;
 }
 
-/* Selector de turno (ej: recreo mañana / tarde) antes de mostrar los horarios puntuales */
+/* Selector de turno (Mañana/Tarde/Noche) antes de mostrar los horarios puntuales */
 .modal-turno-selector {
   display: flex;
   gap: 6px;
   margin-bottom: 10px;
 }
 
+/* Botón de cada turno */
 .modal-turno-btn {
   flex: 1;
   padding: 6px;
@@ -620,11 +690,13 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Resalta el turno al pasar el mouse */
 .modal-turno-btn:hover {
   background-color: var(--naranja);
   color: white;
 }
 
+/* Turno actualmente seleccionado */
 .modal-turno-btn.activo {
   background-color: var(--marron-oscuro);
   color: white;
@@ -648,16 +720,19 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Se agranda y aclara un poco al pasar el mouse */
 .modal-horario-btn:hover {
   filter: brightness(1.2);
   transform: scale(1.02);
 }
 
+/* Horario actualmente seleccionado */
 .modal-horario-btn.activo {
   outline: 3px solid var(--marron-oscuro);
   filter: brightness(1.15);
 }
 
+/* Hora del horario (ej: "10:35") */
 .modal-horario-hora {
   font-size: 0.95rem;
   font-weight: 700;
@@ -665,6 +740,7 @@
   white-space: nowrap;
 }
 
+/* Momento del día asociado a ese horario (ej: "2do recreo") */
 .modal-horario-momento {
   font-size: 0.78rem;
   font-weight: 500;
@@ -672,6 +748,7 @@
   text-align: right;
 }
 
+/* Aviso que recuerda elegir un horario antes de poder confirmar */
 .modal-horario-aviso {
   font-size: 0.78rem;
   color: var(--marron-naranja);
@@ -692,6 +769,7 @@
   text-align: center;
 }
 
+/* Círculo que envuelve el ícono de check */
 .modal-confirmado-icono {
   width: 64px;
   height: 64px;
@@ -700,23 +778,27 @@
   justify-content: center;
 }
 
+/* Ícono de check dentro del círculo */
 .modal-confirmado-icono img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
+/* Título "¡Pedido confirmado!" */
 .modal-confirmado h2 {
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
+/* Subtítulo "Pedido enviado al kiosco" */
 .modal-confirmado-sub {
   font-size: 0.88rem;
   color: var(--marron-naranja);
 }
 
+/* Línea con el horario de retiro confirmado */
 .modal-confirmado-horario {
   display: flex;
   align-items: center;
@@ -736,6 +818,7 @@
 }
 
 /* ── BOTONES CONFIRMAR / CANCELAR ────────────────────────────────────────────── */
+/* Botón principal de "Confirmar Pedido" */
 .modal-confirmar-btn {
   width: 100%;
   padding: 12px;
@@ -750,6 +833,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Se oscurece un poco al pasar el mouse */
 .modal-confirmar-btn:hover {
   background-color: var(--marron-naranja);
   color: #000;
@@ -762,6 +846,7 @@
   color: #555;
 }
 
+/* Botón secundario de "Cancelar" */
 .modal-cancelar-btn {
   width: 100%;
   padding: 12px;
@@ -776,6 +861,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Se oscurece un poco al pasar el mouse */
 .modal-cancelar-btn:hover {
   background-color: var(--naranja-pastel);
 }
@@ -798,39 +884,15 @@
   transition: border-color 0.2s;
 }
 
+/* Resalta el borde al pasar el mouse */
 .carrito-select-variedad:hover {
   border-color: var(--marron-oscuro);
 }
 
+/* Resalta el borde y el fondo al hacer foco */
 .carrito-select-variedad:focus {
   border-color: var(--marron-oscuro);
   background-color: var(--naranja-claro);
-}
-
-/* Repetimos el estilo del botón flotante para que también se vea igual en MisPedidos.jsx */
-.catalogo-carrito-flotante {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background-color: var(--marron-oscuro);
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  z-index: 100;
-  transition: background-color 0.2s;
-  font-size: 0.95rem;
-  font-weight: 700;
-  font-family: 'Lexend', sans-serif;
-}
-
-.catalogo-carrito-flotante:hover {
-  background-color: var(--naranja);
 }
 
 /* ── CARRUSEL MENÚ DEL DÍA ────────────────────────────────────────────────── */
@@ -842,13 +904,14 @@
   margin-bottom: 28px;
 }
 
+/* Fila de cards visibles en la página actual del carrusel */
 .carrusel-menu-track {
   display: grid;
   grid-template-columns: repeat(4, 220px);
   gap: 16px;
 }
 
-/* Placeholder invisible para mantener el grid cuando hay < 4 cards */
+/* Placeholder invisible para mantener el grid cuando hay menos de 4 cards */
 .catalogo-menu-card-placeholder {
   width: 220px;
   visibility: hidden;
@@ -862,6 +925,7 @@
   padding: 2px 0;
 }
 
+/* Cada punto de navegación */
 .carrusel-dot {
   width: 10px;
   height: 10px;
@@ -874,13 +938,14 @@
   transition: background-color 0.25s, transform 0.2s;
 }
 
-/* Dot de la página actual del carrusel */
+/* Dot de la página actual del carrusel, más grande y de otro color */
 .carrusel-dot.activo {
   background-color: var(--naranja);
   border-color: var(--naranja);
   transform: scale(1.3);
 }
 
+/* Resalta el borde de los dots no activos al pasar el mouse */
 .carrusel-dot:hover:not(.activo) {
   background-color: var(--naranja-pastel);
   border-color: var(--marron-oscuro);
@@ -914,6 +979,7 @@
 }
 
 /* ── BOTONES EDITAR / ELIMINAR EN CADA ITEM DEL CARRITO ──────────────────── */
+/* Fila que agrupa los botones de editar y eliminar de cada producto del carrito */
 .carrito-item-acciones {
   display: flex;
   flex-direction: row;
@@ -922,6 +988,7 @@
   justify-content: center;
 }
 
+/* Botones circulares de editar y eliminar */
 .carrito-btn-editar,
 .carrito-btn-eliminar {
   background: none;
@@ -935,6 +1002,7 @@
   justify-content: center;
 }
 
+/* Ícono dentro de los botones de editar/eliminar */
 .carrito-btn-editar img,
 .carrito-btn-eliminar img {
   width: 20px;
@@ -943,6 +1011,7 @@
   display: block;
 }
 
+/* Fondo suave al pasar el mouse sobre "editar" */
 .carrito-btn-editar:hover {
   background-color: var(--naranja-pastel);
   transform: scale(1.12);
@@ -963,6 +1032,7 @@
   min-height: 56px;
 }
 
+/* Texto "X eliminado" dentro de la fila de undo */
 .item-undo-texto {
   font-size: 0.85rem;
   color: var(--marron-naranja);
@@ -970,6 +1040,7 @@
   font-style: italic;
 }
 
+/* Botón "Deshacer" dentro de la fila de undo */
 .item-undo-btn {
   background-color: var(--marron-oscuro);
   color: white;
@@ -985,11 +1056,12 @@
   flex-shrink: 0;
 }
 
+/* Se aclara al pasar el mouse */
 .item-undo-btn:hover {
   background-color: var(--naranja);
 }
 
-/* Toast flotante que confirma la eliminación de un producto del carrito */
+/* Toast flotante que confirma la eliminación de un producto del carrito, con opción de deshacer */
 .catalogo-toast {
   position: fixed;
   bottom: 32px;
@@ -1009,10 +1081,10 @@
   font-weight: 500;
   animation: catalogoToastEntrar 0.2s ease;
   white-space: nowrap;
-  /* Si el carrito flotante está visible, el toast se queda por encima de él */
-  margin-bottom: 70px;
+  margin-bottom: 70px; /* Si el carrito flotante está visible, el toast se queda por encima de él */
 }
 
+/* Botón "Deshacer" dentro del toast */
 .catalogo-toast-btn {
   background: var(--naranja);
   color: white;
@@ -1027,21 +1099,12 @@
   flex-shrink: 0;
 }
 
+/* Se atenúa un poco al pasar el mouse */
 .catalogo-toast-btn:hover {
   opacity: 0.85;
 }
 
-.menu-card-info {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--marron-naranja);
-  font-style: italic;
-}
-
-/* Animación de entrada del toast: aparece deslizándose un poco hacia arriba */
-/* O sea, esto lo que hace es que el toast aparezca con un efecto de "fade in" y "slide up" */
-/* El toast es el mensaje que aparece cuando se elimina un producto del carrito, con opción de deshacer */
-/* Fade in significa que la opacidad va de 0 a 1, y slide up significa que la posición vertical va de abajo hacia arriba */
+/* Animación de entrada del toast: aparece con "fade in" (opacidad 0→1) y "slide up" (sube unos px) */
 @keyframes catalogoToastEntrar {
   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
