@@ -1,11 +1,15 @@
-/* Este archivo contiene la página de Ventas Presenciales, donde se pueden seleccionar productos, ver el resumen de la venta y confirmar o cancelar la misma. */
-import { useState, useRef } from 'react'
-import { useEffect } from "react"
+/* Este archivo contiene la página de Ventas Presenciales.
+   Permite a la encargada seleccionar productos de forma interactiva (sumar/restar cantidades),
+   filtrar por categorías dinámicas mediante botones visuales, buscar por nombre, ver un desglose 
+   detallado de la venta actual y confirmarla o cancelarla. Además, cuenta con un historial de transacciones 
+   diarias en tiempo real y un Toast con cuenta regresiva para deshacer cancelaciones accidentales. */
+
+import { useState, useRef, useEffect } from 'react'
 import api from '../api/axiosClient'
 import NavbarEncargada from '../components/NavbarEncargada'
 import TarjetaProducto from '../components/TarjetaProducto'
 import ResumenVenta from '../components/ResumenVenta'
-import iconBuscador  from '../assets/icons/BuscadorBoton.png'
+import iconBuscador from '../assets/icons/BuscadorBoton.png'
 import iconHistorial from '../assets/icons/HistorialBoton.png'
 import iconTodos     from '../assets/icons/Todos.png'
 import iconSnacks    from '../assets/icons/Snacks.png'
@@ -15,140 +19,111 @@ import iconDulces    from '../assets/icons/Dulces.png'
 import iconBocados   from '../assets/icons/Bocados.png'
 import iconBebCal    from '../assets/icons/Beb.Calientes.png'
 import iconServicios from '../assets/icons/Servicios.png'
-
 import iconGalletitas from '../assets/icons/Galletitas.png'
 import iconProductosExtra from '../assets/icons/ProductosExtra.png'
 import '../styles/VentasPresenciales.css'
 
-
+/* Diccionario de mapeo para asociar los nombres de categoría provenientes de Django con sus assets locales */
 const ICONOS_CATEGORIAS = {
-
   "Snacks": iconSnacks,
-
   "Bebidas": iconBebidas,
-
   "Alfajores y Chocolates": iconAlfajores,
-
   "Dulces": iconDulces,
-
   "Bocados y Aperitivos": iconBocados,
-
   "Bebidas Calientes": iconBebCal,
-
   "Servicios": iconServicios,
-
   "Galletitas": iconGalletitas,
-
   "Productos Extra": iconProductosExtra
-
 }
-
 
 const USUARIO_ACTUAL = 'Encargada'
 
 function VentasPresenciales() {
+  /* ── Estados de Control y Filtros ─────────────────────────────────────────────────── */
   const [busqueda, setBusqueda]               = useState('')
   const [categoriaActiva, setCategoriaActiva] = useState('Todos')
+  
+  /* cantidades: Estructura de diccionario { [id_producto]: cantidad_seleccionada } */
   const [cantidades, setCantidades]           = useState({})
+  
   const [ventaConfirmada, setVentaConfirmada] = useState(null)
   const [historial, setHistorial]             = useState([])
   const [error, setError]                     = useState('')
-  const [undoToast, setUndoToast]             = useState(null) // { cantidadesGuardadas, segundos }
+  
+  /* undoToast: Estado para controlar el Toast de cancelación ({ cantidadesGuardadas, segundos }) */
+  const [undoToast, setUndoToast]             = useState(null)
   const undoTimerRef                          = useRef(null)
   const undoCountRef                          = useRef(null)
+
   const [productosDisponibles, setProductosDisponibles] = useState([])
-  const [categorias, setCategorias] = useState([])
-  const [idUsuario, setIdUsuario] = useState(1)
-  const [registrandoVenta, setRegistrandoVenta] = useState(false)
-  const [alertasStock, setAlertasStock] = useState([])
+  const [categorias, setCategorias]                     = useState([])
+  const [idUsuario, setIdUsuario]                       = useState(1)
+  const [registrandoVenta, setRegistrandoVenta]         = useState(false)
+  const [alertasStock, setAlertasStock]                 = useState([])
 
+  /* ── Efectos (useEffect) para Sincronización Inicial ──────────────────────────────── */
+
+  /* Recupera el ID del usuario actual de la sesión local */
   useEffect(() => {
-  const id = localStorage.getItem('id')
-  if (id) setIdUsuario(Number(id))
-}, [])
+    const id = localStorage.getItem('id')
+    if (id) setIdUsuario(Number(id))
+  }, [])
 
+  /* Carga inicial del catálogo de productos activos desde el backend de Django */
   useEffect(() => {
-
     api.get("productos/")
-    .then(response => {
+      .then(response => {
+        const productos = response.data.map(producto => ({
+          id: producto.id_producto,
+          nombre: producto.nombre,
+          categoria: producto.categoria,
+          precio: Number(producto.precio_actual),
+          stock: producto.stock,
+          stock_minimo: producto.stock_minimo,
+          foto_url: producto.foto_url
+        }))
+        setProductosDisponibles(productos)
+      })
+      .catch(error => {
+        console.error("Error al cargar productos:", error)
+      })
+  }, [])
 
-      const productos = response.data.map(producto => ({
-
-        id: producto.id_producto,
-
-        nombre: producto.nombre,
-
-        categoria: producto.categoria,
-
-        precio: Number(producto.precio_actual),
-
-        stock: producto.stock,
-
-        stock_minimo: producto.stock_minimo,
-
-        foto_url: producto.foto_url
-
-      }))
-
-      setProductosDisponibles(productos)
-
-    })
-
-    .catch(error => {
-
-      console.error(error)
-
-    })
-
-}, [])
-
-
-useEffect(() => {
-
+  /* Carga inicial de categorías de productos para estructurar el panel de filtrado */
+  useEffect(() => {
     api.get("categorias/")
-    .then(response => {
+      .then(response => {
+        setCategorias(response.data)
+      })
+      .catch(error => {
+        console.error("Error al cargar categorías:", error)
+      })
+  }, [])
 
-      setCategorias(response.data)
+  /* ── Cálculos Derivados y Listas de UI ────────────────────────────────────────────── */
 
-    })
+  /* Une la opción global de 'Todos' con el listado dinámico de la API asignándole su ícono correspondiente */
+  const categoriasConIcono = [
+    {
+      nombre: "Todos",
+      icono: iconTodos
+    },
+    ...categorias.map(cat => ({
+      nombre: cat.nombre,
+      icono: ICONOS_CATEGORIAS[cat.nombre]
+    }))
+  ]
 
-    .catch(error => {
-
-      console.error(error)
-
-    })
-
-}, [])
-
-
-const categoriasConIcono = [
-
-  {
-    nombre: "Todos",
-    icono: iconTodos
-  },
-
-  ...categorias.map(cat => {
-
-  return {
-
-    nombre: cat.nombre,
-
-    icono: ICONOS_CATEGORIAS[cat.nombre]
-
-  }
-
-})
-
-]
-
-
+  /* Filtra reactivamente la grilla de productos según el buscador y la categoría activa */
   const productosFiltrados = productosDisponibles.filter((p) => {
     const coincideNombre    = p.nombre.toLowerCase().includes(busqueda.toLowerCase())
     const coincideCategoria = categoriaActiva === 'Todos' || p.categoria === categoriaActiva
     return coincideNombre && coincideCategoria
   })
 
+  /* ── Controladores de Cantidades de Compra (Carrito Local) ────────────────────────── */
+
+  /* sumar: Incrementa en 1 la cantidad seleccionada para el carrito, respetando el límite de stock real */
   function sumar(producto) {
     if (producto.stock === 0) return
     setCantidades((prev) => {
@@ -159,6 +134,7 @@ const categoriasConIcono = [
     setError('')
   }
 
+  /* restar: Decrementa en 1 la cantidad. Si la cantidad llega a cero, remueve la clave del estado */
   function restar(producto) {
     setCantidades((prev) => {
       const actual = prev[producto.id] ?? 0
@@ -172,6 +148,7 @@ const categoriasConIcono = [
     })
   }
 
+  /* itemsSeleccionados: Mapea la selección actual con los detalles completos del producto cargado */
   const itemsSeleccionados = productosDisponibles
     .filter((p) => cantidades[p.id] > 0)
     .map((p) => ({
@@ -182,171 +159,99 @@ const categoriasConIcono = [
 
   const total = itemsSeleccionados.reduce((acc, i) => acc + i.subtotal, 0)
 
+  /* ── Confirmación, Cancelación y Reversión de la Venta ────────────────────────────── */
 
-
+  /* handleConfirmar: Envía la venta al backend de Django, descuenta stock localmente y procesa alertas */
   async function handleConfirmar() {
-
-  if (itemsSeleccionados.length === 0) {
-
-    setError("Seleccioná al menos un producto antes de confirmar.")
-
-    return
-
-  }
-
-  if (registrandoVenta) return
-
-  setRegistrandoVenta(true)
-
-  const ventaBackend = {
-
-    id_usuario: idUsuario,
-
-    productos: itemsSeleccionados.map(item => ({
-
-      id_producto: item.id,
-
-      cantidad: item.cantidad
-
-    }))
-
-  }
-
-  try {
-
-    const response = await api.post("ventas/registrar", ventaBackend)
-
-    console.log(response.data)
-
-    if (response.data.alertas_stock?.length > 0) {
-
-    setAlertasStock(prev => {
-
-    const nuevas = response.data.alertas_stock.filter(
-
-        alerta => !prev.includes(alerta)
-
-    )
-
-    return [
-
-        ...prev,
-
-        ...nuevas
-
-    ]
-
-})
-
-}
-
-    setProductosDisponibles(prev =>
-
-  prev.map(producto => {
-
-    const vendido = itemsSeleccionados.find(
-
-      item => item.id === producto.id
-
-    )
-
-    if (!vendido) return producto
-
-    return {
-
-      ...producto,
-
-      stock: Math.max(
-            0,
-            producto.stock - vendido.cantidad
-        )
-
+    if (itemsSeleccionados.length === 0) {
+      setError("Seleccioná al menos un producto antes de confirmar.")
+      return
     }
 
-  })
+    if (registrandoVenta) return
+    setRegistrandoVenta(true)
 
-)
+    const ventaBackend = {
+      id_usuario: idUsuario,
+      productos: itemsSeleccionados.map(item => ({
+        id_producto: item.id,
+        cantidad: item.cantidad
+      }))
+    }
 
-    const hora = new Date().toLocaleTimeString(
-  "es-AR",
-  {
-    hour: "2-digit",
-    minute: "2-digit"
-  }
-)
+    try {
+      const response = await api.post("ventas/registrar", ventaBackend)
+      console.log("Venta confirmada exitosamente:", response.data)
 
-const nuevaVenta = {
+      /* Si la venta disparó alertas de stock crítico en Django, las anexamos al estado global */
+      if (response.data.alertas_stock?.length > 0) {
+        setAlertasStock(prev => {
+          const nuevas = response.data.alertas_stock.filter(
+            alerta => !prev.includes(alerta)
+          )
+          return [...prev, ...nuevas]
+        })
+      }
 
-  items: itemsSeleccionados,
+      /* Restamos el stock localmente para mantener la UI sincronizada sin requerir otro fetch completo */
+      setProductosDisponibles(prev =>
+        prev.map(producto => {
+          const vendido = itemsSeleccionados.find(item => item.id === producto.id)
+          if (!vendido) return producto
+          return {
+            ...producto,
+            stock: Math.max(0, producto.stock - vendido.cantidad)
+          }
+        })
+      )
 
-  total,
+      const hora = new Date().toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
 
-  usuario: USUARIO_ACTUAL,
+      const nuevaVenta = {
+        items: itemsSeleccionados,
+        total,
+        usuario: USUARIO_ACTUAL,
+        hora
+      }
 
-  hora
+      setVentaConfirmada(nuevaVenta)
+      setHistorial(prev => [nuevaVenta, ...prev]) // Agregamos al tope del historial diario
+      setCantidades({})
+      setError("")
 
-}
-
-setVentaConfirmada(nuevaVenta)
-
-setHistorial(prev => [
-
-  nuevaVenta,
-
-  ...prev
-
-])
-
-setCantidades({})
-
-setError("")
-
-  }
-
-  catch(error){
-
-    console.error(error)
-
-    if (error.response?.data?.error){
-
+    } catch (error) {
+      console.error(error)
+      if (error.response?.data?.error) {
         setError(error.response.data.error)
-
-    }
-
-    else{
-
+      } else {
         setError("Error al registrar la venta.")
-
+      }
+    } finally {
+      setRegistrandoVenta(false)
     }
+  }
 
-}
-
-finally{
-
-    setRegistrandoVenta(false)
-
-}
-
-}
-
+  /* handleCancelar: Vacía el carrito actual e inicia un temporizador de 5s para deshacer el descarte */
   function handleCancelar() {
-    // Si no hay nada seleccionado, cancela directo sin toast
     if (Object.keys(cantidades).length === 0) {
       setVentaConfirmada(null)
       return
     }
 
-    // Guarda las cantidades actuales para poder deshacer
+    // Respaldamos la selección actual por si la encargada presiona deshacer
     const cantidadesGuardadas = { ...cantidades }
     setCantidades({})
     setVentaConfirmada(null)
     setError('')
 
-    // Limpia timers anteriores
+    // Reseteamos referencias a intervalos y temporizadores activos
     clearInterval(undoCountRef.current)
     clearTimeout(undoTimerRef.current)
 
-    // Arranca el toast con cuenta regresiva
+    // Inicializamos el Toast flotante con cuenta regresiva activa
     setUndoToast({ cantidadesGuardadas, segundos: 5 })
 
     undoCountRef.current = setInterval(() => {
@@ -365,6 +270,7 @@ finally{
     }, 5000)
   }
 
+  /* handleUndo: Restaura de forma inmediata el carrito de compras respaldado */
   function handleUndo() {
     clearInterval(undoCountRef.current)
     clearTimeout(undoTimerRef.current)
@@ -374,35 +280,34 @@ finally{
     setUndoToast(null)
   }
 
+  /* handleDismissToast: Descarta definitivamente el respaldo sin esperar a que culmine el temporizador */
   function handleDismissToast() {
     clearInterval(undoCountRef.current)
     clearTimeout(undoTimerRef.current)
     setUndoToast(null)
   }
 
+  /* handleNuevaVenta: Restablece el modal o el resumen del panel para iniciar una transacción limpia */
   function handleNuevaVenta() {
+    setVentaConfirmada(null)
+    setCantidades({})
+    setError("")
+  }
 
-  setVentaConfirmada(null)
-
-  setCantidades({})
-
-  setError("")
-
-}
-
+  /* ── Renderizado Principal del Módulo ──────────────────────────────────────────────── */
   return (
     <div className="vp-layout">
-      <NavbarEncargada
-          alertasStock={alertasStock}
-      />
+      {/* Menú de navegación lateral con soporte para alertas de stock dinámicas */}
+      <NavbarEncargada alertasStock={alertasStock} />
 
       <main className="vp-main">
         <div className="vp-contenido">
 
+          {/* Panel Lateral Izquierdo: Catálogo interactivo e Historial */}
           <section className="vp-productos">
             <h1 className="vp-titulo">Ventas Presenciales</h1>
 
-            {/* Buscador */}
+            {/* Caja de Búsqueda */}
             <div className="vp-buscador">
               <img src={iconBuscador} alt="Buscar" className="vp-buscador-icono-img" />
               <input
@@ -413,7 +318,7 @@ finally{
               />
             </div>
 
-            {/* Categorías: cada imagen ES el botón */}
+            {/* Barra de Selección Rápida por Categorías */}
             <div className="vp-categorias">
               {categoriasConIcono.map((cat) => (
                 <img
@@ -428,7 +333,7 @@ finally{
               ))}
             </div>
 
-            {/* Grilla */}
+            {/* Grilla de Selección de Productos */}
             <div className="vp-grilla">
               {productosFiltrados.map((producto) => (
                 <TarjetaProducto
@@ -444,7 +349,7 @@ finally{
               )}
             </div>
 
-            {/* Historial del día */}
+            {/* Listado Histórico de Ventas Procesadas en el Turno Actual */}
             {historial.length > 0 && (
               <div className="vp-historial">
                 <h2 className="vp-historial-titulo">
@@ -470,6 +375,7 @@ finally{
             )}
           </section>
 
+          {/* Panel Lateral Derecho: Resumen financiero detallado del carrito activo */}
           <ResumenVenta
             items={itemsSeleccionados}
             total={total}
@@ -484,10 +390,10 @@ finally{
         </div>
       </main>
 
-      {/* Toast de deshacer cancelación */}
+      {/* Toast Informativo de Descarte con Soporte para Recuperar la Selección */}
       {undoToast && (
         <div className="vp-undo-toast">
-          <span>Venta cancelada</span>
+          <span>Venta cancelada ({undoToast.segundos}s)</span>
           <button className="vp-undo-btn" onClick={handleUndo}>
             Deshacer
           </button>

@@ -5,6 +5,8 @@
 /* ─────────────────────────────────────────────
    Layout principal
 ───────────────────────────────────────────── */
+
+/* Contenedor general de la vista, desplazado a la derecha para dejar lugar al menú lateral fijo */
 .gestion-productos {
   margin-left: 350px;
   flex: 1;
@@ -15,6 +17,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Título principal de la página */
 .gp-titulo {
   font-size: 1.8rem;
   font-weight: 700;
@@ -26,12 +29,15 @@
 /* ─────────────────────────────────────────────
    Barra de búsqueda + filtro
 ───────────────────────────────────────────── */
+
+/* Contenedor de la barra superior: buscador + selector de categoría, en fila */
 .gp-barra {
   display: flex;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
 }
 
+/* Caja del buscador de productos (ícono + input) */
 .gp-buscador {
   flex: 1;
   display: flex;
@@ -43,6 +49,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Ícono de lupa dentro del buscador */
 .gp-buscador-icono {
   width: 20px;
   height: 20px;
@@ -50,6 +57,7 @@
   flex-shrink: 0;
 }
 
+/* Input de texto del buscador */
 .gp-buscador input {
   flex: 1;
   border: none;
@@ -63,6 +71,7 @@
 
 .gp-buscador input::placeholder { color: rgba(92, 45, 10, 0.5); }
 
+/* Select desplegable para filtrar productos por categoría */
 .gp-select-categoria {
   background: var(--naranja-claro);
   border: none;
@@ -79,6 +88,8 @@
 /* ─────────────────────────────────────────────
    Tabla de productos
 ───────────────────────────────────────────── */
+
+/* Contenedor general de la tabla completa (encabezado + filas) */
 .tp-wrapper {
   background: var(--naranja-claro);
   border-radius: 10px;
@@ -87,6 +98,7 @@
   margin-bottom: 1.5rem;
 }
 
+/* Definición común de columnas para el encabezado y cada fila de la tabla (deben coincidir) */
 .tp-encabezado,
 .tp-fila {
   display: grid;
@@ -97,6 +109,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Estilo específico del encabezado de la tabla (fondo y tipografía) */
 .tp-encabezado {
   background: var(--naranja);
   font-weight: 700;
@@ -104,13 +117,16 @@
   color: var(--marron-oscuro);
 }
 
+/* Estilo de cada fila de producto */
 .tp-fila {
   border-top: 1px solid rgba(92, 45, 10, 0.12);
   font-size: 0.9rem;
 }
 
+/* Resalta la fila al pasar el mouse por encima */
 .tp-fila:hover { background: rgba(255, 255, 255, 0.15); }
 
+/* Miniatura de la foto del producto */
 .tp-foto {
   width: 60px;
   height: 60px;
@@ -118,6 +134,7 @@
   object-fit: cover;
 }
 
+/* Placeholder mostrado cuando el producto no tiene foto cargada */
 .tp-foto--placeholder {
   display: flex;
   align-items: center;
@@ -127,17 +144,20 @@
   font-size: 1rem;
 }
 
+/* Resalta en rojo el stock cuando está por debajo del umbral bajo */
 .tp-stock--bajo {
   color: #c0392b;
   font-weight: 700;
 }
 
+/* Contenedor de los botones de acción de cada fila (editar, eliminar, historial) */
 .tp-acciones {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
 }
 
+/* Estilo base compartido por todos los botones de acción de la tabla */
 .tp-btn {
   border: none;
   border-radius: 6px;
@@ -151,6 +171,7 @@
 
 .tp-btn:hover { opacity: 0.8; }
 
+/* Botón de editar producto */
 .tp-btn--editar {
   background: var(--naranja);
   color: white;
@@ -160,6 +181,7 @@
   justify-content: center;
 }
 
+/* Botón de eliminar producto */
 .tp-btn--eliminar {
   background: var(--naranja-pastel);
   color: white;
@@ -169,6 +191,7 @@
   justify-content: center;
 }
 
+/* Botón de ver historial de precios */
 .tp-btn--historial {
   background: var(--marron-naranja);
   color: white;
@@ -178,12 +201,14 @@
   justify-content: center;
 }
 
+/* Íconos dentro de los botones de acción */
 .tp-btn-icono {
   width: 24px;
   height: 24px;
   display: block;
 }
 
+/* Mensaje mostrado cuando no hay productos que coincidan con la búsqueda/filtro */
 .tp-vacia {
   text-align: center;
   padding: 1.5rem;
@@ -195,6 +220,8 @@
 /* ─────────────────────────────────────────────
    Modales — overlay compartido
 ───────────────────────────────────────────── */
+
+/* Fondo oscuro semitransparente detrás de cualquier modal (confirmar, historial, etc.) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -205,6 +232,7 @@
   z-index: 999;
 }
 
+/* Caja blanca/naranja central del modal */
 .modal-caja {
   background: var(--naranja-pastel);
   border-radius: 12px;
@@ -216,6 +244,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Texto principal dentro del modal (ej: pregunta de confirmación) */
 .modal-texto {
   font-size: 1rem;
   color: var(--marron-oscuro);
@@ -223,12 +252,14 @@
   line-height: 1.5;
 }
 
+/* Contenedor de los botones de acción del modal */
 .modal-botones {
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
 
+/* Estilo base compartido por los botones del modal */
 .modal-btn {
   border: none;
   border-radius: 8px;
@@ -242,11 +273,13 @@
 
 .modal-btn:hover { opacity: 0.85; }
 
+/* Botón "No" (cancelar acción) */
 .modal-btn--no {
   background: rgba(92, 45, 10, 0.15);
   color: var(--marron-oscuro);
 }
 
+/* Botón "Sí" (confirmar acción destructiva, ej: eliminar) */
 .modal-btn--si {
   background: #c0392b;
   color: white;
@@ -255,11 +288,14 @@
 /* ─────────────────────────────────────────────
    Modal historial de precios
 ───────────────────────────────────────────── */
+
+/* Variante más ancha y alineada a la izquierda para el modal de historial */
 .modal-historial-caja {
   max-width: 520px;
   text-align: left;
 }
 
+/* Título del modal de historial */
 .modal-historial-titulo {
   font-size: 1.1rem;
   font-weight: 700;
@@ -267,6 +303,7 @@
   margin: 0 0 4px 0;
 }
 
+/* Nombre del producto dentro del modal de historial */
 .modal-historial-producto {
   font-size: 0.88rem;
   color: var(--marron-naranja);
@@ -274,6 +311,7 @@
   margin: 0 0 1.2rem 0;
 }
 
+/* Mensaje mostrado cuando el producto no tiene historial de cambios de precio */
 .modal-historial-vacio {
   font-size: 0.9rem;
   color: var(--marron-oscuro);
@@ -282,11 +320,13 @@
   margin: 0;
 }
 
+/* Contenedor de la tabla de historial */
 .modal-historial-tabla {
   border-radius: 8px;
   overflow: hidden;
 }
 
+/* Definición común de columnas para el encabezado y cada fila del historial (deben coincidir) */
 .modal-historial-encabezado,
 .modal-historial-fila {
   display: grid;
@@ -298,23 +338,27 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Estilo específico del encabezado del historial */
 .modal-historial-encabezado {
   background: var(--naranja);
   font-weight: 700;
   color: white;
 }
 
+/* Estilo de cada fila del historial */
 .modal-historial-fila {
   background: var(--naranja-claro);
   border-top: 1px solid rgba(92, 45, 10, 0.1);
   color: var(--marron-oscuro);
 }
 
+/* Precio anterior dentro de la fila de historial */
 .mh-precio-viejo {
   color: var(--marron-naranja);
   font-weight: 600;
 }
 
+/* Precio nuevo dentro de la fila de historial */
 .mh-precio-nuevo {
   color: var(--marron-oscuro);
   font-weight: 700;
@@ -323,6 +367,8 @@
 /* ─────────────────────────────────────────────
    Menú del Día
 ───────────────────────────────────────────── */
+
+/* Contenedor general de la sección de Menú del Día */
 .mdd-section {
   background: var(--naranja-claro);
   border-radius: 10px;
@@ -331,6 +377,7 @@
   margin-top: 1.5rem;
 }
 
+/* Encabezado de la sección: título + indicador de guardado */
 .mdd-header {
   display: flex;
   justify-content: space-between;
@@ -338,6 +385,7 @@
   margin-bottom: 0.85rem;
 }
 
+/* Título "Menú del Día" con su ícono de estrella */
 .mdd-titulo {
   font-size: 1.05rem;
   font-weight: 600;
@@ -351,11 +399,13 @@
 
 .mdd-estrella { font-size: 1.15rem; }
 
+/* Contenedor de botones de acciones en el encabezado (no usado actualmente en el JSX, pero definido por si se agregan) */
 .mdd-header-acciones {
   display: flex;
   gap: 0.6rem;
 }
 
+/* Botón de guardar (estilo alternativo, no usado directamente en el JSX actual pero definido en la hoja) */
 .mdd-btn-guardar {
   background: var(--marron-oscuro);
   color: white;
@@ -371,6 +421,7 @@
 
 .mdd-btn-guardar:hover { opacity: 0.85; }
 
+/* Botón de eliminar (estilo alternativo, ídem observación anterior) */
 .mdd-btn-eliminar {
   background: #c0392b;
   color: white;
@@ -386,20 +437,24 @@
 
 .mdd-btn-eliminar:hover { opacity: 0.85; }
 
+/* Grilla de dos columnas para organizar los campos del formulario de Menú del Día */
 .mdd-controles {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
 }
 
+/* Contenedor de cada campo individual (label + input) */
 .mdd-campo {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
+/* Modificador para que un campo ocupe todo el ancho de la grilla (ej: descripción) */
 .mdd-campo--full { grid-column: 1 / -1; }
 
+/* Etiqueta de cada campo del formulario */
 .mdd-label {
   font-size: 0.83rem;
   font-weight: 600;
@@ -407,6 +462,7 @@
   color: var(--marron-oscuro);
 }
 
+/* Input de texto genérico dentro del formulario de Menú del Día */
 .mdd-input {
   background: var(--naranja);
   border: none;
@@ -420,6 +476,7 @@
 
 .mdd-input::placeholder { color: rgba(255, 255, 255, 0.6); }
 
+/* Contenedor del campo de precio especial, con el símbolo $ integrado */
 .mdd-precio-wrapper {
   display: flex;
   align-items: center;
@@ -429,6 +486,7 @@
   gap: 2px;
 }
 
+/* Símbolo $ mostrado antes del input de precio */
 .mdd-precio-simbolo {
   color: white;
   font-weight: 700;
@@ -437,6 +495,7 @@
   flex-shrink: 0;
 }
 
+/* Input numérico del precio especial */
 .mdd-precio-input {
   flex: 1;
   background: transparent;
@@ -450,6 +509,7 @@
 
 .mdd-precio-input::placeholder { color: rgba(255, 255, 255, 0.6); }
 
+/* Mensaje de error de validación debajo de un campo */
 .mdd-error {
   font-size: 0.78rem;
   font-family: 'Lexend', sans-serif;
@@ -459,6 +519,8 @@
 /* ─────────────────────────────────────────────
    Botón agregar producto
 ───────────────────────────────────────────── */
+
+/* Botón principal "+ Agregar Producto", centrado debajo de la tabla */
 .gp-btn-agregar {
   background: var(--marron-oscuro);
   color: white;
@@ -479,6 +541,8 @@
 /* ─────────────────────────────────────────────
    Formulario agregar / editar
 ───────────────────────────────────────────── */
+
+/* Contenedor general del formulario de agregar/editar producto */
 .fap-section {
   background: var(--naranja-claro);
   border-radius: 10px;
@@ -488,6 +552,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Título del formulario (cambia entre "Agregar" y "Editar" según corresponda desde el JSX) */
 .fap-titulo {
   font-size: 1rem;
   font-weight: 700;
@@ -495,6 +560,7 @@
   margin: 0 0 1rem 0;
 }
 
+/* Grilla de 3 columnas y 2 filas que organiza los campos del formulario */
 .fap-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
@@ -502,15 +568,19 @@
   gap: 0.85rem 1rem;
 }
 
+/* El campo de nombre ocupa la primera columna */
 .fap-campo--nombre { grid-column: 1; }
+/* El campo de foto se ubica en la primera columna, segunda fila */
 .fap-campo--foto   { grid-column: 1; grid-row: 2; }
 
+/* Contenedor de cada campo individual del formulario (label + input) */
 .fap-campo {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
+/* Etiqueta de cada campo */
 .fap-campo label {
   font-size: 0.83rem;
   font-weight: 600;
@@ -518,6 +588,7 @@
   color: var(--marron-oscuro);
 }
 
+/* Estilo compartido por los inputs y selects del formulario */
 .fap-campo input,
 .fap-campo select {
   background: var(--naranja);
@@ -530,6 +601,7 @@
   outline: none;
 }
 
+/* Estilo de las opciones dentro del select de categoría */
 .fap-campo select option {
   color: var(--marron-oscuro);
   background: var(--naranja-pastel);
@@ -537,6 +609,7 @@
 
 .fap-campo input::placeholder { color: rgba(255, 255, 255, 0.55); }
 
+/* Contenedor del campo de precio, con el símbolo $ integrado */
 .fap-precio-wrapper {
   display: flex;
   align-items: center;
@@ -546,6 +619,7 @@
   gap: 2px;
 }
 
+/* Símbolo $ mostrado antes del input de precio */
 .fap-precio-simbolo {
   color: white;
   font-weight: 700;
@@ -554,6 +628,7 @@
   flex-shrink: 0;
 }
 
+/* Input numérico del precio dentro del wrapper */
 .fap-precio-wrapper input {
   flex: 1;
   background: transparent;
@@ -568,6 +643,7 @@
 
 .fap-precio-wrapper input::placeholder { color: rgba(255, 255, 255, 0.55); }
 
+/* Label estilizado como botón que envuelve el input file oculto para subir la foto */
 .fap-foto-label {
   display: flex;
   align-items: center;
@@ -583,12 +659,14 @@
 
 .fap-foto-label:hover { opacity: 0.85; }
 
+/* Ícono de subir dentro del botón de foto */
 .fap-icono-subir {
   width: 22px;
   height: 22px;
   flex-shrink: 0;
 }
 
+/* Texto que muestra el nombre del archivo seleccionado (o el placeholder "Seleccionar imagen") */
 .fap-foto-texto {
   font-size: 0.88rem;
   font-family: 'Lexend', sans-serif;
@@ -598,6 +676,7 @@
   text-overflow: ellipsis;
 }
 
+/* Botón de texto "Quitar foto" que aparece cuando ya hay una imagen seleccionada */
 .fap-btn-quitar-foto {
   background: none;
   border: none;
@@ -610,12 +689,14 @@
   text-decoration: underline;
 }
 
+/* Mensaje de error de validación debajo de un campo del formulario */
 .fap-error {
   font-size: 0.78rem;
   font-family: 'Lexend', sans-serif;
   color: #c0392b;
 }
 
+/* Contenedor de los botones de acción del formulario (Cancelar / Guardar) */
 .fap-botones {
   display: flex;
   justify-content: flex-end;
@@ -623,6 +704,7 @@
   margin-top: 1rem;
 }
 
+/* Estilo base compartido por los botones del formulario */
 .fap-btn {
   border: none;
   border-radius: 7px;
@@ -636,11 +718,13 @@
 
 .fap-btn:hover { opacity: 0.85; }
 
+/* Botón de cancelar (estilo neutro) */
 .fap-btn--cancelar {
   background: rgba(92, 45, 10, 0.15);
   color: var(--marron-oscuro);
 }
 
+/* Botón de guardar (estilo destacado) */
 .fap-btn--guardar {
   background: var(--marron-oscuro);
   color: white;
@@ -649,6 +733,8 @@
 /* ─────────────────────────────────────────────
    Toast — deshacer eliminación
 ───────────────────────────────────────────── */
+
+/* Notificación flotante (toast) que aparece en la parte inferior de la pantalla, por ejemplo tras eliminar un producto */
 .gp-toast {
   position: fixed;
   bottom: 32px;
@@ -670,6 +756,7 @@
   white-space: nowrap;
 }
 
+/* Botón dentro del toast (ej: "Deshacer") */
 .gp-toast-btn {
   background: var(--naranja);
   color: white;
@@ -688,6 +775,7 @@
   background: var(--naranja);
 }
 
+/* Animación de entrada del toast: aparece deslizándose suavemente hacia arriba */
 @keyframes toastEntrar {
   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -696,15 +784,20 @@
 /* ─────────────────────────────────────────────
    Responsive
 ───────────────────────────────────────────── */
+
+/* Ajustes para pantallas chicas (tablets/celulares) */
 @media (max-width: 768px) {
   .gestion-productos { padding: 1.25rem 1rem; }
 
+  /* Reducimos las columnas visibles de la tabla */
   .tp-encabezado,
   .tp-fila { grid-template-columns: 44px 1fr 80px 60px; }
 
+  /* Ocultamos la columna de categoría en pantallas chicas */
   .tp-encabezado span:nth-child(3),
   .tp-fila span:nth-child(3) { display: none; }
 
+  /* El formulario pasa a 2 columnas y el nombre ocupa todo el ancho */
   .fap-grid { grid-template-columns: 1fr 1fr; }
   .fap-campo--nombre { grid-column: 1 / -1; }
 }
@@ -714,6 +807,8 @@
 ───────────────────────────────────────────── */
 
 /* Sin menú cargado */
+
+/* Fila que se muestra cuando no hay ningún menú del día cargado (texto + botón agregar) */
 .mdd-vacio {
   display: flex;
   align-items: center;
@@ -722,6 +817,7 @@
   padding: 0.5rem 0;
 }
 
+/* Texto informativo cuando no hay menú cargado */
 .mdd-vacio-texto {
   font-size: 0.9rem;
   color: var(--marron-oscuro);
@@ -730,6 +826,7 @@
   margin: 0;
 }
 
+/* Botón "+ Agregar Menú del Día" */
 .mdd-btn-nuevo {
   background: var(--marron-oscuro);
   color: white;
@@ -747,6 +844,8 @@
 .mdd-btn-nuevo:hover { opacity: 0.85; }
 
 /* Tarjeta menú activo */
+
+/* Tarjeta que muestra el menú del día actualmente cargado */
 .mdd-card {
   display: flex;
   align-items: center;
@@ -756,6 +855,7 @@
   padding: 12px 16px;
 }
 
+/* Contenedor de la info textual del menú (nombre, descripción, fecha) */
 .mdd-card-info {
   flex: 1;
   display: flex;
@@ -763,6 +863,7 @@
   gap: 2px;
 }
 
+/* Nombre del menú del día */
 .mdd-card-nombre {
   font-size: 1rem;
   font-weight: 700;
@@ -770,12 +871,14 @@
   color: var(--marron-oscuro);
 }
 
+/* Descripción breve del menú del día */
 .mdd-card-desc {
   font-size: 0.82rem;
   font-family: 'Lexend', sans-serif;
   color: var(--marron-naranja);
 }
 
+/* Fecha en que se cargó el menú */
 .mdd-card-fecha {
   font-size: 0.75rem;
   font-family: 'Lexend', sans-serif;
@@ -783,6 +886,7 @@
   opacity: 0.55;
 }
 
+/* Precio especial del menú del día */
 .mdd-card-precio {
   font-size: 1.15rem;
   font-weight: 700;
@@ -791,12 +895,15 @@
   white-space: nowrap;
 }
 
+/* Contenedor de los botones de editar/eliminar dentro de la tarjeta del menú */
 .mdd-card-acciones {
   display: flex;
   gap: 0.4rem;
 }
 
 /* Confirmación guardado */
+
+/* Texto "✓ Guardado" que aparece brevemente tras guardar el menú con éxito */
 .mdd-guardado-ok {
   font-size: 0.85rem;
   font-family: 'Lexend', sans-serif;
@@ -805,6 +912,8 @@
 }
 
 /* Botones del formulario */
+
+/* Contenedor de los botones Cancelar/Guardar dentro del formulario de Menú del Día */
 .mdd-form-botones {
   display: flex;
   justify-content: flex-end;
@@ -812,6 +921,7 @@
   margin-top: 0.25rem;
 }
 
+/* Botón de cancelar dentro del formulario de Menú del Día */
 .mdd-btn-cancelar {
   background: rgba(92, 45, 10, 0.15);
   color: var(--marron-oscuro);
@@ -830,10 +940,13 @@
 /* ─────────────────────────────────────────────
    Toast de edición
 ───────────────────────────────────────────── */
+
+/* Variante en verde del toast, usada cuando se edita/guarda un producto correctamente */
 .gp-toast--edicion {
   background: #27ae60;
 }
 
+/* Texto secundario dentro del toast (ej: precio anterior/nuevo) */
 .gp-toast-precio {
   opacity: 0.85;
   font-weight: 400;
@@ -843,6 +956,8 @@
 /* ─────────────────────────────────────────────
    Modal historial — precio actual + columna diff
 ───────────────────────────────────────────── */
+
+/* Texto del precio actual mostrado arriba de la tabla de historial */
 .modal-historial-precio-actual {
   font-size: 0.88rem;
   font-family: 'Lexend', sans-serif;
@@ -850,20 +965,24 @@
   margin: -0.5rem 0 1rem 0;
 }
 
+/* Redefinimos las columnas del historial para agregar la columna de "Diferencia" (ahora son 5 columnas) */
 .modal-historial-encabezado,
 .modal-historial-fila {
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr; /* ahora son 5 columnas */
 }
 
+/* Estilo base del texto de diferencia de precio */
 .mh-diff {
   font-weight: 700;
   font-family: 'Lexend', sans-serif;
 }
 
+/* Color rojo cuando el precio subió */
 .mh-diff--suba {
   color: #c0392b; /* rojo — subió el precio */
 }
 
+/* Color verde cuando el precio bajó */
 .mh-diff--baja {
   color: #27ae60; /* verde — bajó el precio */
 }

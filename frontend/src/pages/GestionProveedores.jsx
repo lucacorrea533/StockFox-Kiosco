@@ -1,4 +1,7 @@
-/* Este archivo contiene el código de la página GestionProveedores, que permite gestionar proveedores, registrar compras y pagos, y visualizar saldos adeudados. */
+/* Este archivo contiene el código de la página GestionProveedores.
+   Permite a la encargada llevar un control exhaustivo de los proveedores del buffet:
+   administrar la lista de contactos, agendar los días de visita, registrar compras (deudas) 
+   y pagos realizados, y calcular saldos de forma automática para evitar deudas vencidas. */
 
 import { useState, useEffect, useRef } from 'react'
 import NavbarEncargada from '../components/NavbarEncargada'
@@ -9,6 +12,9 @@ import iconCheck    from '../assets/icons/SimboloCheck.png'
 import iconAviso    from '../assets/icons/Aviso.png'
 import '../styles/GestionProveedores.css'
 
+/* ── Datos iniciales mockeados (para pruebas locales antes de conectar la API) ── */
+
+/* Listado inicial de proveedores con su información de contacto rápida */
 const PROVEEDORES_INICIALES = [
   { id: 1, nombre: 'Panadería La Espiga',         telefono: '1156781234', diasVisita: 'Lunes, Viernes'   },
   { id: 2, nombre: 'Baggio Jugos S.A.',            telefono: '1167890123', diasVisita: 'Martes, Jueves'  },
@@ -16,6 +22,7 @@ const PROVEEDORES_INICIALES = [
   { id: 4, nombre: 'Distribuidora La Continental', telefono: '1145678901', diasVisita: 'Lunes, Miércoles' },
 ]
 
+/* Registro histórico de compras que se le hicieron a los proveedores */
 const COMPRAS_INICIALES = [
   { id: 1, idProveedor: 1, descripcion: 'Medialuna x150, Empanada x80',                         fecha: '04/05/2026', monto: 15000 },
   { id: 2, idProveedor: 2, descripcion: 'Jugo Baggio x200',                                     fecha: '05/05/2026', monto: 12500 },
@@ -23,6 +30,7 @@ const COMPRAS_INICIALES = [
   { id: 4, idProveedor: 4, descripcion: 'Saladix Jamón x100, Nikitos Papas Fritas x100',        fecha: '07/05/2026', monto: 18000 },
 ]
 
+/* Registro de pagos que la encargada le fue entregando a cada proveedor */
 const PAGOS_INICIALES = [
   { id: 1, idProveedor: 1, monto: 15000, fecha: '04/05/2026' },
   { id: 2, idProveedor: 2, monto: 12500, fecha: '05/05/2026' },
@@ -30,22 +38,37 @@ const PAGOS_INICIALES = [
   { id: 4, idProveedor: 4, monto: 10000, fecha: '07/05/2026' },
 ]
 
+/* Estructuras vacías para inicializar o resetear los formularios limpios */
 const FORM_PROV_VACIO = { nombre: '', telefono: '', diasVisita: '' }
 const FORM_COMP_VACIO = { idProveedor: '', descripcion: '', fecha: '', monto: '' }
 const FORM_PAGO_VACIO = { idProveedor: '', monto: '', fecha: '' }
 
+/* ── Funciones de Utilidad ─────────────────────────────────────────────────── */
+
+/* calcularSaldo: Filtra y suma todas las compras y todos los pagos de un proveedor
+   específico para obtener el estado de cuenta y la deuda pendiente. */
 function calcularSaldo(idProveedor, compras, pagos) {
+  // Filtra las compras de este proveedor y suma sus montos usando reduce
   const totalComp = compras.filter((c) => c.idProveedor === idProveedor).reduce((s, c) => s + c.monto, 0)
+  // Filtra los pagos de este proveedor y suma sus montos
   const totalPag  = pagos.filter((p)   => p.idProveedor === idProveedor).reduce((s, p) => s + p.monto, 0)
+  // La deuda es la diferencia. Si dio negativo por algún motivo, se fuerza a 0 usando Math.max
   return { totalComp, totalPag, deuda: Math.max(0, totalComp - totalPag) }
 }
 
+/* ── Componentes Secundarios y Maquetación ─────────────────────────────────── */
+
+/* ModalWrapper: Estructura contenedora genérica para los modales del sitio.
+   Escucha el teclado para cerrarse con la tecla 'Escape' y evita que los clics dentro de la caja
+   se propaguen cerrando el modal por accidente (stopPropagation). */
 function ModalWrapper({ onClose, children, ancho = 480 }) {
   useEffect(() => {
     const fn = (e) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', fn)
+    // Limpieza del evento global al desmontar el componente para evitar fugas de memoria
     return () => document.removeEventListener('keydown', fn)
   }, [onClose])
+
   return (
     <div className="gp-overlay" onClick={onClose}>
       <div className="gp-modal" style={{ width: ancho }} onClick={(e) => e.stopPropagation()}>
@@ -56,15 +79,18 @@ function ModalWrapper({ onClose, children, ancho = 480 }) {
   )
 }
 
-// Tarjeta de saldo con popover de desglose
+/* SaldoCard: Tarjeta de saldo individual que muestra de un vistazo rápido si el proveedor
+   está al día ("Saldado") o si tiene pagos pendientes, dando la opción directa de saldar todo. */
 function SaldoCard({ prov, compras, pagos, onSaldar }) {
   const [abierto, setAbierto] = useState(false)
+  // Obtenemos los números del estado de cuenta de este proveedor
   const { totalComp, totalPag, deuda } = calcularSaldo(prov.id, compras, pagos)
   const saldado = deuda === 0
 
   return (
     <div className={`gp-saldo-card ${saldado ? 'gp-saldo-card--saldado' : 'gp-saldo-card--debe'}`}>
       <p className="gp-saldo-nombre">{prov.nombre}</p>
+      {/* toLocaleString('es-AR') formatea los números con separadores de miles adecuados */}
       <p className="gp-saldo-linea">Compras: ${totalComp.toLocaleString('es-AR')}</p>
       <p className="gp-saldo-linea">Pagos:   ${totalPag.toLocaleString('es-AR')}</p>
       <div className="gp-saldo-footer">
@@ -94,7 +120,8 @@ function SaldoCard({ prov, compras, pagos, onSaldar }) {
   )
 }
 
-// Badge de pago en historial de compras con popover de desglose
+/* BadgePago: Etiqueta interactiva dentro de la tabla de compras. 
+   Al hacer clic, despliega un popover flotante con el desglose detallado de la cuenta del proveedor. */
 function BadgePago({ compra, compras, pagos, proveedores }) {
   const [abierto, setAbierto] = useState(false)
   const ref = useRef(null)
@@ -102,9 +129,13 @@ function BadgePago({ compra, compras, pagos, proveedores }) {
   const pagado = deuda === 0
   const prov   = proveedores.find((p) => p.id === compra.idProveedor)
 
+  /* Efecto para cerrar el popover si se hace clic afuera del mismo */
   useEffect(() => {
     if (!abierto) return
-    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) setAbierto(false) }
+    function handleClick(e) { 
+      // Si el clic fue afuera del wrapper contenedor, cerramos el popover
+      if (ref.current && !ref.current.contains(e.target)) setAbierto(false) 
+    }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [abierto])
@@ -119,6 +150,7 @@ function BadgePago({ compra, compras, pagos, proveedores }) {
         {pagado ? 'Pagado' : 'Parcial'}
       </span>
 
+      {/* Popover con desglose matemático de la cuenta del proveedor */}
       {abierto && (
         <div className="gp-badge-popover">
           <p className="gp-popover-titulo">{prov?.nombre ?? '—'}</p>
@@ -136,45 +168,63 @@ function BadgePago({ compra, compras, pagos, proveedores }) {
   )
 }
 
+/* ── Componente Principal ─────────────────────────────────────────────────── */
 export default function GestionProveedores() {
+  /* pestana: Controla si estamos viendo la sección 'proveedores' o 'compras' */
   const [pestana,      setPestana]      = useState('proveedores')
+  
+  /* Estados que contienen los listados principales del módulo */
   const [proveedores,  setProveedores]  = useState(PROVEEDORES_INICIALES)
   const [compras,      setCompras]      = useState(COMPRAS_INICIALES)
   const [pagos,        setPagos]        = useState(PAGOS_INICIALES)
+  
+  /* busqueda: Texto que ingresa la encargada para filtrar el listado de proveedores */
   const [busqueda,     setBusqueda]     = useState('')
 
+  /* Estados de control para la visibilidad de ventanas modales */
   const [modalProv,    setModalProv]    = useState(false)
-  const [editandoProv, setEditandoProv] = useState(null)
-  const [elimProv,     setElimProv]     = useState(null)
+  const [editandoProv, setEditandoProv] = useState(null) // Guarda el objeto proveedor si estamos editando, o null si estamos creando
+  const [elimProv,     setElimProv]     = useState(null)     // Almacena el proveedor seleccionado para confirmar su eliminación
   const [modalComp,    setModalComp]    = useState(false)
   const [modalPago,    setModalPago]    = useState(false)
 
+  /* Estados para controlar los inputs de los formularios de carga */
   const [formProv, setFormProv] = useState(FORM_PROV_VACIO)
-  const [errProv,  setErrProv]  = useState({})
+  const [errProv,  setErrProv]  = useState({}) // Almacena mensajes de validación para el formulario de proveedor
   const [formComp, setFormComp] = useState(FORM_COMP_VACIO)
-  const [errComp,  setErrComp]  = useState({})
+  const [errComp,  setErrComp]  = useState({}) // Mensajes de validación de compras
   const [formPago, setFormPago] = useState(FORM_PAGO_VACIO)
-  const [errPago,  setErrPago]  = useState({})
+  const [errPago,  setErrPago]  = useState({}) // Mensajes de validación de pagos
 
+  /* Estados para las notificaciones flotantes (Toasts) de éxito y la acción de "Deshacer" */
   const [toast, setToast]  = useState(null)
-  const [undoSaldar, setUndoSaldar] = useState(null)
+  const [undoSaldar, setUndoSaldar] = useState(null) // Guarda datos del pago generado al saldar para poder revertirlo
   const toastRef = useRef(null)
 
+  /* dispararToast: Muestra una alerta flotante de éxito y la borra automáticamente después de 3.5 segundos */
   function dispararToast(msg) {
     if (toastRef.current) clearTimeout(toastRef.current)
     setToast(msg)
     toastRef.current = setTimeout(() => setToast(null), 3500)
   }
 
+  /* Filtro de proveedores en tiempo real por Nombre, Teléfono o Días de visita */
   const provFiltrados = proveedores.filter((p) =>
     `${p.nombre} ${p.telefono} ${p.diasVisita}`.toLowerCase().includes(busqueda.toLowerCase())
   )
 
-  // ── CRUD Proveedores ───────────────────────────────────────────────────
+  /* ── CRUD Proveedores ─────────────────────────────────────────────────── */
+  
+  /* Abre el modal de proveedores en modo creación, limpiando inputs y errores antiguos */
   function abrirAgregarProv()   { setEditandoProv(null); setFormProv(FORM_PROV_VACIO); setErrProv({}); setModalProv(true) }
+  
+  /* Abre el modal de proveedores cargando los campos del proveedor elegido para editar */
   function abrirEditarProv(p)   { setEditandoProv(p); setFormProv({ nombre: p.nombre, telefono: p.telefono, diasVisita: p.diasVisita }); setErrProv({}); setModalProv(true) }
+  
+  /* Restablece el formulario al cerrar el modal de proveedores */
   function cerrarModalProv()    { setModalProv(false); setEditandoProv(null); setFormProv(FORM_PROV_VACIO); setErrProv({}) }
 
+  /* Valida que los campos obligatorios del proveedor no estén vacíos */
   function validarProv() {
     const err = {}
     if (!formProv.nombre.trim())     err.nombre     = 'El nombre es obligatorio.'
@@ -183,18 +233,22 @@ export default function GestionProveedores() {
     return err
   }
 
+  /* Crea un nuevo proveedor o guarda las modificaciones del existente en el estado */
   function guardarProv() {
     const err = validarProv(); if (Object.keys(err).length > 0) { setErrProv(err); return }
     if (editandoProv) {
+      // Actualización en el estado local buscando por id
       setProveedores((prev) => prev.map((p) => p.id === editandoProv.id ? { ...p, ...formProv } : p))
       dispararToast('Proveedor actualizado.')
     } else {
+      // Creación con ID único temporal usando Date.now()
       setProveedores((prev) => [...prev, { id: Date.now(), ...formProv }])
       dispararToast('Proveedor agregado.')
     }
     cerrarModalProv()
   }
 
+  /* Elimina el proveedor seleccionado y limpia en cascada todas sus compras y pagos relacionados */
   function eliminarProv() {
     setProveedores((prev) => prev.filter((p) => p.id !== elimProv.id))
     setCompras((prev) => prev.filter((c) => c.idProveedor !== elimProv.id))
@@ -203,9 +257,10 @@ export default function GestionProveedores() {
     setElimProv(null)
   }
 
-  // ── Registrar Compra ───────────────────────────────────────────────────
+  /* ── Registrar Compra ─────────────────────────────────────────────────── */
   function cerrarModalComp() { setModalComp(false); setFormComp(FORM_COMP_VACIO); setErrComp({}) }
 
+  /* Valida los campos del formulario de registro de compras */
   function validarComp() {
     const err = {}
     if (!formComp.idProveedor)         err.idProveedor = 'Seleccioná un proveedor.'
@@ -215,6 +270,7 @@ export default function GestionProveedores() {
     return err
   }
 
+  /* Agrega una nueva compra al historial local */
   function guardarComp() {
     const err = validarComp(); if (Object.keys(err).length > 0) { setErrComp(err); return }
     setCompras((prev) => [...prev, {
@@ -225,9 +281,10 @@ export default function GestionProveedores() {
     cerrarModalComp()
   }
 
-  // ── Registrar Pago ─────────────────────────────────────────────────────
+  /* ── Registrar Pago ───────────────────────────────────────────────────── */
   function cerrarModalPago() { setModalPago(false); setFormPago(FORM_PAGO_VACIO); setErrPago({}) }
 
+  /* Valida los campos del formulario de registro de pagos */
   function validarPago() {
     const err = {}
     if (!formPago.idProveedor)        err.idProveedor = 'Seleccioná un proveedor.'
@@ -236,6 +293,7 @@ export default function GestionProveedores() {
     return err
   }
 
+  /* Agrega un nuevo pago realizado al proveedor en el historial local */
   function guardarPago() {
     const err = validarPago(); if (Object.keys(err).length > 0) { setErrPago(err); return }
     setPagos((prev) => [...prev, {
@@ -246,39 +304,44 @@ export default function GestionProveedores() {
     cerrarModalPago()
   }
 
-  // ── Marcar como saldado (crea un pago igual a la deuda restante) ───────
-function saldarProveedor(idProveedor, deuda) {
-  const hoy   = new Date().toLocaleDateString('es-AR')
-  const pagoId = Date.now()
-  const prov   = proveedores.find((p) => p.id === idProveedor)
-  setPagos((prev) => [...prev, { id: pagoId, idProveedor, monto: deuda, fecha: hoy }])
+  /* ── Marcar como saldado (Simula un pago por el valor exacto de la deuda restante) ── */
+  function saldarProveedor(idProveedor, deuda) {
+    const hoy   = new Date().toLocaleDateString('es-AR')
+    const pagoId = Date.now()
+    const prov   = proveedores.find((p) => p.id === idProveedor)
+    // Agrega el pago exacto para saldar la deuda
+    setPagos((prev) => [...prev, { id: pagoId, idProveedor, monto: deuda, fecha: hoy }])
 
-  if (toastRef.current) clearTimeout(toastRef.current)
-  setUndoSaldar({ pagoId, nombre: prov?.nombre ?? '' })
-  toastRef.current = setTimeout(() => setUndoSaldar(null), 5000)
-}
+    // Dispara la notificación interactiva de "Deshacer" por 5 segundos
+    if (toastRef.current) clearTimeout(toastRef.current)
+    setUndoSaldar({ pagoId, nombre: prov?.nombre ?? '' })
+    toastRef.current = setTimeout(() => setUndoSaldar(null), 5000)
+  }
 
-function deshacerSaldar() {
-  if (!undoSaldar) return
-  setPagos((prev) => prev.filter((p) => p.id !== undoSaldar.pagoId))
-  clearTimeout(toastRef.current)
-  setUndoSaldar(null)
-}
+  /* Elimina el pago ficticio de saldo para restaurar la deuda que tenía el proveedor anteriormente */
+  function deshacerSaldar() {
+    if (!undoSaldar) return
+    setPagos((prev) => prev.filter((p) => p.id !== undoSaldar.pagoId))
+    clearTimeout(toastRef.current)
+    setUndoSaldar(null)
+  }
 
-  // ── Render ─────────────────────────────────────────────────────────────
+  /* ── Renderizado del Componente ─────────────────────────────────────────── */
   return (
     <div style={{ display: 'flex' }}>
+      {/* Barra de navegación de la encargada */}
       <NavbarEncargada />
 
       <main className="gestion-proveedores">
         <h1 className="gp-titulo">Proveedores y Compras</h1>
 
+        {/* Pestañas de Navegación: Cambian la sección activa entre Proveedores y Compras */}
         <div className="gp-pestanas">
           <button className={`gp-pestana ${pestana === 'proveedores' ? 'gp-pestana--activa' : ''}`} onClick={() => setPestana('proveedores')}>Proveedores</button>
           <button className={`gp-pestana ${pestana === 'compras'     ? 'gp-pestana--activa' : ''}`} onClick={() => setPestana('compras')}>Compras</button>
         </div>
 
-        {/* ══ PROVEEDORES ══ */}
+        {/* ══ MÓDULO DE PROVEEDORES ══ */}
         {pestana === 'proveedores' && (
           <>
             <section className="gp-seccion">
@@ -287,12 +350,14 @@ function deshacerSaldar() {
                 <button className="gp-btn-agregar" onClick={abrirAgregarProv}>+ Agregar Proveedor</button>
               </div>
 
+              {/* Caja del buscador por texto */}
               <div className="gp-buscador-wrapper">
                 <img src={iconBuscador} alt="Buscar" className="gp-buscador-icono" />
                 <input type="text" placeholder="Buscar por nombre, teléfono o días de visita..."
                   value={busqueda} onChange={(e) => setBusqueda(e.target.value)} className="gp-buscador-input" />
               </div>
 
+              {/* Tabla de Proveedores */}
               <div className="gp-tabla-wrapper">
                 <div className="gp-tabla-enc gp-tabla-enc--prov">
                   <span>Nombre</span><span>Teléfono</span><span>Días de Visita</span><span>Acciones</span>
@@ -313,6 +378,7 @@ function deshacerSaldar() {
               </div>
             </section>
 
+            {/* Grid de Saldos de Proveedores */}
             <section className="gp-seccion">
               <h2 className="gp-seccion-titulo">Saldo adeudado por proveedor</h2>
               <p className="gp-seccion-nota">El saldo se actualiza automáticamente al registrar compras o pagos.</p>
@@ -325,7 +391,7 @@ function deshacerSaldar() {
           </>
         )}
 
-        {/* ══ COMPRAS ══ */}
+        {/* ══ MÓDULO DE COMPRAS ══ */}
         {pestana === 'compras' && (
           <>
             <section className="gp-seccion">
@@ -337,6 +403,7 @@ function deshacerSaldar() {
                 </div>
               </div>
 
+              {/* Tabla de Historial de Compras */}
               <div className="gp-tabla-wrapper">
                 <div className="gp-tabla-enc gp-tabla-enc--compras">
                   <span>Proveedor</span><span>Productos</span><span>Fecha</span><span>Monto Total</span><span>Pago</span>
@@ -351,6 +418,7 @@ function deshacerSaldar() {
                       <span className="gp-comp-desc">{c.descripcion}</span>
                       <span>{c.fecha}</span>
                       <span className="gp-comp-monto">${c.monto.toLocaleString('es-AR')}</span>
+                      {/* Badge con popover interactivo */}
                       <BadgePago compra={c} compras={compras} pagos={pagos} proveedores={proveedores} />
                     </div>
                   )
@@ -358,6 +426,7 @@ function deshacerSaldar() {
               </div>
             </section>
 
+            {/* Grid inferior de control de saldos */}
             <section className="gp-seccion">
               <h2 className="gp-seccion-titulo">Saldo adeudado por proveedor</h2>
               <p className="gp-seccion-nota">El saldo se actualiza automáticamente al registrar compras o pagos.</p>
@@ -371,7 +440,7 @@ function deshacerSaldar() {
         )}
       </main>
 
-      {/* ── Modal Proveedor ── */}
+      {/* ── Modal Agregar/Editar Proveedor ── */}
       {modalProv && (
         <ModalWrapper onClose={cerrarModalProv}>
           <h2 className="gp-modal-titulo">{editandoProv ? 'Editar Proveedor' : 'Agregar Proveedor'}</h2>
@@ -402,7 +471,7 @@ function deshacerSaldar() {
         </ModalWrapper>
       )}
 
-      {/* ── Modal Eliminar ── */}
+      {/* ── Modal de Confirmación para Eliminar Proveedor ── */}
       {elimProv && (
         <ModalWrapper onClose={() => setElimProv(null)} ancho={380}>
           <div className="gp-confirm-body">
@@ -418,7 +487,7 @@ function deshacerSaldar() {
         </ModalWrapper>
       )}
 
-      {/* ── Modal Compra ── */}
+      {/* ── Modal Registrar Compra ── */}
       {modalComp && (
         <ModalWrapper onClose={cerrarModalComp}>
           <h2 className="gp-modal-titulo">Registrar Compra</h2>
@@ -459,7 +528,7 @@ function deshacerSaldar() {
         </ModalWrapper>
       )}
 
-      {/* ── Modal Pago ── */}
+      {/* ── Modal Registrar Pago ── */}
       {modalPago && (
         <ModalWrapper onClose={cerrarModalPago}>
           <h2 className="gp-modal-titulo">Registrar Pago</h2>
@@ -468,6 +537,7 @@ function deshacerSaldar() {
               <label>Proveedor *</label>
               <select value={formPago.idProveedor} onChange={(e) => { setFormPago((p) => ({ ...p, idProveedor: e.target.value })); setErrPago((p) => ({ ...p, idProveedor: '' })) }}>
                 <option value="">Seleccionar proveedor</option>
+                {/* Mostramos también el estado de cuenta y deuda del proveedor en las opciones de selección */}
                 {proveedores.map((prov) => {
                   const { deuda } = calcularSaldo(prov.id, compras, pagos)
                   return <option key={prov.id} value={prov.id}>{prov.nombre}{deuda > 0 ? ` — Debe $${deuda.toLocaleString('es-AR')}` : ' — Saldado'}</option>
@@ -497,8 +567,10 @@ function deshacerSaldar() {
         </ModalWrapper>
       )}
 
+      {/* Alerta flotante estándar de éxito */}
       {toast && <div className="gp-toast">{toast}</div>}
 
+      {/* Alerta flotante interactiva de "Deshacer" al saldar un proveedor de forma rápida */}
       {undoSaldar && (
         <div className="gp-toast">
           <span>"{undoSaldar.nombre}" marcado como saldado</span>

@@ -1,11 +1,14 @@
 /* Este archivo css contiene los estilos para la página de Informe de Ventas */
 
 /* ── Layout ─────────────────────────────────────── */
+
+/* Contenedor general de toda la vista */
 .iv-layout {
   min-height: 100vh;
   background: var(--naranja-pastel);
 }
 
+/* Contenido principal, desplazado a la derecha para dejar lugar al menú lateral fijo */
 .iv-main {
   margin-left: 350px;
   flex: 1;
@@ -15,6 +18,8 @@
 }
 
 /* ── Título ─────────────────────────────────────── */
+
+/* Título principal de la página */
 .iv-titulo {
   font-size: 1.8rem;
   font-weight: 700;
@@ -24,6 +29,8 @@
 }
 
 /* ── Selector de período ────────────────────────── */
+
+/* Fila con la etiqueta "Período" y los botones de selección */
 .iv-periodo {
   display: flex;
   align-items: center;
@@ -31,6 +38,7 @@
   margin-bottom: 1.25rem;
 }
 
+/* Texto de la etiqueta junto a los botones de período */
 .iv-periodo-label {
   font-size: 0.9rem;
   font-weight: 600;
@@ -38,6 +46,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Estilo base de cada botón de período (Día/Semana/Mes) */
 .iv-periodo-btn {
   background: var(--naranja-pastel);
   color: var(--marron-oscuro);
@@ -56,6 +65,7 @@
   color: var(--naranja-claro);
 }
 
+/* Resalta visualmente el botón del período actualmente seleccionado */
 .iv-periodo-btn--activo {
   background: var(--naranja);
   color: var(--naranja-claro);
@@ -63,6 +73,8 @@
 }
 
 /* ── Métricas ───────────────────────────────────── */
+
+/* Grilla de 3 columnas para las tarjetas de métricas principales */
 .iv-metricas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -70,6 +82,7 @@
   margin-bottom: 1.5rem;
 }
 
+/* Estilo de cada tarjeta de métrica individual */
 .iv-metrica-card {
   background: var(--naranja-claro);
   border: 1.5px solid rgba(92, 45, 10, 0.15);
@@ -80,6 +93,7 @@
   gap: 0.4rem;
 }
 
+/* Etiqueta descriptiva de la métrica (ej: "Ventas del mes") */
 .iv-metrica-label {
   font-size: 0.82rem;
   font-weight: 500;
@@ -88,6 +102,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Valor numérico destacado de la métrica */
 .iv-metrica-valor {
   font-size: 1.7rem;
   font-weight: 700;
@@ -96,6 +111,8 @@
 }
 
 /* ── Gráficos (barras + torta) ──────────────────── */
+
+/* Grilla de dos columnas para mostrar el gráfico de barras y el de torta lado a lado */
 .iv-graficos {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -103,6 +120,7 @@
   margin-bottom: 1.5rem;
 }
 
+/* Estilo compartido de las tarjetas contenedoras: gráfico, top productos y registrar gasto */
 .iv-grafico-card,
 .iv-top-card,
 .iv-gasto-card {
@@ -112,6 +130,7 @@
   padding: 1.25rem;
 }
 
+/* Título dentro de cada tarjeta */
 .iv-card-titulo {
   font-size: 0.95rem;
   font-weight: 700;
@@ -121,6 +140,8 @@
 }
 
 /* ── Gráfico de barras ──────────────────────────── */
+
+/* Contenedor del gráfico de barras: eje Y + barras, alineados abajo */
 .gb-cuerpo {
   display: flex;
   gap: 0.6rem;
@@ -128,12 +149,13 @@
   align-items: flex-end;
 }
 
+/* Columna del eje Y con las etiquetas de referencia */
 .gb-eje-y {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  padding-bottom: 1.4rem;
+  padding-bottom: 1.4rem; /* Deja espacio para alinear con la etiqueta de día debajo de las barras */
 }
 
 .gb-eje-y span {
@@ -143,6 +165,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor de todas las barras del gráfico */
 .gb-barras {
   display: flex;
   align-items: flex-end;
@@ -151,6 +174,7 @@
   height: 100%;
 }
 
+/* Columna individual de cada barra (barra + etiqueta del día) */
 .gb-col {
   display: flex;
   flex-direction: column;
@@ -160,6 +184,7 @@
   height: 100%;
 }
 
+/* Envoltorio que permite que la barra crezca desde abajo hacia arriba */
 .gb-wrap {
   flex: 1;
   display: flex;
@@ -167,16 +192,19 @@
   width: 100%;
 }
 
+/* Estilo base de cada barra individual */
 .gb-barra {
   width: 100%;
   border-radius: 5px 5px 0 0;
   background: var(--naranja-pastel);
 }
 
+/* Color destacado para la barra con el valor más alto */
 .gb-barra--activa {
   background: var(--marron-oscuro);
 }
 
+/* Etiqueta del día debajo de cada barra */
 .gb-dia {
   font-size: 0.72rem;
   color: var(--marron-oscuro);
@@ -185,28 +213,34 @@
 }
 
 /* ── Gráfico de torta ───────────────────────────── */
+
+/* Contenedor del gráfico de torta: círculo SVG + leyenda, en fila */
 .gt-contenedor {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
 
+/* El SVG del gráfico no se achica si el contenedor es angosto */
 .gt-svg {
   flex-shrink: 0;
 }
 
+/* Contenedor de la leyenda (lista de categorías con su color y porcentaje) */
 .gt-leyenda {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
 }
 
+/* Cada ítem individual de la leyenda */
 .gt-leyenda-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
+/* Punto de color que identifica cada segmento de la torta */
 .gt-leyenda-dot {
   width: 10px;
   height: 10px;
@@ -214,6 +248,7 @@
   flex-shrink: 0;
 }
 
+/* Texto de la leyenda (nombre + porcentaje) */
 .gt-leyenda-texto {
   font-size: 0.8rem;
   color: var(--marron-oscuro);
@@ -221,15 +256,19 @@
 }
 
 /* ── Top 5 productos ────────────────────────────── */
+
+/* Espaciado inferior de la tarjeta de top productos */
 .iv-top-card {
   margin-bottom: 1.5rem;
 }
 
+/* Contenedor de la lista de productos más vendidos */
 .iv-top-lista {
   display: flex;
   flex-direction: column;
 }
 
+/* Fila individual del ranking: posición, nombre/barra, unidades vendidas */
 .iv-top-fila {
   display: grid;
   grid-template-columns: 28px 1fr auto;
@@ -240,17 +279,20 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Número de posición en el ranking (1°, 2°, etc.) */
 .iv-top-pos {
   font-size: 0.88rem;
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
+/* Nombre del producto en el ranking */
 .iv-top-nombre {
   font-size: 0.88rem;
   color: var(--marron-oscuro);
 }
 
+/* Cantidad de unidades vendidas de ese producto */
 .iv-top-unidades {
   font-size: 0.88rem;
   font-weight: 600;
@@ -259,10 +301,13 @@
 }
 
 /* ── Registrar Gasto ────────────────────────────── */
+
+/* Espaciado inferior de la tarjeta de registrar gasto */
 .iv-gasto-card {
   margin-bottom: 1rem;
 }
 
+/* Formulario de carga de gasto: campos en fila + botón al final */
 .iv-gasto-form {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr auto;
@@ -270,12 +315,14 @@
   align-items: flex-end;
 }
 
+/* Contenedor de cada campo individual del formulario de gasto */
 .iv-gasto-campo {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
+/* Etiqueta de cada campo del formulario de gasto */
 .iv-gasto-label {
   font-size: 0.8rem;
   font-weight: 600;
@@ -283,6 +330,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Estilo de los inputs del formulario de gasto */
 .iv-gasto-input {
   background: var(--naranja-pastel);
   border: none;
@@ -298,6 +346,7 @@
   color: rgba(92, 45, 10, 0.45);
 }
 
+/* Botón para registrar el gasto */
 .iv-gasto-btn {
   background: var(--naranja);
   color: var(--naranja-claro);
@@ -316,6 +365,7 @@
   background: var(--marron-naranja);
 }
 
+/* Mensaje de error de validación en el formulario de gasto */
 .iv-gasto-error {
   font-size: 0.78rem;
   color: #c0392b;
@@ -323,6 +373,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor de la lista de gastos ya registrados */
 .iv-gastos-lista {
   margin-top: 0.75rem;
   display: flex;
@@ -330,6 +381,7 @@
   gap: 0.3rem;
 }
 
+/* Fila individual de cada gasto registrado */
 .iv-gastos-fila {
   display: grid;
   grid-template-columns: 1fr auto auto auto;
@@ -342,6 +394,8 @@
 }
 
 /* ── Ganancia Neta ──────────────────────────────── */
+
+/* Tarjeta destacada que muestra la ganancia neta total (ventas menos gastos) */
 .iv-neta-card {
   background: var(--naranja-claro);
   border: 1.5px solid rgba(92, 45, 10, 0.15);
@@ -352,6 +406,7 @@
   align-items: center;
 }
 
+/* Etiqueta "Ganancia neta" */
 .iv-neta-label {
   font-size: 1rem;
   font-weight: 600;
@@ -359,6 +414,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Valor numérico de la ganancia neta */
 .iv-neta-valor {
   font-size: 1.6rem;
   font-weight: 700;
@@ -367,23 +423,29 @@
 }
 
 /* ── Responsive ─────────────────────────────────── */
+
+/* Ajustes para pantallas medianas/chicas (tablets) */
 @media (max-width: 900px) {
   .iv-main {
     margin-left: 0;
     padding: 1.25rem 1rem;
   }
 
+  /* Las métricas y los gráficos pasan a una sola columna */
   .iv-metricas,
   .iv-graficos {
     grid-template-columns: 1fr;
   }
 
+  /* El formulario de gasto también pasa a una sola columna */
   .iv-gasto-form {
     grid-template-columns: 1fr;
   }
 }
 
 /* ── Íconos en headers de sección ───────────────── */
+
+/* Fila que agrupa el ícono junto al título de la sección */
 .iv-card-header {
   display: flex;
   align-items: center;
@@ -391,10 +453,12 @@
   margin-bottom: 1rem;
 }
 
+/* Quita el margen inferior del título cuando está dentro del header con ícono */
 .iv-card-header .iv-card-titulo {
   margin-bottom: 0;
 }
 
+/* Ícono junto al título de cada sección, coloreado en marrón mediante filtro CSS */
 .iv-card-icono {
   width: 20px;
   height: 20px;
@@ -403,12 +467,15 @@
 }
 
 /* ── Íconos en métricas ─────────────────────────── */
+
+/* Fila que agrupa el ícono junto a la etiqueta de la métrica */
 .iv-metrica-header {
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
+/* Ícono pequeño dentro de cada tarjeta de métrica */
 .iv-metrica-icono {
   width: 16px;
   height: 16px;
@@ -417,6 +484,7 @@
   opacity: 0.75;
 }
 
+/* Subtítulo pequeño debajo del valor de la métrica */
 .iv-metrica-subtitulo {
   font-size: 0.72rem;
   color: var(--marron-oscuro);
@@ -427,6 +495,8 @@
 }
 
 /* ── Ranking con barra de progreso ──────────────── */
+
+/* Columna central del ranking: nombre del producto + barra de progreso */
 .iv-top-centro {
   display: flex;
   flex-direction: column;
@@ -434,6 +504,7 @@
   flex: 1;
 }
 
+/* Contenedor de fondo de la barra de progreso (representa el 100%) */
 .iv-top-barra-wrap {
   height: 6px;
   background: var(--naranja-pastel);
@@ -442,6 +513,7 @@
   width: 100%;
 }
 
+/* Relleno de la barra de progreso, con ancho dinámico según la proporción de ventas */
 .iv-top-barra-fill {
   height: 100%;
   background: var(--marron-oscuro);
@@ -449,6 +521,7 @@
   transition: width 0.4s ease;
 }
 
+/* Subtítulo debajo del ranking de productos */
 .iv-top-subtitulo {
   font-size: 0.72rem;
   color: var(--marron-oscuro);
@@ -458,6 +531,8 @@
 }
 
 /* ── Botón eliminar gasto ───────────────────────── */
+
+/* Botón de ícono para eliminar un gasto de la lista */
 .iv-gasto-eliminar {
   background: none;
   border: none;
@@ -469,22 +544,27 @@
   transition: opacity 0.2s;
 }
 
+/* Ícono dentro del botón de eliminar gasto, coloreado en marrón */
 .iv-gasto-eliminar img {
   width: 18px;
   height: 18px;
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
+/* Resalta el ícono al pasar el mouse por encima */
 .iv-gasto-eliminar:hover {
   opacity: 1;
 }
 
 /* actualizar grid para incluir el botón eliminar */
+/* Redefinimos las columnas de la fila de gasto para dejar lugar al botón de eliminar */
 .iv-gastos-fila {
   grid-template-columns: 1fr auto auto auto;
 }
 
 /* ── Toast deshacer ─────────────────────────────── */
+
+/* Notificación flotante en la parte inferior de la pantalla (ej: al deshacer la eliminación de un gasto) */
 .iv-toast {
   position: fixed;
   bottom: 2rem;
@@ -503,6 +583,7 @@
   z-index: 100;
 }
 
+/* Botón de acción dentro del toast (ej: "Deshacer") */
 .iv-toast-btn {
   background: var(--naranja);
   color: var(--marron-oscuro);

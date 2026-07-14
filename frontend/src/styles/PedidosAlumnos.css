@@ -1,8 +1,13 @@
-/* Este archivo contiene los estilos CSS para la página PedidosAlumnos, que muestra la lista de pedidos de los alumnos y permite filtrarlos, cambiar su estado y archivarlos. */
+/* Este archivo contiene los estilos CSS para la página PedidosAlumnos.
+   Define la apariencia del panel donde la encargada puede visualizar, filtrar,
+   actualizar el estado y administrar los pedidos realizados por los alumnos. */
 
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap');
 
-/* ── Layout ── */
+/* ───────────────────── Layout ───────────────────── */
+
+/* Contenedor principal de la página.
+   Deja espacio para el menú lateral, aplica el fondo del panel y define la tipografía general. */
 .pedidos-panel {
   margin-left: 350px;
   flex: 1;
@@ -13,7 +18,10 @@
   color: var(--marron-oscuro);
 }
 
-/* ── Encabezado ── */
+/* ───────────────────── Encabezado ───────────────────── */
+
+/* Contenedor del encabezado de la página.
+   Distribuye el título y la fecha en una misma fila permitiendo que se adapten en pantallas pequeñas. */
 .pp-header {
   display: flex;
   align-items: baseline;
@@ -23,6 +31,7 @@
   gap: 0.5rem;
 }
 
+/* Título principal de la sección de pedidos de alumnos. */
 .pp-titulo {
   font-size: 1.8rem;
   font-weight: 700;
@@ -30,13 +39,16 @@
   margin: 0;
 }
 
+/* Texto que muestra la fecha actual o información temporal relacionada con los pedidos. */
 .pp-fecha {
   font-size: 0.85rem;
   color: var(--marron-oscuro);
   opacity: 0.6;
 }
 
-/* ── Pills de filtro ── */
+/* ───────────────────── Filtros por estado ───────────────────── */
+
+/* Contenedor donde se agrupan los botones de filtro según el estado del pedido. */
 .pp-filtros-estado {
   display: flex;
   flex-wrap: wrap;
@@ -44,6 +56,7 @@
   margin-bottom: 1rem;
 }
 
+/* Botón con forma de píldora utilizado para filtrar pedidos por estado. */
 .pp-pill {
   display: inline-flex;
   align-items: center;
@@ -60,20 +73,26 @@
   color: var(--marron-oscuro);
 }
 
-.pp-pill:hover { opacity: 0.85; }
+/* Efecto visual aplicado al pasar el cursor sobre un filtro. */
+.pp-pill:hover {
+  opacity: 0.85;
+}
 
+/* Estilo aplicado al filtro actualmente seleccionado. */
 .pp-pill--activa {
   background: var(--naranja);
   border-color: var(--marron-oscuro);
   color: var(--marron-oscuro);
 }
 
+/* Variante utilizada cuando el filtro activo corresponde a pedidos entregados. */
 .pp-pill--activa.pp-pill--entregado {
   background: var(--marron-naranja);
   color: white;
   border-color: var(--marron-oscuro);
 }
 
+/* Indicador numérico que muestra la cantidad de pedidos de cada estado. */
 .pp-pill-count {
   background: var(--marron-oscuro);
   color: white;
@@ -83,7 +102,9 @@
   font-weight: 700;
 }
 
-/* ── Barra filtros ── */
+/* ───────────────────── Barra de filtros ───────────────────── */
+
+/* Contenedor que agrupa los filtros adicionales y el buscador. */
 .pp-barra {
   display: flex;
   gap: 0.75rem;
@@ -91,6 +112,7 @@
   flex-wrap: wrap;
 }
 
+/* Lista desplegable utilizada para aplicar filtros adicionales a los pedidos. */
 .pp-select {
   background: var(--naranja-claro);
   border: none;
@@ -104,6 +126,7 @@
   outline: none;
 }
 
+/* Contenedor del buscador de pedidos. */
 .pp-buscador {
   flex: 1;
   min-width: 180px;
@@ -116,6 +139,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
+/* Ícono de búsqueda mostrado dentro del buscador. */
 .pp-buscador-icono {
   width: 18px;
   height: 18px;
@@ -124,6 +148,7 @@
   flex-shrink: 0;
 }
 
+/* Campo de texto donde se ingresa el nombre del alumno o información para buscar pedidos. */
 .pp-buscador input {
   flex: 1;
   border: none;
@@ -135,9 +160,15 @@
   outline: none;
 }
 
-.pp-buscador input::placeholder { color: rgba(92,45,10,0.45); }
+/* Color aplicado al texto de ayuda (placeholder) del buscador. */
+.pp-buscador input::placeholder {
+  color: rgba(92,45,10,0.45);
+}
 
-/* ── Tabla ── */
+/* ───────────────────── Tabla de pedidos ───────────────────── */
+
+/* Contenedor principal de la tabla.
+   Agrega bordes redondeados, sombra y evita que el contenido sobresalga. */
 .pp-tabla-wrapper {
   background: var(--naranja-claro);
   border-radius: 10px;
@@ -146,6 +177,7 @@
   margin-bottom: 1rem;
 }
 
+/* Distribución utilizada tanto por el encabezado como por cada fila de la tabla. */
 .pp-encabezado,
 .pp-fila {
   display: grid;
@@ -156,6 +188,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Encabezado que muestra el nombre de cada columna de la tabla. */
 .pp-encabezado {
   background: var(--naranja);
   font-weight: 700;
@@ -163,23 +196,61 @@
   color: var(--marron-oscuro);
 }
 
+/* Fila correspondiente a un pedido registrado. */
 .pp-fila {
   border-top: 1px solid rgba(92,45,10,0.1);
   font-size: 0.88rem;
   transition: background 0.15s;
 }
 
-.pp-fila:hover { background: rgba(255,255,255,0.2); }
-.pp-fila--entregado { opacity: 0.6; }
-.pp-fila--archivado { opacity: 0.35; font-style: italic; }
+/* Resalta suavemente una fila cuando el usuario pasa el cursor sobre ella. */
+.pp-fila:hover {
+  background: rgba(255,255,255,0.2);
+}
 
-.pp-alumno    { font-weight: 700; }
-.pp-curso-tag { font-weight: 600; font-size: 0.82rem; color: var(--marron-naranja); }
-.pp-total     { font-weight: 700; white-space: nowrap; }
+/* Reduce la opacidad de los pedidos que ya fueron entregados. */
+.pp-fila--entregado {
+  opacity: 0.6;
+}
 
-.pp-productos { display: flex; flex-direction: column; gap: 2px; }
-.pp-prod      { font-size: 0.81rem; line-height: 1.3; }
+/* Reduce aún más la visibilidad de los pedidos archivados y los muestra en cursiva. */
+.pp-fila--archivado {
+  opacity: 0.35;
+  font-style: italic;
+}
 
+/* Destaca el nombre del alumno que realizó el pedido. */
+.pp-alumno {
+  font-weight: 700;
+}
+
+/* Etiqueta utilizada para mostrar el curso del alumno. */
+.pp-curso-tag {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--marron-naranja);
+}
+
+/* Resalta el importe total correspondiente al pedido. */
+.pp-total {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Contenedor donde se listan los productos solicitados en el pedido. */
+.pp-productos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Línea individual correspondiente a un producto del pedido. */
+.pp-prod {
+  font-size: 0.81rem;
+  line-height: 1.3;
+}
+
+/* Contenedor que agrupa la hora del pedido junto al ícono de reloj. */
 .pp-horario {
   display: flex;
   align-items: center;
@@ -188,6 +259,7 @@
   white-space: nowrap;
 }
 
+/* Ícono de reloj utilizado para representar el horario del pedido. */
 .pp-reloj-icon {
   width: 16px;
   height: 16px;
@@ -196,7 +268,9 @@
   opacity: 0.75;
 }
 
-/* ── Badges de estado — CSS puro ── */
+/* ───────────────────── Badges de estado ───────────────────── */
+
+/* Etiqueta visual utilizada para mostrar el estado actual del pedido. */
 .pp-badge {
   display: inline-block;
   padding: 4px 12px;
@@ -207,18 +281,41 @@
   white-space: nowrap;
 }
 
-.pp-badge--pendiente      { background: var(--naranja-claro); color: var(--marron-oscuro); border: 1.5px solid rgba(92,45,10,0.25); }
-.pp-badge--en_preparacion { background: var(--naranja);       color: var(--marron-oscuro); }
-.pp-badge--listo          { background: var(--marron-naranja); color: white; }
-.pp-badge--entregado      { background: var(--marron-oscuro);  color: white; }
+/* Variante del badge utilizada para identificar pedidos pendientes. */
+.pp-badge--pendiente {
+  background: var(--naranja-claro);
+  color: var(--marron-oscuro);
+  border: 1.5px solid rgba(92,45,10,0.25);
+}
 
-/* ── Acción: select de estado ── */
+/* Variante del badge utilizada para pedidos que se encuentran en preparación. */
+.pp-badge--en_preparacion {
+  background: var(--naranja);
+  color: var(--marron-oscuro);
+}
+
+/* Variante del badge utilizada para pedidos que ya están listos para ser retirados. */
+.pp-badge--listo {
+  background: var(--marron-naranja);
+  color: white;
+}
+
+/* Variante del badge utilizada para pedidos que ya fueron entregados al alumno. */
+.pp-badge--entregado {
+  background: var(--marron-oscuro);
+  color: white;
+}
+
+/* ───────────────────── Acción: selector de estado ───────────────────── */
+
+/* Contenedor que agrupa el selector de estado y otras acciones disponibles para cada pedido. */
 .pp-accion {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
+/* Lista desplegable que permite modificar el estado de un pedido. */
 .pp-estado-select {
   border: none;
   border-radius: 8px;
@@ -232,28 +329,54 @@
   width: 100%;
 }
 
-.pp-estado-select:hover { opacity: 0.85; }
+/* Reduce ligeramente la opacidad cuando el usuario pasa el cursor sobre el selector. */
+.pp-estado-select:hover {
+  opacity: 0.85;
+}
 
-/* Color del select según estado actual */
-.pp-estado-select--pendiente      { background: var(--naranja-claro);  color: var(--marron-oscuro); }
-.pp-estado-select--en_preparacion { background: var(--naranja);        color: var(--marron-oscuro); }
-.pp-estado-select--listo          { background: var(--marron-naranja);  color: white; }
-.pp-estado-select--entregado      { background: var(--marron-oscuro);   color: white; }
+/* ───────────────────── Color del selector según el estado actual ───────────────────── */
 
-/* El select dentro de fila entregada no tiene tanto peso visual */
+/* Apariencia del selector cuando el pedido está pendiente. */
+.pp-estado-select--pendiente {
+  background: var(--naranja-claro);
+  color: var(--marron-oscuro);
+}
+
+/* Apariencia del selector cuando el pedido está en preparación. */
+.pp-estado-select--en_preparacion {
+  background: var(--naranja);
+  color: var(--marron-oscuro);
+}
+
+/* Apariencia del selector cuando el pedido está listo para entregar. */
+.pp-estado-select--listo {
+  background: var(--marron-naranja);
+  color: white;
+}
+
+/* Apariencia del selector cuando el pedido ya fue entregado. */
+.pp-estado-select--entregado {
+  background: var(--marron-oscuro);
+  color: white;
+}
+
+/* Modifica el aspecto del selector cuando pertenece a una fila de un pedido entregado,
+   reduciendo su intensidad visual para indicar que ya no requiere acciones. */
 .pp-fila--entregado .pp-estado-select--entregado {
   background: rgba(92,45,10,0.12);
   color: var(--marron-oscuro);
 }
 
-/* Opciones del select */
+/* Define el estilo de las opciones disponibles dentro del selector de estado. */
 .pp-estado-select option {
   background: var(--naranja-pastel);
   color: var(--marron-oscuro);
   font-weight: 600;
 }
 
-/* Botón archivar */
+/* ───────────────────── Botón Archivar ───────────────────── */
+
+/* Botón utilizado para archivar un pedido una vez finalizado. */
 .pp-btn-archivar {
   background: rgba(92,45,10,0.1);
   color: var(--marron-oscuro);
@@ -267,9 +390,14 @@
   transition: opacity 0.15s;
 }
 
-.pp-btn-archivar:hover { opacity: 0.75; }
+/* Efecto visual aplicado al pasar el cursor sobre el botón de archivar. */
+.pp-btn-archivar:hover {
+  opacity: 0.75;
+}
 
-/* ── Toggle archivados ── */
+/* ───────────────────── Mostrar pedidos archivados ───────────────────── */
+
+/* Botón que permite mostrar u ocultar los pedidos archivados. */
 .pp-btn-ver-archivados {
   background: none;
   border: none;
@@ -284,9 +412,14 @@
   transition: opacity 0.15s;
 }
 
-.pp-btn-ver-archivados:hover { opacity: 0.75; }
+/* Reduce la opacidad del botón al pasar el cursor sobre él. */
+.pp-btn-ver-archivados:hover {
+  opacity: 0.75;
+}
 
-/* ── Tabla vacía ── */
+/* ───────────────────── Tabla vacía ───────────────────── */
+
+/* Mensaje mostrado cuando no existen pedidos para visualizar según los filtros aplicados. */
 .pp-vacia {
   text-align: center;
   padding: 1.5rem;
@@ -294,7 +427,9 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Toast con undo ── */
+/* ───────────────────── Toast con opción de deshacer ───────────────────── */
+
+/* Notificación flotante que informa acciones realizadas y ofrece la posibilidad de deshacerlas. */
 .pp-toast {
   position: fixed;
   bottom: 32px;
@@ -316,8 +451,12 @@
   animation: ppToastIn 0.2s ease;
 }
 
-.pp-toast strong { font-weight: 700; }
+/* Destaca parte del mensaje del toast utilizando un mayor grosor de fuente. */
+.pp-toast strong {
+  font-weight: 700;
+}
 
+/* Botón que permite deshacer la última acción realizada desde el toast. */
 .pp-toast-btn {
   background: var(--naranja);
   color: white;
@@ -331,15 +470,29 @@
   transition: opacity 0.15s;
 }
 
-.pp-toast-btn:hover { opacity: 0.85; }
-
-@keyframes ppToastIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* Reduce la opacidad del botón al pasar el cursor sobre él. */
+.pp-toast-btn:hover {
+  opacity: 0.85;
 }
 
-/* ── Responsive ── */
+/* Animación utilizada para que el toast aparezca suavemente desde abajo. */
+@keyframes ppToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* ───────────────────── Diseño Responsive ───────────────────── */
+
+/* Ajusta el tamaño de las columnas de la tabla para pantallas medianas. */
 @media (max-width: 1100px) {
+
   .pp-encabezado,
   .pp-fila {
     grid-template-columns: 1.2fr 0.5fr 1.8fr 0.6fr 0.7fr 0.9fr 1.3fr;
@@ -347,8 +500,17 @@
   }
 }
 
+/* Reorganiza el contenido en dispositivos más pequeños para mejorar la visualización. */
 @media (max-width: 850px) {
-  .pedidos-panel { padding: 1.25rem 1rem; }
+
+  /* Reduce el espaciado interno del panel principal. */
+  .pedidos-panel {
+    padding: 1.25rem 1rem;
+  }
+
+  /* Simplifica la distribución de columnas para adaptarse al ancho disponible. */
   .pp-encabezado,
-  .pp-fila { grid-template-columns: 1fr 0.5fr 1.5fr 0.5fr 0.6fr 1fr; }
+  .pp-fila {
+    grid-template-columns: 1fr 0.5fr 1.5fr 0.5fr 0.6fr 1fr;
+  }
 }

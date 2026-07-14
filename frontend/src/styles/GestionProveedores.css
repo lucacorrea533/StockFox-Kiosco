@@ -3,6 +3,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800&display=swap');
 
 /* ── Layout ── */
+
+/* Contenedor general de la vista, desplazado a la derecha para dejar lugar al menú lateral fijo */
 .gestion-proveedores {
   margin-left: 350px;
   flex: 1;
@@ -13,6 +15,7 @@
   color: var(--marron-oscuro);
 }
 
+/* Título principal de la página */
 .gp-titulo {
   font-size: 1.8rem;
   font-weight: 700;
@@ -21,17 +24,20 @@
 }
 
 /* ── Pestañas ── */
+
+/* Contenedor de las pestañas de navegación (ej: Proveedores / Compras / Pagos) */
 .gp-pestanas {
   display: flex;
   border-bottom: 2px solid var(--naranja);
   margin-bottom: 1.5rem;
 }
 
+/* Estilo base de cada botón de pestaña */
 .gp-pestana {
   background: none;
   border: none;
   border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
+  margin-bottom: -2px; /* Compensa el borde inferior del contenedor para que se vea continuo */
   padding: 0.65rem 1.6rem;
   font-size: 1rem;
   font-family: 'Lexend', sans-serif;
@@ -43,9 +49,12 @@
 }
 
 .gp-pestana:hover           { background: var(--naranja-claro); }
+/* Marca visualmente cuál pestaña está seleccionada actualmente */
 .gp-pestana--activa         { border-bottom-color: var(--marron-oscuro); }
 
 /* ── Sección ── */
+
+/* Caja contenedora genérica para cada sección de contenido dentro de la página */
 .gp-seccion {
   background: var(--naranja-claro);
   border-radius: 12px;
@@ -63,12 +72,14 @@
   gap: 0.75rem;
 }
 
+/* Contenedor de los botones de acción dentro del header de sección (permite varios, con salto de línea) */
 .gp-seccion-header-acciones {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
+/* Título de cada sección */
 .gp-seccion-titulo {
   font-size: 1rem;
   font-weight: 700;
@@ -76,6 +87,7 @@
   margin: 0;
 }
 
+/* Texto aclaratorio pequeño debajo del título de sección */
 .gp-seccion-nota {
   font-size: 0.78rem;
   color: var(--marron-oscuro);
@@ -85,6 +97,8 @@
 }
 
 /* ── Botón agregar ── */
+
+/* Botón principal de agregar (proveedor, compra, etc.) */
 .gp-btn-agregar {
   background: var(--marron-oscuro);
   color: white;
@@ -99,14 +113,18 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+  /* Cuando el botón agregar está dentro del header de sección, se empuja al extremo derecho */
   .gp-seccion-header > .gp-btn-agregar {
   margin-left: auto;
   }
 
 .gp-btn-agregar:hover           { opacity: 0.85; }
+/* Variante de color secundaria para un segundo botón de "agregar" (ej: agregar compra vs agregar proveedor) */
 .gp-btn-agregar--secundario     { background: var(--marron-naranja); }
 
 /* ── Buscador ── */
+
+/* Contenedor del buscador (ícono + input) */
 .gp-buscador-wrapper {
   display: flex;
   align-items: center;
@@ -118,8 +136,10 @@
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
+/* Ícono de lupa dentro del buscador */
 .gp-buscador-icono  { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.7; object-fit: contain; }
 
+/* Input de texto del buscador */
 .gp-buscador-input {
   flex: 1;
   border: none;
@@ -134,22 +154,27 @@
 .gp-buscador-input::placeholder { color: rgba(92,45,10,0.5); }
 
 /* ── Tabla ── */
+
+/* Contenedor general de cualquier tabla dentro de esta vista */
 .gp-tabla-wrapper {
   background: var(--naranja-pastel);
   border-radius: 8px;
-  overflow: visible;
+  overflow: visible; /* Permite que el popover de pago se desborde visualmente por fuera de la tabla */
 }
 
+/* Redondeo superior del encabezado, tanto para la tabla de proveedores como la de compras */
 .gp-tabla-enc--prov,
 .gp-tabla-enc--compras {
   border-radius: 8px 8px 0 0;
 }
 
+/* Redondeo inferior de la última fila, tanto para proveedores como para compras */
 .gp-tabla-fila--prov:last-child,
 .gp-tabla-fila--compras:last-child {
   border-radius: 0 0 8px 8px;
 }
 
+/* Definición de columnas para el encabezado y las filas de la tabla de PROVEEDORES */
 .gp-tabla-enc--prov,
 .gp-tabla-fila--prov {
   display: grid;
@@ -160,6 +185,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Definición de columnas para el encabezado y las filas de la tabla de COMPRAS */
 .gp-tabla-enc--compras,
 .gp-tabla-fila--compras {
   display: grid;
@@ -170,6 +196,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Estilo compartido de ambos encabezados (fondo y tipografía) */
 .gp-tabla-enc--prov,
 .gp-tabla-enc--compras {
   background: var(--naranja);
@@ -178,6 +205,7 @@
   color: var(--marron-oscuro);
 }
 
+/* Estilo compartido de las filas de ambas tablas */
 .gp-tabla-fila--prov,
 .gp-tabla-fila--compras {
   border-top: 1px solid rgba(92,45,10,0.1);
@@ -185,16 +213,23 @@
   transition: background 0.15s;
 }
 
+/* Resalta la fila al pasar el mouse por encima, en ambas tablas */
 .gp-tabla-fila--prov:hover,
 .gp-tabla-fila--compras:hover { background: rgba(255,255,255,0.2); }
 
+/* Nombre del proveedor destacado en negrita */
 .gp-prov-nombre { font-weight: 700; }
+/* Descripción de la compra, en tamaño más chico y algo transparente */
 .gp-comp-desc   { font-size: 0.82rem; opacity: 0.85; }
+/* Monto de la compra destacado en negrita */
 .gp-comp-monto  { font-weight: 700; }
+/* Mensaje mostrado cuando no hay resultados en la tabla */
 .gp-vacia       { text-align: center; padding: 1.2rem; opacity: 0.55; font-family: 'Lexend', sans-serif; }
 
+/* Contenedor de los botones de acción en cada fila (editar, eliminar) */
 .gp-acciones    { display: flex; gap: 0.35rem; }
 
+/* Estilo base de los botones de acción de la tabla */
 .gp-btn {
   border: none; border-radius: 6px; padding: 0.28rem 0.45rem;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -202,12 +237,17 @@
 }
 .gp-btn img     { width: 20px; height: 20px; object-fit: contain; display: block; }
 .gp-btn:hover   { opacity: 0.8; }
+/* Botón de editar */
 .gp-btn--editar   { background: var(--naranja); }
+/* Botón de eliminar */
 .gp-btn--eliminar { background: var(--naranja-pastel); }
 
 /* ── Badges Pagado / Parcial — CSS puro, con popover ── */
+
+/* Contenedor relativo que envuelve al badge, necesario para posicionar el popover encima */
 .gp-badge-wrapper { position: relative; display: inline-block; }
 
+/* Estilo base del badge de estado de pago (clickeable para mostrar el desglose) */
 .gp-badge-pago {
   display: inline-block;
   padding: 5px 14px;
@@ -222,13 +262,17 @@
 
 .gp-badge-pago:hover { opacity: 0.85; }
 
+/* Color del badge cuando el pago está completo */
 .gp-badge-pago--pagado  { background: var(--marron-oscuro);  color: white; }
+/* Color del badge cuando el pago es parcial */
 .gp-badge-pago--parcial { background: var(--marron-naranja);  color: white; }
 
 /* Popover de desglose */
+
+/* Caja flotante que muestra el detalle del pago, posicionada arriba del badge */
 .gp-badge-popover {
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 8px); /* Se ubica justo arriba del badge, con un pequeño margen */
   right: 0;
   background: white;
   border-radius: 10px;
@@ -239,6 +283,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Título dentro del popover */
 .gp-popover-titulo {
   font-weight: 700;
   font-size: 0.85rem;
@@ -246,40 +291,52 @@
   margin: 0 0 6px;
 }
 
+/* Cada línea de detalle dentro del popover */
 .gp-popover-linea {
   font-size: 0.82rem;
   color: var(--marron-oscuro);
   margin: 3px 0;
 }
 
+/* Separador horizontal dentro del popover */
 .gp-popover-sep {
   border: none;
   border-top: 1px solid rgba(92,45,10,0.15);
   margin: 8px 0;
 }
 
+/* Texto verde cuando el saldo está en orden (pagado) */
 .gp-popover-ok    { font-size: 0.82rem; color: #2e7d32; font-weight: 700; margin: 0; }
+/* Texto rojo cuando todavía se debe un monto */
 .gp-popover-debe  { font-size: 0.82rem; color: #8b0000; font-weight: 700; margin: 0; }
 
 /* ── Tarjetas de saldo ── */
+
+/* Grilla flexible de tarjetas de saldo por proveedor, se auto-ajusta según el ancho disponible */
 .gp-saldo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 0.85rem;
 }
 
+/* Estilo base de cada tarjeta de saldo */
 .gp-saldo-card {
   border-radius: 10px;
   padding: 14px 16px;
   font-family: 'Lexend', sans-serif;
 }
 
+/* Variante de color cuando el proveedor está saldado (sin deuda) */
 .gp-saldo-card--saldado { background: var(--naranja-claro); border: 1.5px solid rgba(92,45,10,0.15); }
+/* Variante de color cuando el proveedor todavía tiene saldo pendiente */
 .gp-saldo-card--debe    { background: var(--naranja-pastel); border: 1.5px solid rgba(92,45,10,0.25); }
 
+/* Nombre del proveedor dentro de la tarjeta de saldo */
 .gp-saldo-nombre { font-weight: 700; font-size: 0.9rem; color: var(--marron-oscuro); margin: 0 0 4px; }
+/* Línea de detalle (ej: total comprado, total pagado) dentro de la tarjeta */
 .gp-saldo-linea  { font-size: 0.78rem; color: var(--marron-oscuro); margin: 2px 0; opacity: 0.75; }
 
+/* Pie de la tarjeta: ícono + valor del saldo */
 .gp-saldo-footer {
   display: flex;
   align-items: center;
@@ -287,9 +344,13 @@
   margin-top: 8px;
 }
 
+/* Ícono junto al valor del saldo */
 .gp-saldo-icono  { width: 18px; height: 18px; object-fit: contain; flex-shrink: 0; }
+/* Valor numérico del saldo */
 .gp-saldo-valor  { font-size: 0.85rem; font-weight: 700; }
+/* Color del valor cuando el saldo está en orden */
 .gp-saldo-valor--ok   { color: var(--marron-oscuro); }
+/* Color del valor cuando todavía hay una deuda pendiente */
 .gp-saldo-valor--debe { color: #8b0000; }
 
 /* Botón "Marcar como saldado" dentro de la tarjeta */
@@ -311,6 +372,8 @@
 .gp-btn-saldar:hover { opacity: 0.85; }
 
 /* ── Modal ── */
+
+/* Fondo oscuro semitransparente detrás del modal */
 .gp-overlay {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.5);
@@ -318,8 +381,9 @@
   z-index: 1000; padding: 20px;
 }
 
+/* Caja principal del modal (formulario de proveedor, compra, confirmación, etc.) */
 .gp-modal {
-  position: relative;
+  position: relative; /* Necesario para posicionar el botón de cerrar de forma absoluta */
   background: var(--naranja-pastel);
   border-radius: 14px;
   padding: 32px 28px 24px;
@@ -328,6 +392,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Botón "✕" para cerrar el modal */
 .gp-modal-cerrar {
   position: absolute; top: 14px; right: 14px;
   background: none; border: none;
@@ -339,14 +404,20 @@
 }
 .gp-modal-cerrar:hover { background: rgba(0,0,0,0.1); }
 
+/* Título del modal */
 .gp-modal-titulo { font-size: 1.15rem; font-weight: 700; color: var(--marron-oscuro); margin: 0 0 18px; }
 
+/* Grilla de dos columnas para organizar los campos del formulario dentro del modal */
 .gp-modal-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-bottom: 18px; }
+/* Contenedor de cada campo individual (label + input) */
 .gp-modal-campo  { display: flex; flex-direction: column; gap: 5px; }
+/* Modificador para que un campo ocupe todo el ancho de la grilla */
 .gp-campo-full   { grid-column: 1 / -1; }
 
+/* Etiqueta de cada campo del formulario del modal */
 .gp-modal-campo label { font-size: 0.82rem; font-weight: 600; color: var(--marron-oscuro); }
 
+/* Estilo compartido de los inputs y selects dentro del modal */
 .gp-modal-campo input,
 .gp-modal-campo select {
   background: rgba(92,45,10,0.12);
@@ -361,39 +432,56 @@
 }
 
 .gp-modal-campo input::placeholder { color: rgba(92,45,10,0.4); }
+/* Resalta el borde cuando el input/select está enfocado */
 .gp-modal-campo input:focus,
 .gp-modal-campo select:focus { border-color: var(--marron-naranja); }
+/* Estilo de las opciones dentro del select */
 .gp-modal-campo select option { background: var(--naranja-pastel); color: var(--marron-oscuro); }
 
+/* Contenedor del campo de precio con el símbolo $ integrado */
 .gp-precio-wrapper {
   display: flex; align-items: center;
   background: rgba(92,45,10,0.12);
   border: 2px solid transparent; border-radius: 8px;
   padding-left: 10px; transition: border-color 0.2s;
 }
+/* Resalta el borde del wrapper completo cuando el input interno está enfocado */
 .gp-precio-wrapper:focus-within { border-color: var(--marron-naranja); }
+/* Símbolo $ mostrado antes del input de precio */
 .gp-precio-simbolo  { font-weight: 700; color: var(--marron-oscuro); font-size: 0.95rem; }
+/* Input numérico dentro del wrapper de precio */
 .gp-precio-wrapper input { flex: 1; background: transparent; border: none !important; padding: 10px 10px 10px 4px; }
 
+/* Mensaje de error de validación debajo de un campo */
 .gp-error { font-size: 0.77rem; color: #c0392b; }
 
+/* Contenedor de los botones de acción del modal (cancelar, guardar, eliminar) */
 .gp-modal-botones { display: flex; gap: 10px; justify-content: flex-end; }
 
+/* Estilo base compartido por los botones del modal */
 .gp-modal-btn {
   border: none; border-radius: 8px; padding: 10px 22px;
   font-size: 0.9rem; font-family: 'Lexend', sans-serif; font-weight: 600;
   cursor: pointer; transition: opacity 0.15s;
 }
 .gp-modal-btn:hover            { opacity: 0.85; }
+/* Botón de cancelar (estilo neutro) */
 .gp-modal-btn--cancelar { background: rgba(92,45,10,0.15); color: var(--marron-oscuro); }
+/* Botón de guardar (estilo destacado) */
 .gp-modal-btn--guardar  { background: var(--marron-oscuro); color: white; }
+/* Botón de eliminar (estilo de advertencia, rojo) */
 .gp-modal-btn--eliminar { background: #c0392b; color: white; }
 
+/* Variante del cuerpo del modal para confirmaciones simples, centrado */
 .gp-confirm-body          { text-align: center; }
+/* Texto de la pregunta de confirmación */
 .gp-confirm-texto         { font-size: 0.97rem; color: var(--marron-oscuro); line-height: 1.5; margin: 0 0 22px; }
+/* Centra los botones cuando el modal es de confirmación */
 .gp-confirm-body .gp-modal-botones { justify-content: center; }
 
 /* ── Toast ── */
+
+/* Notificación flotante en la parte inferior de la pantalla */
 .gp-toast {
   position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
   background: var(--marron-oscuro); color: white;
@@ -404,12 +492,14 @@
   animation: gpToastIn 0.2s ease;
 }
 
+/* Redefinimos el toast como fila flexible, para alinear el texto y el botón de acción */
 .gp-toast {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
+/* Botón de acción dentro del toast (ej: "Deshacer") */
 .gp-toast-btn {
   background: var(--naranja);
   color: white;
@@ -426,16 +516,23 @@
 
 .gp-toast-btn:hover { opacity: 0.85; }
 
+/* Animación de entrada del toast: se desliza suavemente hacia arriba */
 @keyframes gpToastIn {
   from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* ── Responsive ── */
+
+/* Ajustes para pantallas medianas/chicas (tablets) */
 @media (max-width: 900px) {
   .gestion-proveedores { padding: 1.25rem 1rem; }
+  /* Reducimos las columnas de la tabla de proveedores */
   .gp-tabla-enc--prov, .gp-tabla-fila--prov { grid-template-columns: 1.5fr 1fr 0.9fr; }
+  /* Ocultamos la segunda columna (ej: contacto) en pantallas chicas */
   .gp-tabla-enc--prov span:nth-child(2), .gp-tabla-fila--prov span:nth-child(2) { display: none; }
+  /* El formulario del modal pasa a una sola columna */
   .gp-modal-grid { grid-template-columns: 1fr; }
+  /* Las tarjetas de saldo pasan a mostrarse de a dos por fila */
   .gp-saldo-grid { grid-template-columns: 1fr 1fr; }
 }

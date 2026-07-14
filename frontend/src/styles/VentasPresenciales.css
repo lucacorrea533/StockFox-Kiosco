@@ -1,11 +1,18 @@
-/* Este archivo css contiene los estilos para la sección de Ventas Presenciales */
+/* Este archivo CSS contiene los estilos de la sección Ventas Presenciales.
+   Define la distribución del panel, el buscador, los filtros por categoría,
+   la grilla de productos y los controles para agregar o quitar productos del carrito. */
 
-/* ── Layout ─────────────────────────────────────── */
+/* ───────────────────── Layout ───────────────────── */
+
+/* Contenedor principal de la vista.
+   Ocupa toda la altura de la ventana y establece el color de fondo general. */
 .vp-layout {
   min-height: 100vh;
   background: var(--naranja-pastel);
 }
 
+/* Área principal donde se muestra el contenido de ventas presenciales.
+   Deja espacio para el menú lateral y agrega el espaciado interno. */
 .vp-main {
   margin-left: 350px;
   flex: 1;
@@ -14,6 +21,7 @@
   padding: 2rem 1.5rem;
 }
 
+/* Contenedor que organiza el listado de productos y el resumen de la venta en dos columnas. */
 .vp-contenido {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -21,7 +29,9 @@
   align-items: start;
 }
 
-/* ── Título ─────────────────────────────────────── */
+/* ───────────────────── Título ───────────────────── */
+
+/* Título principal de la página de ventas presenciales. */
 .vp-titulo {
   font-size: 1.7rem;
   font-weight: 700;
@@ -30,7 +40,9 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Buscador ───────────────────────────────────── */
+/* ───────────────────── Buscador ───────────────────── */
+
+/* Contenedor del buscador utilizado para localizar productos por nombre. */
 .vp-buscador {
   display: flex;
   align-items: center;
@@ -41,6 +53,7 @@
   margin-bottom: 1rem;
 }
 
+/* Ícono de búsqueda mostrado dentro del buscador. */
 .vp-buscador-icono-img {
   width: 18px;
   height: 18px;
@@ -49,6 +62,7 @@
   opacity: 0.7;
 }
 
+/* Campo de texto donde se escribe el nombre del producto a buscar. */
 .vp-buscador input {
   border: none;
   background: transparent;
@@ -59,11 +73,14 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Color aplicado al texto de ayuda (placeholder) del buscador. */
 .vp-buscador input::placeholder {
   color: rgba(92, 45, 10, 0.45);
 }
 
-/* ── Filtros categoría ──────────────────────────── */
+/* ───────────────────── Filtros por categoría ───────────────────── */
+
+/* Contenedor que agrupa todas las categorías disponibles para filtrar productos. */
 .vp-categorias {
   display: flex;
   flex-wrap: wrap;
@@ -71,7 +88,7 @@
   margin-bottom: 1.25rem;
 }
 
-/* La imagen ES el botón completo (Todos.png, Snacks.png, etc. ya tienen forma de botón) */
+/* Imagen utilizada como botón para seleccionar una categoría de productos. */
 .vp-cat-img {
   height: 28px;
   width: auto;
@@ -82,24 +99,28 @@
   display: block;
 }
 
+/* Aumenta la visibilidad de la categoría al pasar el cursor sobre ella. */
 .vp-cat-img:hover {
   opacity: 1;
 }
 
-/* Activo: borde marrón alrededor de la imagen */
+/* Resalta la categoría actualmente seleccionada mediante un borde. */
 .vp-cat-img--activo {
   opacity: 1;
   outline: 2.5px solid var(--marron-oscuro);
   outline-offset: 2px;
 }
 
-/* ── Grilla de productos ────────────────────────── */
+/* ───────────────────── Grilla de productos ───────────────────── */
+
+/* Contenedor que organiza las tarjetas de productos en dos columnas. */
 .vp-grilla {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
+/* Mensaje mostrado cuando no existen productos para la categoría o búsqueda seleccionada. */
 .vp-vacio {
   grid-column: 1 / -1;
   text-align: center;
@@ -109,7 +130,9 @@
   padding: 2rem 0;
 }
 
-/* ── Tarjeta de producto ────────────────────────── */
+/* ───────────────────── Tarjeta de producto ───────────────────── */
+
+/* Tarjeta individual utilizada para mostrar la información de un producto disponible para la venta. */
 .tp-tarjeta {
   background: var(--naranja);
   border-radius: 12px;
@@ -119,17 +142,20 @@
   gap: 0.75rem;
 }
 
+/* Reduce la visibilidad de la tarjeta cuando el producto no está disponible para su venta. */
 .tp-tarjeta--disabled {
   opacity: 0.5;
   pointer-events: none;
 }
 
+/* Contenedor que agrupa el nombre, la descripción y el precio del producto. */
 .tp-tarjeta-info {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
 }
 
+/* Nombre principal del producto. */
 .tp-tarjeta-nombre {
   font-size: 1rem;
   font-weight: 700;
@@ -137,6 +163,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Información adicional o descripción breve del producto. */
 .tp-tarjeta-detalle {
   font-size: 0.78rem;
   color: var(--marron-oscuro);
@@ -144,6 +171,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Precio del producto mostrado dentro de la tarjeta. */
 .tp-tarjeta-precio {
   font-size: 0.9rem;
   font-weight: 600;
@@ -151,7 +179,9 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* Sin stock */
+/* ───────────────────── Estado sin stock ───────────────────── */
+
+/* Contenedor que informa que un producto no posee unidades disponibles. */
 .tp-tarjeta-sinstok {
   display: flex;
   align-items: center;
@@ -165,13 +195,16 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Ícono utilizado para representar el estado sin stock. */
 .tp-tarjeta-sinstok img {
   width: 16px;
   height: 16px;
   opacity: 0.5;
 }
 
-/* Controles +/- */
+/* ───────────────────── Controles de cantidad ───────────────────── */
+
+/* Contenedor que agrupa los botones para aumentar o disminuir la cantidad del producto. */
 .tp-tarjeta-controles {
   display: flex;
   align-items: center;
@@ -179,6 +212,7 @@
   gap: 0.75rem;
 }
 
+/* Estilo base de los botones utilizados para modificar la cantidad seleccionada. */
 .tp-ctrl-btn {
   width: 34px;
   height: 34px;
@@ -194,25 +228,30 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Botón encargado de disminuir la cantidad seleccionada. */
 .tp-ctrl-btn--restar {
   background: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
 
+/* Botón encargado de aumentar la cantidad seleccionada. */
 .tp-ctrl-btn--sumar {
   background: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
 
+/* Reduce la visibilidad del botón cuando se encuentra deshabilitado. */
 .tp-ctrl-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
+/* Cambia el color del botón cuando el usuario pasa el cursor sobre él y está habilitado. */
 .tp-ctrl-btn:hover:not(:disabled) {
   background: var(--marron-naranja);
 }
 
+/* Muestra la cantidad actualmente seleccionada del producto. */
 .tp-ctrl-cantidad {
   font-size: 1rem;
   font-weight: 700;
@@ -222,7 +261,10 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Panel resumen de venta ─────────────────────── */
+/* ───────────────────── Panel resumen de venta ───────────────────── */
+
+/* Panel lateral donde se muestra el resumen de la venta actual.
+   Permanece visible al hacer scroll gracias a la propiedad sticky. */
 .rv-panel {
   background: var(--naranja);
   border-radius: 14px;
@@ -234,6 +276,7 @@
   gap: 0.75rem;
 }
 
+/* Título principal del panel de resumen de venta. */
 .rv-titulo {
   font-size: 1rem;
   font-weight: 700;
@@ -244,13 +287,16 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Ícono que acompaña el título del resumen de venta. */
 .rv-titulo-icono-img {
   width: 20px;
   height: 20px;
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
-/* Tabla header */
+/* ───────────────────── Encabezado de la tabla ───────────────────── */
+
+/* Encabezado que identifica las columnas del resumen de productos. */
 .rv-tabla-header {
   display: flex;
   justify-content: space-between;
@@ -262,7 +308,9 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* Items */
+/* ───────────────────── Lista de productos ───────────────────── */
+
+/* Contenedor donde se muestran todos los productos agregados a la venta. */
 .rv-items {
   display: flex;
   flex-direction: column;
@@ -270,6 +318,7 @@
   min-height: 60px;
 }
 
+/* Mensaje mostrado cuando todavía no hay productos seleccionados. */
 .rv-vacio {
   font-size: 0.82rem;
   color: var(--marron-oscuro);
@@ -277,6 +326,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Fila correspondiente a un producto dentro del resumen de venta. */
 .rv-item {
   display: flex;
   justify-content: space-between;
@@ -285,12 +335,14 @@
   border-bottom: 1px solid rgba(92, 45, 10, 0.1);
 }
 
+/* Contenedor que agrupa el nombre y el detalle del producto. */
 .rv-item-info {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
+/* Nombre del producto agregado a la venta. */
 .rv-item-nombre {
   font-size: 0.88rem;
   font-weight: 600;
@@ -298,6 +350,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Información adicional del producto, como cantidad u otros detalles. */
 .rv-item-detalle {
   font-size: 0.75rem;
   color: var(--marron-oscuro);
@@ -305,6 +358,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Subtotal correspondiente a cada producto seleccionado. */
 .rv-item-subtotal {
   font-size: 0.88rem;
   font-weight: 600;
@@ -312,7 +366,9 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* Total */
+/* ───────────────────── Total de la venta ───────────────────── */
+
+/* Contenedor que muestra el importe total de la venta. */
 .rv-total {
   display: flex;
   justify-content: space-between;
@@ -324,7 +380,9 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* Error */
+/* ───────────────────── Mensajes de error ───────────────────── */
+
+/* Contenedor utilizado para mostrar errores relacionados con la venta. */
 .rv-error {
   display: flex;
   align-items: center;
@@ -335,13 +393,16 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Ícono que acompaña el mensaje de error. */
 .rv-error-icono {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
-/* Botones */
+/* ───────────────────── Botones de acción ───────────────────── */
+
+/* Estilo base utilizado por los botones del panel de resumen. */
 .rv-btn {
   width: 100%;
   padding: 0.65rem;
@@ -358,44 +419,51 @@
   gap: 0.5rem;
 }
 
+/* Botón que confirma la venta realizada. */
 .rv-btn--confirmar {
   background: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
 
+/* Cambia el color del botón de confirmar al pasar el cursor. */
 .rv-btn--confirmar:hover {
   background: var(--marron-naranja);
 }
 
+/* Botón utilizado para cancelar la venta actual. */
 .rv-btn--cancelar {
   background: var(--naranja-claro);
   color: var(--marron-oscuro);
 }
 
+/* Reduce ligeramente la opacidad del botón cancelar al pasar el cursor. */
 .rv-btn--cancelar:hover {
   opacity: 0.8;
 }
 
-/* ── Estado venta confirmada ────────────────────── */
+/* ───────────────────── Venta confirmada ───────────────────── */
+
+/* Contenedor mostrado cuando la venta fue registrada correctamente. */
 .rv-confirmada {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-/* Check grande: sin filtro, el SVG ya es marrón oscuro */
+/* Contenedor del ícono de confirmación. */
 .rv-check-wrap {
   display: flex;
   justify-content: center;
   margin-bottom: 0.25rem;
 }
 
+/* Imagen del símbolo de verificación que indica una venta exitosa. */
 .rv-check-img {
   width: 56px;
   height: 56px;
-  /* Sin filtro: la imagen SimboloCheck.png ya es marrón oscuro sobre blanco */
 }
 
+/* Título mostrado luego de confirmar la venta. */
 .rv-confirmada-titulo {
   font-size: 1.1rem;
   font-weight: 700;
@@ -404,6 +472,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor que muestra la hora en la que se realizó la venta. */
 .rv-confirmada-hora {
   display: flex;
   align-items: center;
@@ -414,11 +483,13 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Ícono del reloj que acompaña la hora de la venta. */
 .rv-reloj-icono {
   width: 14px;
   height: 14px;
 }
 
+/* Panel que contiene el detalle completo de la venta confirmada. */
 .rv-detalle {
   background: var(--naranja-claro);
   border-radius: 9px;
@@ -428,6 +499,7 @@
   gap: 0.4rem;
 }
 
+/* Título de la sección donde se muestran los detalles de la venta. */
 .rv-detalle-titulo {
   font-size: 0.82rem;
   font-weight: 700;
@@ -436,6 +508,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Cada fila con la información individual de la venta. */
 .rv-detalle-fila {
   display: flex;
   justify-content: space-between;
@@ -444,6 +517,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Fila final donde se muestra el total de la venta confirmada. */
 .rv-detalle-total {
   display: flex;
   justify-content: space-between;
@@ -456,11 +530,14 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Historial de ventas del día ────────────────── */
+/* ───────────────────── Historial de ventas del día ───────────────────── */
+
+/* Contenedor de la sección donde se muestran todas las ventas realizadas durante el día. */
 .vp-historial {
   margin-top: 2rem;
 }
 
+/* Título principal del historial de ventas. */
 .vp-historial-titulo {
   font-size: 1.1rem;
   font-weight: 700;
@@ -472,11 +549,13 @@
   gap: 0.5rem;
 }
 
+/* Ícono que acompaña el título del historial. */
 .vp-historial-icono {
   width: 20px;
   height: 20px;
 }
 
+/* Tarjeta individual que representa una venta registrada en el historial. */
 .vp-historial-item {
   background: var(--naranja);
   border-radius: 10px;
@@ -487,12 +566,14 @@
   gap: 0.35rem;
 }
 
+/* Encabezado de cada venta, donde se muestran la hora y el total. */
 .vp-historial-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+/* Hora en la que fue registrada la venta. */
 .vp-historial-hora {
   font-size: 0.82rem;
   color: var(--marron-oscuro);
@@ -500,6 +581,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Importe total correspondiente a la venta realizada. */
 .vp-historial-total {
   font-size: 0.9rem;
   font-weight: 700;
@@ -507,12 +589,14 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor que agrupa los productos vendidos en esa operación. */
 .vp-historial-productos {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
 }
 
+/* Etiqueta individual utilizada para mostrar cada producto vendido. */
 .vp-historial-prod {
   background: var(--naranja-claro);
   color: var(--marron-oscuro);
@@ -523,29 +607,38 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Responsive ─────────────────────────────────── */
+/* ───────────────────── Diseño responsive ───────────────────── */
+
+/* Ajustes aplicados cuando la pantalla tiene un ancho menor o igual a 900 píxeles. */
 @media (max-width: 900px) {
+
+  /* Elimina el margen del menú lateral y reduce el espaciado del contenido principal. */
   .vp-main {
     margin-left: 0;
     padding: 1rem;
   }
 
+  /* Convierte el contenido principal en una sola columna para dispositivos pequeños. */
   .vp-contenido {
     grid-template-columns: 1fr;
   }
 
+  /* El panel de resumen deja de ser fijo para adaptarse mejor al diseño móvil. */
   .rv-panel {
     position: static;
   }
 }
 
-/* ── Modal de confirmación (dentro del panel) ───── */
+/* ───────────────────── Modal de confirmación ───────────────────── */
+
+/* Contenedor del mensaje de confirmación antes de registrar una venta. */
 .rv-confirm-modal {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
+/* Pregunta principal mostrada al usuario antes de confirmar la venta. */
 .rv-confirm-pregunta {
   font-size: 1.05rem;
   font-weight: 700;
@@ -554,6 +647,7 @@
   text-align: center;
 }
 
+/* Texto secundario con información adicional sobre la confirmación. */
 .rv-confirm-sub {
   font-size: 0.82rem;
   color: var(--marron-oscuro);
@@ -562,7 +656,9 @@
   text-align: center;
 }
 
-/* ── Toast deshacer cancelación ─────────────────── */
+/* ───────────────────── Toast para deshacer cancelación ───────────────────── */
+
+/* Notificación flotante que permite deshacer una cancelación reciente. */
 .vp-undo-toast {
   position: fixed;
   bottom: 2rem;
@@ -583,6 +679,7 @@
   white-space: nowrap;
 }
 
+/* Botón que permite restaurar la venta cancelada. */
 .vp-undo-btn {
   background: var(--naranja);
   color: var(--marron-oscuro);
@@ -596,10 +693,12 @@
   transition: 0.15s;
 }
 
+/* Cambia el color del botón al pasar el cursor sobre él. */
 .vp-undo-btn:hover {
   background: var(--naranja-claro);
 }
 
+/* Botón utilizado para cerrar manualmente la notificación. */
 .vp-undo-cerrar {
   background: transparent;
   border: none;
@@ -612,6 +711,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Aumenta la visibilidad del botón de cierre cuando el cursor pasa sobre él. */
 .vp-undo-cerrar:hover {
   opacity: 1;
 }

@@ -1,11 +1,18 @@
-/* Este archivo css contiene los estilos del panel de administración. */
+/* Este archivo CSS contiene los estilos correspondientes al Panel de Administración.
+   Define la distribución de la página, las tarjetas de métricas, las alertas de stock,
+   los pedidos recientes y otros elementos visuales utilizados por la encargada. */
 
-/* ── Layout general ─────────────────────────────── */
+/* ───────────────────── Layout general ───────────────────── */
+
+/* Contenedor principal del panel de administración.
+   Ocupa como mínimo toda la altura de la ventana y aplica el color de fondo general. */
 .pa-layout {
   min-height: 100vh;
   background: var(--naranja-pastel);
 }
 
+/* Área principal donde se muestra todo el contenido del panel.
+   Se desplaza hacia la derecha para dejar espacio al menú lateral y agrega un espaciado interno. */
 .pa-main {
   margin-left: 350px;
   flex: 1;
@@ -14,7 +21,9 @@
   min-height: 100vh;
 }
 
-/* ── Saludo ─────────────────────────────────────── */
+/* ───────────────────── Saludo ───────────────────── */
+
+/* Título de bienvenida mostrado al ingresar al panel de administración. */
 .pa-saludo {
   font-size: 1.8rem;
   font-weight: 700;
@@ -23,11 +32,14 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Sección genérica ───────────────────────────── */
+/* ───────────────────── Sección genérica ───────────────────── */
+
+/* Contenedor utilizado para separar visualmente cada sección del panel mediante un margen inferior. */
 .pa-seccion {
   margin-bottom: 1.75rem;
 }
 
+/* Subtítulo utilizado para identificar las diferentes secciones del panel. */
 .pa-subtitulo {
   font-size: 1rem;
   font-weight: 600;
@@ -36,7 +48,10 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Fila doble (alertas + pedidos) ─────────────── */
+/* ───────────────────── Fila doble (alertas + pedidos) ───────────────────── */
+
+/* Organiza dos tarjetas en una misma fila utilizando CSS Grid,
+   como las alertas de stock y los pedidos recientes. */
 .pa-fila-doble {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -44,13 +59,18 @@
   margin-bottom: 1.75rem;
 }
 
-/* ── Métricas ───────────────────────────────────── */
+/* ───────────────────── Métricas ───────────────────── */
+
+/* Contenedor de las tarjetas de métricas principales.
+   Distribuye tres columnas con igual tamaño. */
 .pa-metricas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
+/* Tarjeta individual donde se muestra una métrica importante del sistema,
+   como ventas, pedidos o ganancias. */
 .metrica-card {
   background: var(--naranja-claro);
   border: 1.5px solid rgba(92, 45, 10, 0.15);
@@ -61,6 +81,7 @@
   gap: 0.4rem;
 }
 
+/* Texto descriptivo que indica qué representa la métrica mostrada. */
 .metrica-label {
   font-size: 0.8rem;
   font-weight: 500;
@@ -69,6 +90,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Valor principal de la métrica destacado con un tamaño de fuente mayor. */
 .metrica-valor {
   font-size: 1.5rem;
   font-weight: 700;
@@ -76,11 +98,14 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Variante utilizada cuando una métrica necesita destacarse con un tamaño de fuente aún mayor. */
 .metrica-valor--grande {
   font-size: 1.9rem;
 }
 
-/* ── Alertas de stock ───────────────────────────── */
+/* ───────────────────── Alertas de stock ───────────────────── */
+
+/* Tarjeta que contiene la lista de productos con poco stock o sin existencias. */
 .alertas-card {
   background: var(--naranja-claro);
   border: 1.5px solid rgba(92, 45, 10, 0.15);
@@ -90,6 +115,8 @@
   flex-direction: column;
 }
 
+/* Encabezado de la tarjeta de alertas.
+   Alinea el título de la sección y la cantidad total de alertas. */
 .alertas-header {
   display: flex;
   justify-content: space-between;
@@ -97,6 +124,7 @@
   margin-bottom: 0.75rem;
 }
 
+/* Título principal de la sección de alertas de stock. */
 .alertas-titulo {
   font-size: 0.95rem;
   font-weight: 600;
@@ -104,6 +132,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Etiqueta que muestra la cantidad de productos con alertas de stock. */
 .alertas-badge {
   background: var(--naranja);
   color: var(--naranja-claro);
@@ -114,6 +143,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor donde se organizan verticalmente todas las alertas de productos. */
 .alertas-lista {
   display: flex;
   flex-direction: column;
@@ -121,6 +151,8 @@
   flex: 1;
 }
 
+/* Fila correspondiente a un producto con bajo stock.
+   Distribuye el nombre del producto y la cantidad disponible. */
 .alertas-fila {
   display: flex;
   justify-content: space-between;
@@ -129,12 +161,14 @@
   border-bottom: 1px solid rgba(92, 45, 10, 0.08);
 }
 
+/* Nombre del producto que presenta una alerta de stock. */
 .alertas-nombre {
   font-size: 0.88rem;
   color: var(--marron-oscuro);
   font-family: 'Lexend', sans-serif;
 }
 
+/* Etiqueta que muestra la cantidad de unidades disponibles del producto. */
 .alertas-stock {
   font-size: 0.82rem;
   font-weight: 600;
@@ -145,11 +179,13 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Variante utilizada para indicar que un producto no posee stock disponible. */
 .alertas-stock--cero {
   background: #c0392b;
   color: var(--naranja-claro);
 }
 
+/* Botón que permite acceder al listado completo de alertas de stock. */
 .alertas-ver-todos {
   background: none;
   color: var(--marron-naranja);
@@ -161,12 +197,15 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Efecto visual aplicado al pasar el cursor sobre el botón "Ver todos". */
 .alertas-ver-todos:hover {
   background: none;
   opacity: 0.75;
 }
 
-/* ── Pedidos recientes ──────────────────────────── */
+/* ───────────────────── Pedidos recientes ───────────────────── */
+
+/* Tarjeta que contiene la lista de los pedidos realizados recientemente por los alumnos. */
 .pedidos-card {
   background: var(--naranja-claro);
   border: 1.5px solid rgba(92, 45, 10, 0.15);
@@ -176,6 +215,7 @@
   flex-direction: column;
 }
 
+/* Título de la sección de pedidos recientes. */
 .pedidos-titulo {
   font-size: 0.95rem;
   font-weight: 600;
@@ -184,6 +224,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor donde se muestran todos los pedidos de forma vertical. */
 .pedidos-lista {
   display: flex;
   flex-direction: column;
@@ -191,6 +232,7 @@
   flex: 1;
 }
 
+/* Fila individual correspondiente a un pedido reciente. */
 .pedidos-fila {
   display: flex;
   justify-content: space-between;
@@ -199,12 +241,14 @@
   border-bottom: 1px solid rgba(92, 45, 10, 0.08);
 }
 
+/* Contenedor que agrupa la información textual del pedido. */
 .pedidos-info {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
+/* Nombre del alumno que realizó el pedido. */
 .pedidos-alumno {
   font-size: 0.9rem;
   font-weight: 600;
@@ -212,6 +256,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Información adicional del pedido, como los productos solicitados o la hora. */
 .pedidos-detalle {
   font-size: 0.78rem;
   color: var(--marron-oscuro);
@@ -219,6 +264,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Etiqueta que indica el estado actual del pedido. */
 .pedido-estado {
   font-size: 0.75rem;
   font-weight: 700;
@@ -227,21 +273,25 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Estilo utilizado para representar pedidos que aún están pendientes. */
 .pedido-estado--pendiente {
   background: var(--naranja);
   color: var(--naranja-claro);
 }
 
+/* Estilo utilizado para pedidos que ya fueron preparados y están listos para entregar. */
 .pedido-estado--listo {
   background: #27ae60;
   color: var(--naranja-claro);
 }
 
+/* Estilo utilizado para pedidos que ya fueron entregados al alumno. */
 .pedido-estado--entregado {
   background: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
 
+/* Botón que permite acceder al listado completo de pedidos registrados. */
 .pedidos-ver-todos {
   background: none;
   color: var(--marron-naranja);
@@ -253,12 +303,15 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Efecto visual aplicado al pasar el cursor sobre el botón "Ver todos". */
 .pedidos-ver-todos:hover {
   background: none;
   opacity: 0.75;
 }
 
-/* ── Gráfico de ventas semanales ────────────────── */
+/* ───────────────────── Gráfico de ventas semanales ───────────────────── */
+
+/* Tarjeta que contiene el gráfico con las ventas realizadas durante la semana. */
 .grafico-card {
   background: var(--naranja-claro);
   border: 1.5px solid rgba(92, 45, 10, 0.15);
@@ -266,6 +319,8 @@
   padding: 1.25rem 1.5rem;
 }
 
+/* Encabezado del gráfico.
+   Alinea el título junto a los botones para cambiar el período visualizado. */
 .grafico-header {
   display: flex;
   justify-content: space-between;
@@ -273,6 +328,7 @@
   margin-bottom: 1.25rem;
 }
 
+/* Título principal de la sección del gráfico de ventas. */
 .grafico-titulo {
   font-size: 0.95rem;
   font-weight: 600;
@@ -280,11 +336,13 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor que agrupa los botones para seleccionar distintos períodos del gráfico. */
 .grafico-periodos {
   display: flex;
   gap: 0.4rem;
 }
 
+/* Botón utilizado para cambiar el período mostrado en el gráfico (día, semana, mes, etc.). */
 .grafico-periodo-btn {
   background: var(--naranja-pastel);
   color: var(--marron-oscuro);
@@ -298,16 +356,20 @@
   transition: 0.2s;
 }
 
+/* Cambia la apariencia del botón cuando el usuario pasa el cursor sobre él. */
 .grafico-periodo-btn:hover {
   background: var(--naranja);
   color: var(--naranja-claro);
 }
 
+/* Estilo aplicado al botón correspondiente al período actualmente seleccionado. */
 .grafico-periodo-btn--activo {
   background: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
 
+/* Contenedor principal del gráfico.
+   Organiza el eje vertical y las barras de ventas. */
 .grafico-cuerpo {
   display: flex;
   gap: 0.75rem;
@@ -315,6 +377,7 @@
   align-items: flex-end;
 }
 
+/* Columna que contiene las referencias numéricas del eje vertical (eje Y). */
 .grafico-eje-y {
   display: flex;
   flex-direction: column;
@@ -323,6 +386,7 @@
   padding-bottom: 1.5rem;
 }
 
+/* Estilo aplicado a cada valor mostrado en el eje vertical del gráfico. */
 .grafico-eje-y span {
   font-size: 0.72rem;
   color: var(--marron-oscuro);
@@ -330,6 +394,7 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor que distribuye todas las barras del gráfico horizontalmente. */
 .grafico-barras {
   display: flex;
   align-items: flex-end;
@@ -338,6 +403,7 @@
   height: 100%;
 }
 
+/* Columna correspondiente a un día dentro del gráfico de barras. */
 .grafico-barra-col {
   display: flex;
   flex-direction: column;
@@ -347,6 +413,7 @@
   height: 100%;
 }
 
+/* Contenedor utilizado para mantener las barras alineadas desde la parte inferior del gráfico. */
 .grafico-barra-wrap {
   flex: 1;
   display: flex;
@@ -354,6 +421,7 @@
   width: 100%;
 }
 
+/* Barra que representa visualmente la cantidad de ventas de un determinado día. */
 .grafico-barra {
   width: 100%;
   border-radius: 6px 6px 0 0;
@@ -361,10 +429,12 @@
   transition: height 0.3s ease;
 }
 
+/* Variante utilizada para destacar una barra específica dentro del gráfico. */
 .grafico-barra--activa {
   background: var(--marron-oscuro);
 }
 
+/* Texto que identifica el día correspondiente a cada barra del gráfico. */
 .grafico-dia {
   font-size: 0.75rem;
   color: var(--marron-oscuro);
@@ -372,18 +442,22 @@
   font-family: 'Lexend', sans-serif;
 }
 
+/* Contenedor que agrupa el ícono de alerta junto al nombre del producto. */
 .alertas-nombre-wrap {
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
+/* Define el tamaño del ícono utilizado en las alertas de stock
+   y evita que se reduzca cuando el espacio es limitado. */
 .alertas-icono {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
+/* Texto descriptivo ubicado debajo del gráfico con información adicional. */
 .grafico-subtitulo {
   font-size: 0.72rem;
   color: var(--marron-oscuro);
@@ -393,23 +467,32 @@
   font-family: 'Lexend', sans-serif;
 }
 
-/* ── Responsive ─────────────────────────────────── */
+/* ───────────────────── Diseño Responsive ───────────────────── */
+
+/* Ajusta la distribución del panel cuando se visualiza en pantallas pequeñas,
+   reorganizando los elementos para mejorar la experiencia del usuario. */
 @media (max-width: 900px) {
+
+  /* El contenido principal ocupa todo el ancho disponible al ocultarse o reducirse el menú lateral. */
   .pa-main {
     margin-left: 0;
     padding: 1.25rem 1rem;
   }
 
+  /* Las tarjetas de métricas pasan de tres columnas a una sola. */
   .pa-metricas {
     grid-template-columns: 1fr;
   }
 
+  /* Las tarjetas de alertas y pedidos se muestran una debajo de la otra. */
   .pa-fila-doble {
     grid-template-columns: 1fr;
   }
 }
 
-/* ── Estados vacíos (sin alertas / sin ventas en el período) ───── */
+/* ───────────────────── Estados vacíos ───────────────────── */
+
+/* Mensaje mostrado cuando no existen productos con alertas de stock. */
 .alertas-vacio {
   font-size: 0.85rem;
   color: var(--marron-oscuro);
@@ -418,6 +501,7 @@
   padding: 0.5rem 0;
 }
 
+/* Mensaje mostrado cuando no existen datos suficientes para generar el gráfico de ventas. */
 .grafico-vacio {
   width: 100%;
   text-align: center;
