@@ -1,6 +1,11 @@
-/* Este archivo es la página de registro para nuevos usuarios. Acá los alumnos pueden crear su cuenta ingresando su nombre completo, año, división, nombre de usuario y contraseña. Se implementa una validación básica para asegurarse de que todos los campos estén completos y que las contraseñas coincidan. Además, se incluye la opción de mostrar u ocultar la contraseña para mejorar la experiencia del usuario. Al finalizar el registro, se muestra un mensaje de éxito y se redirige automáticamente al catálogo. También hay enlaces para iniciar sesión si ya tienen una cuenta o para volver a la página principal. */
+/*
+ * Registro.jsx
+ * Pantalla de alta de cuenta para alumnos.
+ * Valida el formulario (nombre, apellido, año, división, usuario y contraseñas),
+ * lo envía al backend para crear el alumno, guarda la sesión y redirige al Catálogo.
+ */
 
-/* Importaciones de React y React Router y assets */
+// Importaciones de React, React Router y recursos estáticos (diseños nuestros)
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logoKiosco from '../assets/logos/RecoKiosco.png'
@@ -9,11 +14,11 @@ import ojoMostrar from '../assets/icons/OjoMostrar.png'
 import ojoNoMostrar from '../assets/icons/OjoNoMostrar.png'
 import '../styles/Registro.css'
 
-/* La función registro es el componente principal de la página de registro. Maneja el estado de los campos del formulario, la validación de los mismos y la navegación después del registro exitoso. */
-function Registro() {
-  const navigate = useNavigate() // Redirige al catálogo una vez completado el registro
-  const [mostrarPassword, setMostrarPassword] = useState(false) // Mostrar/ocultar campo de contraseña
-  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false) // Mostrar/ocultar campo de confirmar contraseña
+// Componente principal de la página de registro
+function Registro() { 
+  const navigate = useNavigate()
+
+  // Campos del formulario
   const [nombre, setNombre] = useState('')
   const [apellido, setApellido] = useState('')
   const [anio, setAnio] = useState('')
@@ -21,45 +26,36 @@ function Registro() {
   const [usuario, setUsuario] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [confirmacion, setConfirmacion] = useState('')
-  const [errores, setErrores] = useState({}) // Mensajes de error por cada campo del formulario
-  const [exito, setExito] = useState(false) // Muestra el mensaje de "cuenta creada" al terminar
 
-  // Valida todos los campos del formulario (nombre, año, división, usuario, contraseñas) antes de registrar
-async function handleSubmit() {
+  // Visibilidad de contraseñas, errores por campo y flag de éxito
+  const [mostrarPassword, setMostrarPassword] = useState(false)
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
+  const [errores, setErrores] = useState({})
+  const [exito, setExito] = useState(false)
+
+  // Valida todos los campos, registra al alumno en el backend y arranca la sesión
+  async function handleSubmit() { //async function para poder usar await, o sea, esperar la respuesta del fetch
     const nuevosErrores = {}
 
-    if (!nombre.trim())
-      nuevosErrores.nombre = 'Ingresá tu nombre.'
-    else if (nombre.trim().length < 2)
-      nuevosErrores.nombre = 'Mínimo 2 caracteres.'
+    if (!nombre.trim()) nuevosErrores.nombre = 'Ingresá tu nombre.'
+    else if (nombre.trim().length < 2) nuevosErrores.nombre = 'Mínimo 2 caracteres.'
 
-    if (!apellido.trim())
-      nuevosErrores.apellido = 'Ingresá tu apellido.'
-    else if (apellido.trim().length < 2)
-      nuevosErrores.apellido = 'Mínimo 2 caracteres.'
+    if (!apellido.trim()) nuevosErrores.apellido = 'Ingresá tu apellido.'
+    else if (apellido.trim().length < 2) nuevosErrores.apellido = 'Mínimo 2 caracteres.'
 
-    if (!anio)
-      nuevosErrores.anio = 'Seleccioná el año.'
-    if (!division)
-      nuevosErrores.division = 'Seleccioná la división.'
+    if (!anio) nuevosErrores.anio = 'Seleccioná el año.'
+    if (!division) nuevosErrores.division = 'Seleccioná la división.'
+    if (!usuario.trim()) nuevosErrores.usuario = 'Elegí un nombre de usuario.'
+    if (!contrasena.trim()) nuevosErrores.contrasena = 'Ingresá una contraseña.'
 
-    if (!usuario.trim())
-      nuevosErrores.usuario = 'Elegí un nombre de usuario.'
-
-    if (!contrasena.trim())
-      nuevosErrores.contrasena = 'Ingresá una contraseña.'
-
-    if (!confirmacion.trim())
-      nuevosErrores.confirmacion = 'Confirmá tu contraseña.'
-    else if (contrasena !== confirmacion)
-      nuevosErrores.confirmacion = 'Las contraseñas no coinciden.'
+    if (!confirmacion.trim()) nuevosErrores.confirmacion = 'Confirmá tu contraseña.'
+    else if (contrasena !== confirmacion) nuevosErrores.confirmacion = 'Las contraseñas no coinciden.'
 
     setErrores(nuevosErrores)
-
     if (Object.keys(nuevosErrores).length > 0) return
 
-    try {
-      const respuesta = await fetch("http://127.0.0.1:8000/api/auth/registro/", {
+    try { // Intenta hacer el fetch al backend, si falla (no hay conexión) cae en el catch
+      const respuesta = await fetch("http://127.0.0.1:8000/api/auth/registro/", { // Endpoint de registro del backend
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,58 +67,49 @@ async function handleSubmit() {
           password: contrasena
         })
       })
-
       const datos = await respuesta.json()
 
-      if (!respuesta.ok) {
+      if (!respuesta.ok) { // Si el backend devuelve un error (por ejemplo, usuario ya existe), lo mostramos en el formulario
         setErrores({ usuario: datos.usuario?.[0] || datos.error || 'No se pudo completar el registro.' })
         return
       }
 
+      // Sesión: tokens y datos básicos del alumno recién creado
       localStorage.setItem('access', datos.access)
       localStorage.setItem('refresh', datos.refresh)
       localStorage.setItem('tipo', datos.tipo)
       localStorage.setItem('nombre', datos.nombre)
       localStorage.setItem('id', datos.id)
 
-      setExito(true)
-      setTimeout(() => navigate('/catalogo'), 1500)
+      setExito(true) // Mostramos mensaje de éxito antes de redirigir al catálogo
+      setTimeout(() => navigate('/catalogo'), 1500) // Redirigimos al catálogo después de 1.5 segundos para que el usuario vea el mensaje de éxito
 
-    } catch (error) {
+    } catch (error) { // Si no hay conexión con el backend, mostramos un error genérico
       setErrores({ usuario: 'No se pudo conectar con el servidor.' })
     }
   }
 
-  return (
+  return ( // Renderizado de la página de registro: dos columnas, izquierda con fondo y logo, derecha con formulario y enlaces
     <div className="registro-wrapper">
 
-      {/* Mitad Izquierda — Foto del interior del kiosco */}
-      <div
-        className="registro-imagen"
-        style={{ backgroundImage: `url(${fondoKiosco})` }}
-      >
+      {/* Columna izquierda: fondo + logo */}
+      <div className="registro-imagen" style={{ backgroundImage: `url(${fondoKiosco})` }}>
         <img src={logoKiosco} alt="RecoKiosco" className="registro-logo" />
       </div>
 
-      {/* Mitad Derecha — Formulario */}
+      {/* Columna derecha: formulario */}
       <div className="registro-panel">
         <h1 className="registro-titulo">Registrarse</h1>
         <p className="registro-subtitulo">Completá tus datos para crear tu cuenta</p>
 
         <div className="registro-form">
 
-          {/* Nombre completo */}
+          {/* Nombre y apellido */}
           <div className="registro-fila-curso">
             <div className="registro-campo">
               <label htmlFor="nombre">Nombre *</label>
               <div className={`registro-input-wrapper ${errores.nombre ? 'input-error' : ''}`}>
-                <input
-                  type="text"
-                  id="nombre"
-                  placeholder="Ej: Juan"
-                  value={nombre}
-                  onChange={e => setNombre(e.target.value)}
-                />
+                <input type="text" id="nombre" placeholder="Ej: Juan" value={nombre} onChange={e => setNombre(e.target.value)} />
               </div>
               {errores.nombre && <p className="registro-error">⚠ {errores.nombre}</p>}
             </div>
@@ -130,81 +117,45 @@ async function handleSubmit() {
             <div className="registro-campo">
               <label htmlFor="apellido">Apellido *</label>
               <div className={`registro-input-wrapper ${errores.apellido ? 'input-error' : ''}`}>
-                <input
-                  type="text"
-                  id="apellido"
-                  placeholder="Ej: Pérez"
-                  value={apellido}
-                  onChange={e => setApellido(e.target.value)}
-                />
+                <input type="text" id="apellido" placeholder="Ej: Pérez" value={apellido} onChange={e => setApellido(e.target.value)} />
               </div>
               {errores.apellido && <p className="registro-error">⚠ {errores.apellido}</p>}
             </div>
           </div>
 
-          {/* Año y división en la misma fila, para armar el curso del alumno */}
+          {/* Año y división: arman el curso del alumno */}
           <div className="registro-fila-curso">
             <div className="registro-campo">
               <label htmlFor="anio">Año *</label>
-              <select
-                id="anio"
-                value={anio}
-                onChange={e => setAnio(e.target.value)}
-                className={`registro-select ${errores.anio ? 'input-error' : ''}`}
-              >
+              <select id="anio" value={anio} onChange={e => setAnio(e.target.value)} className={`registro-select ${errores.anio ? 'input-error' : ''}`}>
                 <option value="">Año...</option>
-                <option>1°</option>
-                <option>2°</option>
-                <option>3°</option>
-                <option>4°</option>
-                <option>5°</option>
-                <option>6°</option>
+                <option>1°</option><option>2°</option><option>3°</option>
+                <option>4°</option><option>5°</option><option>6°</option>
               </select>
               {errores.anio && <p className="registro-error">⚠ {errores.anio}</p>}
             </div>
 
             <div className="registro-campo">
               <label htmlFor="division">División *</label>
-              <select
-                id="division"
-                value={division}
-                onChange={e => setDivision(e.target.value)}
-                className={`registro-select ${errores.division ? 'input-error' : ''}`}
-              >
+              <select id="division" value={division} onChange={e => setDivision(e.target.value)} className={`registro-select ${errores.division ? 'input-error' : ''}`}>
                 <option value="">División...</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-                <option>6</option>
-                <option>7</option>
-                <option>8</option>
-                <option>9</option>
-                <option>10</option>
+                {Array.from({ length: 10 }, (_, i) => i + 1).map(n => <option key={n}>{n}</option>)}
               </select>
               {errores.division && <p className="registro-error">⚠ {errores.division}</p>}
             </div>
           </div>
 
-          {/* Nombre de usuario elegido */}
+          {/* Usuario */}
           <div className="registro-campo">
             <label htmlFor="usuario">Usuario *</label>
             <div className={`registro-input-wrapper ${errores.usuario ? 'input-error' : ''}`}>
-              <input
-                type="text"
-                id="usuario"
-                placeholder="Elegí un nombre de usuario..."
-                value={usuario}
-                onChange={e => setUsuario(e.target.value)}
-              />
+              <input type="text" id="usuario" placeholder="Elegí un nombre de usuario..." value={usuario} onChange={e => setUsuario(e.target.value)} />
             </div>
             {errores.usuario && <p className="registro-error">⚠ {errores.usuario}</p>}
           </div>
 
-          {/* Contraseña y Confirmar en fila */}
+          {/* Contraseña y confirmación */}
           <div className="registro-fila-passwords">
-
             <div className="registro-campo">
               <label htmlFor="contrasena">Contraseña *</label>
               <div className={`registro-input-wrapper con-icono ${errores.contrasena ? 'input-error' : ''}`}>
@@ -215,12 +166,7 @@ async function handleSubmit() {
                   value={contrasena}
                   onChange={e => setContrasena(e.target.value)}
                 />
-                <button
-                  type="button"
-                  className="registro-toggle-password"
-                  onClick={() => setMostrarPassword(!mostrarPassword)}
-                  aria-label={mostrarPassword ? 'Ocultar' : 'Mostrar'}
-                >
+                <button type="button" className="registro-toggle-password" onClick={() => setMostrarPassword(!mostrarPassword)} aria-label={mostrarPassword ? 'Ocultar' : 'Mostrar'}>
                   <img src={mostrarPassword ? ojoNoMostrar : ojoMostrar} alt="" />
                 </button>
               </div>
@@ -237,39 +183,25 @@ async function handleSubmit() {
                   value={confirmacion}
                   onChange={e => setConfirmacion(e.target.value)}
                 />
-                <button
-                  type="button"
-                  className="registro-toggle-password"
-                  onClick={() => setMostrarConfirmacion(!mostrarConfirmacion)}
-                  aria-label={mostrarConfirmacion ? 'Ocultar' : 'Mostrar'}
-                >
+                <button type="button" className="registro-toggle-password" onClick={() => setMostrarConfirmacion(!mostrarConfirmacion)} aria-label={mostrarConfirmacion ? 'Ocultar' : 'Mostrar'}>
                   <img src={mostrarConfirmacion ? ojoNoMostrar : ojoMostrar} alt="" />
                 </button>
               </div>
               {errores.confirmacion && <p className="registro-error">⚠ {errores.confirmacion}</p>}
             </div>
-
           </div>
 
-          <button className="registro-boton" onClick={handleSubmit}>
-            Registrarse
-          </button>
+          <button className="registro-boton" onClick={handleSubmit}>Registrarse</button>
 
-          {/* Mensaje de confirmación que aparece justo antes de redirigir */}
-          {exito && (
-            <p className="registro-exito">
-              ✓ ¡Cuenta creada! Redirigiendo...
-            </p>
-          )}
-
+          {/* Mensaje de éxito, antes de redirigir */}
+          {exito && <p className="registro-exito">✓ ¡Cuenta creada! Redirigiendo...</p>}
         </div>
 
-        <div className="registro-extra"> {/* Enlaces secundarios: ir a login o volver al inicio */ }
+        <div className="registro-extra">
           <Link to="/login" className="registro-login-link">¿Ya tenés cuenta? Iniciá Sesión</Link>
           <Link to="/" className="registro-volver">← Volver al Inicio</Link>
         </div>
       </div>
-
     </div>
   )
 }

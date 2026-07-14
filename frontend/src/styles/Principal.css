@@ -1,15 +1,19 @@
-/* Este archivo contiene los estilos para la página principal del kiosco. */
+/* Estilos de la página Principal (landing pública del kiosco). Define el
+   layout general en dos mitades: el hero superior (foto de la escuela, logo,
+   frase y botones de Iniciar Sesión / Registrarse) y el footer inferior
+   (franja con los datos de la escuela y su logo). */
 
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800&display=swap'); /* Trae la tipografía Lexend desde Google Fonts */
 
-.principal-wrapper { /* Contenedor principal que ocupa toda la altura de la ventana y organiza el contenido en columna */
+/* Contenedor principal: ocupa toda la altura de la ventana y organiza el contenido en columna */
+.principal-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
 /* Mitad superior de la página - Foto de la escuela con logo, frase y botones de acceso */
-.principal-hero { /* Contenedor de la mitad superior, con foto de fondo y contenido centrado */
+.principal-hero {
   flex: 1;
   background-size: cover;
   background-position: center;
@@ -35,16 +39,18 @@
   z-index: 0;
 }
 
-/* Todo lo de adentro encima del overlay */ /*El overlay es la capa semitransparente que se pone sobre la foto de fondo para que el texto blanco se lea mejor. El z-index: 0 hace que el overlay quede detrás del contenido, que tiene z-index: 1.*/
+/* Todo lo de adentro del hero queda por encima del overlay (z-index: 0 vs 1) */
 .principal-hero > * {
   position: relative;
   z-index: 1;
 }
 
+/* Logo del kiosco, arriba del hero */
 .principal-logo-kiosco {
   width: 200px;
 }
 
+/* Frase/slogan sobre la foto de fondo */
 .principal-frase {
   color: white;
   font-family: 'Lexend', sans-serif;
@@ -54,6 +60,7 @@
   margin-bottom: 20px;
 }
 
+/* Fila con los botones de acceso (Iniciar Sesión / Registrarse) */
 .principal-botones {
   display: flex;
   gap: 100px;
@@ -74,6 +81,7 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* Efecto hover del botón "Iniciar Sesión" */
 .btn-primario:hover {
   background-color: var(--marron-naranja);
   color: white;
@@ -93,17 +101,20 @@
   transition: 0.3s;
 }
 
+/* Efecto hover del botón "Registrarse" */
 .btn-secundario:hover {
   background-color: var(--naranja-claro);
   border-color: var(--naranja-claro);
 }
 
+/* Aclaración chica debajo de los botones (ej. link a términos o ayuda) */
 .principal-aclaracion {
   color: white;
   font-size: 0.85rem;
   text-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
+/* Link dentro de la aclaración */
 .principal-aclaracion a {
   color: white;
   font-weight: 600;
@@ -120,17 +131,20 @@
   justify-content: center;
 }
 
-.principal-footer-texto { /* Contenedor de los textos dentro de la franja inferior */
+/* Contenedor de los textos dentro de la franja inferior */
+.principal-footer-texto {
   text-align: center;
 }
 
-.principal-footer-nombre { /* Nombre de la escuela */
+/* Nombre de la escuela */
+.principal-footer-nombre {
   font-family: 'Lexend', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--marron-oscuro);
 }
 
+/* Subtítulo debajo del nombre de la escuela (ej. curso/ciclo lectivo) */
 .principal-footer-sub {
   font-family: 'Lexend', sans-serif;
   font-size: 1rem;

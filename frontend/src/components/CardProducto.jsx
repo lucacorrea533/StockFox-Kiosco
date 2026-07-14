@@ -1,4 +1,7 @@
-/* Este componente muestra la información de un producto en forma de tarjeta, con su imagen, nombre, categoría, precio y un botón para agregarlo al carrito. Si el producto no tiene stock, el botón se deshabilita y se muestra "Sin stock". Los productos de la categoría Servicios sin imagen usan un fondo sólido en lugar del placeholder con X. */
+/* Este componente muestra la información de un producto en forma de tarjeta, con su imagen, 
+nombre, categoría, precio y un botón para agregarlo al carrito. Si el producto no tiene stock, 
+el botón se deshabilita y se muestra "Sin stock". Los productos de la categoría Servicios sin imagen 
+usan un fondo sólido en lugar del placeholder con X. */
 
 import '../styles/CardProducto.css' // Importa los estilos específicos de la card de producto
 
@@ -11,7 +14,7 @@ function CardProducto({ producto, onAgregar }) {
   // Un servicio sin foto usa fondo naranja sólido, no el placeholder con X
   const esServicioSinFoto = categoria === 'Servicios' && !imagen
 
-  return (
+  return ( // Renderiza la card con la información del producto y el botón de agregar al carrito
     <div className={`card-producto ${sinStock ? 'sin-stock' : ''}`}>
 
       {/* Zona de imagen */}

@@ -1,4 +1,10 @@
-/* Este componente es un modal de confirmación que se muestra cuando el usuario intenta cerrar sesión. Permite al usuario confirmar o cancelar la acción de cerrar sesión. Si el usuario confirma, se ejecuta la función onConfirmar; si cancela, se ejecuta la función onCancelar. El modal se cierra automáticamente al hacer clic fuera de él o al seleccionar una opción. */
+/* Este componente es un modal de confirmación que se muestra cuando el usuario intenta cerrar sesión. 
+Permite al usuario confirmar o cancelar la acción de cerrar sesión. Si el usuario confirma, 
+se ejecuta la función onConfirmar; si cancela, se ejecuta la función onCancelar. 
+El modal se cierra automáticamente al hacer clic fuera de él o al seleccionar una opción. */
+/* Este componente es genérico y reutilizable: no sabe nada de "cerrar sesión" en particular, 
+solo recibe un título, un mensaje, y dos funciones (qué hacer si confirman o si cancelan). 
+Por eso lo pueden usar tanto NavbarAlumno como NavbarEncargada sin duplicar código. */
 
 import '../styles/ConfirmModal.css' // Importa los estilos específicos para el modal de confirmación
 

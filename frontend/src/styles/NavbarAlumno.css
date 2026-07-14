@@ -1,18 +1,21 @@
-/* Este archivo contiene los estilos para el navbar - componente del alumno, que es el que se muestra en la mayoría de las vistas. Es un sidebar fijo a la izquierda, con el logo arriba, los links de navegación en el medio y el usuario y acciones (carrito, cerrar sesión) abajo. */
+/* Estilos del navbar del Alumno, que se muestra fijo a la izquierda en la
+   mayoría de las vistas. Sidebar con el logo arriba, los links de navegación
+   en el medio y el usuario + acciones (carrito, cerrar sesión) abajo. */
 
-.navbar-alumno { /* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
+/* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
+.navbar-alumno {
   width: 350px;
   height: 100vh; /* Ocupa toda la altura de la pantalla, sin importar cuánto contenido tenga la página */
   background-color: var(--naranja);
   display: flex;
-  flex-direction: column; /* Acomoda logo, links y footer en columna, de arriba hacia abajo */
+  flex-direction: column;
   padding: 16px 0;
   /* position: fixed + left/top: 0 lo "clava" en la esquina superior izquierda de la pantalla,
      para que quede siempre visible aunque el usuario haga scroll en el contenido de la derecha */
   position: fixed;
   left: 0;
   top: 0;
-  overflow: hidden; /* Evita que algo se desborde visualmente fuera de la barra */
+  overflow: hidden;
 }
 
 /* Logo arriba */
@@ -21,9 +24,10 @@
   justify-content: center;
   padding: 6px 60px 14px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.445); /* Línea divisoria semitransparente debajo del logo */
-  flex-shrink: 0; /* Evita que el logo se achique si el contenido del medio necesita más espacio */
+  flex-shrink: 0;
 }
 
+/* Logo del kiosco */
 .navbar-alumno-logo img {
   width: 115px;
 }
@@ -46,36 +50,35 @@
   gap: 10px;
   padding: 10px 14px;
   border-radius: 10px;
-  text-decoration: none; /* Saca el subrayado que traen los links por defecto */
+  text-decoration: none;
   color: var(--marron-oscuro);
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s; /* El cambio de color al pasar el mouse se ve suave, no de golpe */
+  transition: background-color 0.2s;
   height: 52px;
   position: relative;
   flex-shrink: 0; /* Ningún ítem se achica, todos mantienen su altura fija de 52px */
 }
 
+/* Ícono de cada item: recolorea el PNG original al marrón oscuro del proyecto por CSS,
+   sin necesitar una versión ya coloreada de cada ícono */
 .navbar-alumno-item img {
   width: 50px;
   height: 50px;
   flex-shrink: 0;
-  /* Los íconos originales son PNG en algún color (ej. negro o gris). Este filter los "recolorea"
-     por código: primero los vuelve blanco y negro (brightness/saturate en 0), y después usando
-     sepia + saturate + hue-rotate los tiñe hasta lograr el marrón oscuro del proyecto,
-     sin necesidad de tener una versión de cada ícono ya coloreada de antemano */
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
-/* Activo — resalta visualmente en qué sección está parado el alumno ahora mismo (lo controla el NavLink en el JSX) */
+/* Activo — resalta visualmente en qué sección está parado el alumno (lo controla el NavLink en el JSX) */
 .navbar-alumno-item.activo {
   background-color: rgba(153, 78, 20, 0.75);
   color: rgb(252, 175, 103);
 }
 
+/* Vuelve el ícono blanco puro cuando el link está activo */
 .navbar-alumno-item.activo img {
-  filter: brightness(0) invert(1); /* Vuelve el ícono blanco puro cuando el link está activo */
+  filter: brightness(0) invert(1);
 }
 
 /* Hover general — se aplica al pasar el mouse por cualquier link que no sea el activo */
@@ -84,6 +87,7 @@
   color: white;
 }
 
+/* El ícono también se vuelve blanco en hover */
 .navbar-alumno-item:hover img {
   filter: brightness(0) invert(1);
 }
@@ -98,7 +102,8 @@
   flex-shrink: 0;
 }
 
-.navbar-alumno-usuario { /* Contenedor del avatar y nombre del usuario */
+/* Contenedor del avatar y nombre del usuario */
+.navbar-alumno-usuario {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -107,12 +112,14 @@
   font-size: 1.05rem;
 }
 
-.navbar-alumno-usuario img { /* Avatar del usuario, que es un círculo con la inicial de su nombre */
+/* Avatar del usuario */
+.navbar-alumno-usuario img {
   width: 38px;
   height: 38px;
 }
 
-.navbar-alumno-acciones { /* Contenedor de los íconos de acción (carrito, cerrar sesión) */
+/* Contenedor de los íconos de acción (carrito, cerrar sesión) */
+.navbar-alumno-acciones {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -126,16 +133,17 @@
   justify-content: center;
   cursor: pointer;
   padding: 7px;
-  border-radius: 50%; /* Lo vuelve un círculo perfecto */
+  border-radius: 50%;
   transition: background-color 0.2s;
 }
 
-.navbar-icon-btn img { /* Ícono dentro del botón circular */
+/* Ícono dentro del botón circular, recoloreado igual que los links del medio */
+.navbar-icon-btn img {
   width: 34px;
   height: 34px;
-  object-fit: contain; /* Asegura que el ícono no se deforme, aunque el contenedor no sea exactamente cuadrado */
+  object-fit: contain;
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
-  transition: filter 0.2s; /* El cambio de color del ícono en hover también es gradual */
+  transition: filter 0.2s;
 }
 
 /* Hover normal (carrito) — fondo gris suave */
@@ -143,12 +151,13 @@
   background-color: rgba(0, 0, 0, 0.08);
 }
 
-/* Hover "peligroso" (cerrar sesión) — se pone rojo, igual que en Encargada, para indicar que es una acción sensible */
+/* Hover "peligroso" (cerrar sesión) — se pone rojo, para indicar que es una acción sensible */
 .navbar-icon-btn-peligro:hover {
   background-color: #8b0000;
 }
 
-.navbar-icon-btn-peligro:hover img { /* Ícono de cerrar sesión se vuelve blanco puro al pasar el mouse, para que contraste con el fondo rojo */
+/* El ícono de cerrar sesión se vuelve blanco puro al pasar el mouse, para contrastar con el fondo rojo */
+.navbar-icon-btn-peligro:hover img {
   filter: brightness(0) invert(1);
 }
 

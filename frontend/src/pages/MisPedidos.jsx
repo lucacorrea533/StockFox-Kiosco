@@ -1,105 +1,91 @@
-/* Este archivo es la página principal donde los alumnos pueden ver el estado de sus pedidos. Se muestra una lista de pedidos con su fecha, hora, estado actual y detalles de los productos incluidos. Los pedidos se pueden filtrar por estado (pendiente, listo para retirar, entregado) y también se muestra un contador de cada tipo de pedido en las pestañas correspondientes. Además, se incluye un botón para abrir el carrito y revisar los productos antes de finalizar un nuevo pedido. */
+/*
+ * MisPedidos.jsx
+ * Vista del Alumno: lista de sus pedidos, con estado (pendiente / listo / entregado)
+ * y filtro por pestañas. Reutiliza el ModalCarrito de Catalogo.jsx para no duplicar
+ * esa lógica. Trae los pedidos reales del alumno logueado desde el backend.
+ */
 
-/* Importaciones de React y otras librerías necesarias para la funcionalidad de la página */
+// Importaciones - React, hooks, navegación, componentes, íconos y estilos
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NavbarAlumno from '../components/NavbarAlumno'
-import { ModalCarrito } from './Catalogo' // Reutiliza el modal del carrito que vive en la vista Catalogo, para no duplicarlo acá
+import { ModalCarrito } from './Catalogo'
 import iconReloj from '../assets/icons/Reloj.png'
 import iconPedido from '../assets/icons/MisPedidos2.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import iconCarrito from '../assets/icons/VentasBoton.png'
 import '../styles/MisPedidos.css'
 
-/* Constante que define la clave utilizada para almacenar el carrito en localStorage. Esto permite que el carrito persista entre recargas de página y sesiones del navegador. */
-const CARRITO_KEY = 'recokiosco_carrito' // Nombre de la "casilla" que se usa en localStorage para guardar el carrito
+// ── HELPERS: carrito en localStorage (mismo esquema que Catalogo.jsx) ────────
+const CARRITO_KEY = 'recokiosco_carrito'
 
-// Lee el carrito guardado en el localStorage del navegador (persiste aunque se recargue la página).
-// Devuelve un array vacío si no hay nada guardado o si el dato guardado está corrupto/mal formado
 function cargarCarritoLocal() {
   try {
-    const raw = localStorage.getItem(CARRITO_KEY) // Trae el string tal cual está guardado
-    return raw ? JSON.parse(raw) : [] // JSON.parse lo convierte de vuelta en un array de objetos JS
+    const raw = localStorage.getItem(CARRITO_KEY)
+    return raw ? JSON.parse(raw) : []
   } catch {
-    return [] // Si JSON.parse falla (dato corrupto), no rompe la página: devuelve carrito vacío
+    return []
   }
 }
 
-// Guarda el carrito actual en localStorage, convirtiéndolo a texto con JSON.stringify
-// (localStorage solo puede guardar strings, no objetos ni arrays directamente)
 function guardarCarritoLocal(carrito) {
   localStorage.setItem(CARRITO_KEY, JSON.stringify(carrito))
 }
 
-// Pestañas de filtro que se muestran arriba de la lista de pedidos
+// ── CONSTANTES ─────────────────────────────────────────────────────────────────
+// Pestañas de filtro sobre la lista de pedidos
 const TABS = [
-  { key: 'todos',     label: 'Todos' },
+  { key: 'todos', label: 'Todos' },
   { key: 'pendiente', label: 'Pendiente' },
-  { key: 'listo',     label: 'Listo para retirar' },
+  { key: 'listo', label: 'Listo para retirar' },
   { key: 'entregado', label: 'Entregado' },
 ]
 
-// Mapea cada estado posible de un pedido con el texto y la clase CSS que le corresponde al badge de color
+// Estado del pedido → texto y clase CSS del badge
 const ESTADO_CONFIG = {
-  pendiente: { label: 'Pendiente',          clase: 'estado-pendiente' },
-  listo:     { label: 'Listo para retirar', clase: 'estado-listo'     },
-  entregado: { label: 'Entregado',          clase: 'estado-entregado' },
+  pendiente: { label: 'Pendiente', clase: 'estado-pendiente' },
+  listo: { label: 'Listo para retirar', clase: 'estado-listo' },
+  entregado: { label: 'Entregado', clase: 'estado-entregado' },
 }
 
-// Diccionario que traduce un horario exacto (hora de entrada/recreo/salida) a un nombre más entendible.
-// Sirve para mostrarle al alumno "Retiro: 10:35 hs — 2do recreo" en vez de solo el número de hora
+// Horario exacto → nombre del momento del día (para mostrar "10:35 hs — 2do recreo")
 const MOMENTOS_RETIRO = {
-
-  "07:45": "Entrada",
-  "09:05": "1er recreo",
-  "10:35": "2do recreo",
-  "12:05": "Salida Normal",
-  "12:45": "Salida 7ma",
-
-  "13:30": "Entrada",
-  "14:50": "1er recreo",
-  "16:20": "2do recreo",
-  "17:50": "Salida Normal",
-  "18:30": "Salida 7ma",
-
+  "07:45": "Entrada", "09:05": "1er recreo", "10:35": "2do recreo",
+  "12:05": "Salida Normal", "12:45": "Salida 7ma",
+  "13:30": "Entrada", "14:50": "1er recreo", "16:20": "2do recreo",
+  "17:50": "Salida Normal", "18:30": "Salida 7ma",
   "19:50": "1er recreo"
-
 }
 
-// Recibe la fecha en formato "AAAA-MM-DD" y la hora por separado, y arma el string final
-// que se muestra en pantalla: "DD/MM/AAAA — HH:MM hs"
+// Arma "DD/MM/AAAA — HH:MM hs" a partir de una fecha "AAAA-MM-DD" y una hora
 function formatFecha(fechaStr, horaStr) {
-  const [y, m, d] = fechaStr.split('-') // Separa el string "2026-05-07" en año, mes y día usando el guion como separador
+  const [y, m, d] = fechaStr.split('-')
   return `${d}/${m}/${y} — ${horaStr} hs`
 }
 
-// Tarjeta individual que representa UN pedido completo, con su cabecera, productos y pie
+// ── COMPONENTE: Tarjeta de un pedido ──────────────────────────────────────────
 function TarjetaPedido({ pedido }) {
-  const config = ESTADO_CONFIG[pedido.estado] // Busca el label y la clase CSS que le corresponden al estado de este pedido puntual
-  const esListo = pedido.estado === 'listo' // Booleano auxiliar: ¿este pedido está listo para retirar?
-  const esEntregado = pedido.estado === 'entregado' // Booleano auxiliar: ¿este pedido ya fue entregado?
-  
-  console.log("TarjetaPedido:", pedido) // Log de depuración, útil mientras se prueba la conexión con el backend
+  const config = ESTADO_CONFIG[pedido.estado]
+  const esListo = pedido.estado === 'listo'
+  const esEntregado = pedido.estado === 'entregado'
+
+  console.log("TarjetaPedido:", pedido) // Debug: mientras se prueba la conexión con el backend
 
   return (
-    // Si el pedido ya fue entregado, se le agrega la clase "card-entregado" que lo muestra más apagado/translúcido
+    // Los pedidos entregados se ven más apagados/translúcidos (clase "card-entregado")
     <div className={`mispedidos-card ${esEntregado ? 'card-entregado' : ''}`}>
       <div className="mispedidos-card-header">
         <div className="mispedidos-card-header-izq">
           <img src={iconPedido} alt="Pedido" className="mispedidos-card-icono" />
           <div>
-            {/* padStart(4, '0') rellena el número de pedido con ceros a la izquierda hasta tener 4 dígitos,
-                para que se vea como "Pedido #0001" en vez de "Pedido #1" */}
             <span className="mispedidos-card-numero">Pedido #{String(pedido.id).padStart(4, '0')}</span>
             <span className="mispedidos-card-fecha">{formatFecha(pedido.fecha, pedido.hora)}</span>
           </div>
         </div>
-        <span className={`mispedidos-estado-badge ${config.clase}`}>
-          {config.label}
-        </span>
+        <span className={`mispedidos-estado-badge ${config.clase}`}>{config.label}</span>
       </div>
 
-      {/* Este cartel destacado solo aparece si el pedido está en estado "listo" */}
+      {/* Banner destacado solo si el pedido está "listo" */}
       {esListo && (
         <div className="mispedidos-banner-listo">
           <img src={iconReloj} alt="Listo" className="mispedidos-banner-icono" />
@@ -107,17 +93,12 @@ function TarjetaPedido({ pedido }) {
         </div>
       )}
 
-      {/* Lista de productos del pedido: recorre el array "items" y muestra nombre, cantidad y subtotal de cada uno */}
+      {/* Productos del pedido */}
       <ul className="mispedidos-items">
         {pedido.items.map((item, i) => (
           <li key={i}>
-            <span className="mispedidos-item-nombre">
-              {item.nombre} x{item.cantidad}
-            </span>
-            <span className="mispedidos-item-precio">
-              {/* toLocaleString('es-AR') formatea el número con puntos de miles al estilo argentino (ej: $2.800) */}
-              ${(item.precio * item.cantidad).toLocaleString('es-AR')}
-            </span>
+            <span className="mispedidos-item-nombre">{item.nombre} x{item.cantidad}</span>
+            <span className="mispedidos-item-precio">${(item.precio * item.cantidad).toLocaleString('es-AR')}</span>
           </li>
         ))}
       </ul>
@@ -125,115 +106,86 @@ function TarjetaPedido({ pedido }) {
       <div className="mispedidos-card-footer">
         <span className="mispedidos-retiro">
           <img src={iconReloj} alt="Retiro" className="mispedidos-retiro-icono" />
-          {/* Si ya fue entregado dice "Retirado", si no, dice "Retiro" (mismo texto, distinto tiempo verbal) */}
           {esEntregado ? 'Retirado' : 'Retiro'}: {pedido.horario_retiro} — {pedido.momento_retiro}
         </span>
-        <span className="mispedidos-total">
-          ${pedido.total.toLocaleString('es-AR')}
-        </span>
+        <span className="mispedidos-total">${pedido.total.toLocaleString('es-AR')}</span>
       </div>
     </div>
   )
 }
 
-/* Componente principal de la página "Mis Pedidos". Muestra la lista de pedidos del alumno, permite filtrarlos por estado y abrir el carrito. */
-function MisPedidos() { /* Esta función basicaente define la página completa, con su estado, efectos y renderizado de la UI */
-  const [tabActiva, setTabActiva] = useState('todos') // Qué pestaña de filtro está seleccionada actualmente
+// ── COMPONENTE PRINCIPAL: MisPedidos ──────────────────────────────────────────
+function MisPedidos() {
   const navigate = useNavigate()
+  const [tabActiva, setTabActiva] = useState('todos')
+  const [pedidos, setPedidos] = useState([])
 
-  // Carrito compartido — se sincroniza con localStorage igual que en Catalogo.
-  // El "() =>" hace que cargarCarritoLocal() se ejecute UNA sola vez al montar el componente,
-  // en vez de ejecutarse en cada re-render (optimización recomendada por React para estados iniciales "pesados")
+  // Carrito compartido con Catalogo.jsx, sincronizado con localStorage
   const [carrito, setCarrito] = useState(() => cargarCarritoLocal())
-  const [mostrarCarrito, setMostrarCarrito] = useState(false) // Controla si el modal del carrito está abierto
-  const [pedidos, setPedidos] = useState([]) // Acá se guardan los pedidos ya traídos y formateados desde el backend
+  const [mostrarCarrito, setMostrarCarrito] = useState(false)
 
-  // Cada vez que el carrito cambia (se agrega/saca un producto), se vuelve a guardar en localStorage automáticamente
+  // Persiste el carrito cada vez que cambia
   useEffect(() => {
     guardarCarritoLocal(carrito)
   }, [carrito])
 
-  // Este efecto se ejecuta UNA sola vez al cargar la página (el array vacío [] al final así lo indica).
-  // Se conecta con la API del backend para traer los pedidos reales del alumno (por ahora el alumno 1 está fijo/hardcodeado)
+  // Trae los pedidos del alumno logueado y los adapta a la forma que espera TarjetaPedido
   useEffect(() => {
+    const idAlumno = localStorage.getItem('id')
 
-  const idAlumno = localStorage.getItem('id')
-  fetch(`http://127.0.0.1:8000/api/alumnos/${idAlumno}/pedidos/detalle/`) // Llama a la API del backend para traer los pedidos del alumno
-    .then(response => response.json()) // Convierte la respuesta cruda del servidor a un objeto/array JS
-    .then(data => {
+    fetch(`http://127.0.0.1:8000/api/alumnos/${idAlumno}/pedidos/detalle/`) // Endpoint que devuelve los pedidos del alumno logueado
+      .then(response => response.json())
+      .then(data => {
+        console.log(data) // Debug: qué trae la API, o sea, los pedidos del alumno logueado
 
-      console.log(data) // Log de depuración para ver qué trae la API mientras se prueba la integración
+        const pedidosFormateados = data.map(pedido => {
+          const fecha = new Date(pedido.fecha_creacion)
+          const horario = pedido.horario_retiro.slice(0, 5) // Recorta segundos, deja "HH:MM"
+          const momentoRetiro = MOMENTOS_RETIRO[horario] || ""
 
-      // Transforma cada pedido tal cual viene del backend a la forma que espera TarjetaPedido,
-      // ya que los nombres de campos y formatos no coinciden 1 a 1 entre la base de datos y la vista
-      const pedidosFormateados = data.map(pedido => {
+          return { // Adapta la estructura de cada pedido a lo que espera TarjetaPedido
+            id: pedido.id_pedido,
+            fecha: fecha.toISOString().split("T")[0],
+            hora: fecha.toTimeString().slice(0, 5),
+            estado: pedido.estado,
+            horario_retiro: horario + " hs",
+            momento_retiro: momentoRetiro,
+            total: Number(pedido.total),
+            items: pedido.productos.map(producto => ({
+              nombre: producto.producto,
+              cantidad: producto.cantidad,
+              precio: Number(producto.precio_unitario)
+            }))
+          }
+        })
 
-  const fecha = new Date(pedido.fecha_creacion) // Convierte el string de fecha en un objeto Date de JS, más fácil de manipular
+        setPedidos(pedidosFormateados)
+      })
+      .catch(error => console.error(error)) // Debug: si hay error al traer los pedidos del alumno logueado
+  }, [])
 
-const horario = pedido.horario_retiro.slice(0, 5) // Se queda solo con "HH:MM", recortando los segundos que trae la BBDD
-
-const momentoRetiro =
-  MOMENTOS_RETIRO[horario] || "" // Busca a qué momento del día corresponde ese horario (ej. "2do recreo"); si no lo encuentra, deja vacío
-
-return { // Devuelve un objeto con la forma que espera TarjetaPedido, listo para renderizarse en pantalla
-
-  id: pedido.id_pedido,
-
-  fecha: fecha.toISOString().split("T")[0], // Se queda solo con la parte de la fecha (AAAA-MM-DD), descartando la hora
-
-  hora: fecha.toTimeString().slice(0,5), // Se queda solo con la hora en formato HH:MM
-
-  estado: pedido.estado,
-
-  horario_retiro: horario + " hs",
-
-  momento_retiro: momentoRetiro,
-
-  total: Number(pedido.total), // Se asegura de que el total sea un número, no un string, para poder hacer cuentas con él
-
-  items: pedido.productos.map(producto => ({
-    nombre: producto.producto,
-    cantidad: producto.cantidad,
-    precio: Number(producto.precio_unitario)
-  }))
-
-}
-
-})
-
-setPedidos(pedidosFormateados) // Guarda en el estado la lista ya formateada, lista para mostrarse en pantalla
-
-    })
-    .catch(error => {
-      console.error(error) // Si falla la conexión con el backend, lo muestra en consola en vez de romper la página
-    })
-
-}, [])
-
-  // Suma la cantidad total de productos en el carrito (sin importar cuántos productos distintos haya)
+  // ── Cálculos derivados del carrito y los pedidos ─────────────────────────────
   const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0)
-  // Suma el precio total del carrito, multiplicando precio x cantidad de cada producto
-  const totalCarrito  = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
+  const totalCarrito = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
 
-  const activos = pedidos.filter(p => p.estado !== "entregado") // Todo lo que todavía no fue entregado (pendiente o listo)
-  const historial = pedidos.filter(p => p.estado === "entregado") // Solo los pedidos ya entregados, para la sección "Historial"
+  const activos = pedidos.filter(p => p.estado !== "entregado") // Pendiente o listo
+  const historial = pedidos.filter(p => p.estado === "entregado")
 
-  // Si la pestaña activa es "todos" no filtra nada; si no, deja solo los pedidos que coincidan con ese estado
-  const pedidosFiltrados =
-  tabActiva === "todos"
-    ? pedidos
-    : pedidos.filter(p => p.estado === tabActiva)
+  const pedidosFiltrados = tabActiva === "todos" ? pedidos : pedidos.filter(p => p.estado === tabActiva)
 
-  // Cuenta cuántos pedidos hay de cada estado, para mostrar el numerito en cada pestaña
+  // Contador de pedidos por estado, para el numerito de cada pestaña
   const contadores = {
-  todos: pedidos.length,
-  pendiente: pedidos.filter(p => p.estado === "pendiente").length,
-  listo: pedidos.filter(p => p.estado === "listo").length,
-  entregado: pedidos.filter(p => p.estado === "entregado").length,
- }
+    todos: pedidos.length,
+    pendiente: pedidos.filter(p => p.estado === "pendiente").length,
+    listo: pedidos.filter(p => p.estado === "listo").length,
+    entregado: pedidos.filter(p => p.estado === "entregado").length,
+  }
 
-  const sinPedidos = pedidosFiltrados.length === 0 // true si, con el filtro actual, no hay nada para mostrar
+  // Estado vacío: no hay pedidos que mostrar en la pestaña activa
+  const sinPedidos = pedidosFiltrados.length === 0
 
+  // ── Renderizado ─────────────────────────────────────────────────────────────
+  // Esto hace que la página se vea diferente si no hay pedidos, o si hay pedidos activos/historial.
   return (
     <div className="mispedidos-layout">
       <NavbarAlumno cantidadCarrito={cantidadTotal} onAbrirCarrito={() => setMostrarCarrito(true)} />
@@ -244,64 +196,44 @@ setPedidos(pedidosFormateados) // Guarda en el estado la lista ya formateada, li
           <h1 className="mispedidos-titulo">Mis Pedidos</h1>
         </div>
 
-        {/* Pestañas de filtro: recorre el array TABS y arma un botón por cada una */}
+        {/* Pestañas de filtro por estado */}
         <div className="mispedidos-tabs">
           {TABS.map(tab => (
-            <button
-              key={tab.key}
-              className={`mispedidos-tab-btn ${tabActiva === tab.key ? 'activo' : ''}`}
-              onClick={() => setTabActiva(tab.key)}
-            >
+            <button key={tab.key} className={`mispedidos-tab-btn ${tabActiva === tab.key ? 'activo' : ''}`} onClick={() => setTabActiva(tab.key)}>
               {tab.label}
-              {/* El numerito solo se muestra si hay al menos 1 pedido de ese tipo */}
-              {contadores[tab.key] > 0 && (
-                <span className="mispedidos-tab-contador">{contadores[tab.key]}</span>
-              )}
+              {contadores[tab.key] > 0 && <span className="mispedidos-tab-contador">{contadores[tab.key]}</span>}
             </button>
           ))}
         </div>
 
-        {/* Si no hay pedidos para mostrar (con el filtro actual), se muestra un mensaje invitando a ir al catálogo.
-            Si hay pedidos, se muestra la lista según la pestaña activa */}
         {sinPedidos ? (
+          // Estado vacío: invita a ir al catálogo
           <div className="mispedidos-vacio">
             <img src={iconAdvertencia} alt="Sin pedidos" className="mispedidos-vacio-icono" />
             <h2 className="mispedidos-vacio-titulo">Todavía no realizaste ningún pedido</h2>
             <p className="mispedidos-vacio-sub">Explorá el catálogo y hacé tu primer pedido</p>
-            <button
-              className="mispedidos-vacio-btn"
-              onClick={() => navigate('/catalogo')}
-            >
-              Ir al catálogo
-            </button>
+            <button className="mispedidos-vacio-btn" onClick={() => navigate('/catalogo')}>Ir al catálogo</button>
           </div>
         ) : (
           <>
-            {/* En la pestaña "Todos" se muestran primero los pedidos activos (pendiente/listo) */}
+            {/* Pestaña "Todos": primero los pedidos activos (pendiente/listo) */}
             {tabActiva === "todos" && activos.length > 0 && (
               <section className="mispedidos-seccion">
-                {activos.map(p => (
-                  <TarjetaPedido
-                    key={p.id}
-                    pedido={p}
-                  />
-                ))}
+                {activos.map(p => <TarjetaPedido key={p.id} pedido={p} />)}
               </section>
             )}
 
-            {/* En cualquier otra pestaña (Pendiente/Listo/Entregado), se muestran solo los pedidos ya filtrados */}
+            {/* Otras pestañas: solo lo ya filtrado por estado */}
             {tabActiva !== 'todos' && (
               <section className="mispedidos-seccion">
                 {pedidosFiltrados.map(p => <TarjetaPedido key={p.id} pedido={p} />)}
               </section>
             )}
 
-            {/* El historial de entregados solo aparece en la pestaña "Todos", y solo si hay al menos uno */}
+            {/* Historial de entregados, solo visible en la pestaña "Todos" */}
             {tabActiva === 'todos' && historial.length > 0 && (
               <>
-                <div className="mispedidos-separador">
-                  <span className="mispedidos-separador-label">Historial</span>
-                </div>
+                <div className="mispedidos-separador"><span className="mispedidos-separador-label">Historial</span></div>
                 <section className="mispedidos-seccion">
                   {historial.map(p => <TarjetaPedido key={p.id} pedido={p} />)}
                 </section>
@@ -311,7 +243,7 @@ setPedidos(pedidosFormateados) // Guarda en el estado la lista ya formateada, li
         )}
       </main>
 
-      {/* BOTÓN FLOTANTE CARRITO — siempre visible si hay items, incluso estando en esta página (no solo en Catálogo) */}
+      {/* Botón flotante del carrito, visible también en esta página */}
       {cantidadTotal > 0 && (
         <button className="catalogo-carrito-flotante" onClick={() => setMostrarCarrito(true)}>
           <img src={iconCarrito} alt="Carrito" />
@@ -320,7 +252,7 @@ setPedidos(pedidosFormateados) // Guarda en el estado la lista ya formateada, li
         </button>
       )}
 
-      {/* Modal del carrito — reutiliza el mismo componente de Catalogo, para no tener dos carritos distintos en la app */}
+      {/* Modal del carrito, mismo componente que usa Catalogo.jsx */}
       <ModalCarrito
         carrito={carrito}
         setCarrito={setCarrito}

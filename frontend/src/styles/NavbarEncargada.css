@@ -1,6 +1,9 @@
-/* Este archivo contiene los estilos para la barra lateral de la encargada, así como los dropdowns de notificaciones y opciones. Está pensado para ser lo más parecido posible al mockup, con scroll interno para los links si es necesario. */
+/* Estilos del navbar de la Encargada/Ayudante (panel admin). Sidebar fijo con
+   el logo, los 7 links de sección con scroll interno si hace falta, el
+   footer con usuario, y los dropdowns de notificaciones y opciones. */
 
-.navbar-encargada { /* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
+/* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
+.navbar-encargada {
   width: 350px;
   height: 100vh;
   background-color: var(--naranja);
@@ -23,32 +26,32 @@
   flex-shrink: 0;
 }
 
-.navbar-encargada-logo img { /* Logo del kiosco, que es un PNG transparente. Se recolorea al marrón oscuro del proyecto por CSS */
+/* Logo del kiosco, PNG transparente recoloreado al marrón oscuro del proyecto por CSS */
+.navbar-encargada-logo img {
   width: 115px;
 }
 
-/* Links */ /* Contenedor de los links del medio, que ocupa todo el espacio libre entre el logo y el footer */
+/* Contenedor de los links del medio, ocupa todo el espacio libre entre el logo y el footer */
 .navbar-encargada-links {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 10px 10px;
-  flex: 1; /* Ocupa todo el espacio libre entre el logo y el footer */
-  min-height: 0; /* clave para que el overflow-y funcione dentro de un flex item */
+  flex: 1;
+  min-height: 0; /* Clave para que el overflow-y funcione dentro de un flex item */
   overflow-y: auto; /* Como acá hay 7 secciones (más que en el navbar del alumno), es más probable que necesite scroll */
 }
 
-/* Para que el scroll interno (si aparece) no se vea feo, se personaliza su apariencia
-   en vez de dejar la barra de scroll gris fea que trae el navegador por defecto */
+/* Personaliza la apariencia del scroll interno (si aparece), en vez de la barra gris fea por defecto */
 .navbar-encargada-links::-webkit-scrollbar {
-  width: 4px; /* Barra de scroll bien finita */
+  width: 4px;
 }
 .navbar-encargada-links::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.25); /* El "pulgar" (la parte que se arrastra) semitransparente */
+  background-color: rgba(0, 0, 0, 0.25);
   border-radius: 4px;
 }
 
-/* Cada item */ /* Cada item del navbar (ícono + texto) */
+/* Cada item del navbar (ícono + texto) */
 .navbar-encargada-item {
   display: flex;
   align-items: center;
@@ -61,26 +64,27 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
-  height: 44px; /* Un poco más bajo que en el navbar del alumno, porque acá hay más ítems y hay que aprovechar el espacio */
+  height: 44px; /* Un poco más bajo que en el navbar del alumno, porque acá hay más ítems */
   flex-shrink: 0;
 }
 
-.navbar-encargada-item img { /* Ícono de cada item, que es un PNG transparente. Se recolorea al marrón oscuro del proyecto por CSS */
+/* Ícono de cada item, recoloreado al marrón oscuro del proyecto (mismo truco que en NavbarAlumno) */
+.navbar-encargada-item img {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  /* Mismo truco que en NavbarAlumno: recolorea el ícono PNG original al marrón oscuro del proyecto por CSS */
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
-/* Hover */
-.navbar-encargada-item:hover { /* Al pasar el mouse sobre un item, se resalta con un fondo marrón oscuro y el texto se vuelve naranja claro */
+/* Al pasar el mouse sobre un item, se resalta con fondo marrón oscuro y texto naranja claro */
+.navbar-encargada-item:hover {
   background-color: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
 
+/* El ícono pasa a blanco al pasar el mouse */
 .navbar-encargada-item:hover img {
-  filter: brightness(0) invert(1); /* El ícono pasa a blanco al pasar el mouse */
+  filter: brightness(0) invert(1);
 }
 
 /* Activo — resalta la sección en la que está parada la encargada actualmente */
@@ -89,11 +93,12 @@
   color: rgb(252, 175, 103);
 }
 
+/* Ícono blanco cuando el link está activo */
 .navbar-encargada-item.activo img {
   filter: brightness(0) invert(1);
 }
 
-/* Footer */ /* Contenedor del footer, que contiene el usuario y los íconos de acción (notificaciones, opciones) */
+/* Contenedor del footer: usuario a la izquierda, íconos de acción a la derecha */
 .navbar-encargada-footer {
   padding: 16px 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.445);
@@ -103,7 +108,8 @@
   flex-shrink: 0;
 }
 
-.navbar-encargada-usuario { /* Contenedor del avatar y nombre del usuario */
+/* Contenedor del avatar y nombre del usuario */
+.navbar-encargada-usuario {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -112,24 +118,27 @@
   font-size: 1.05rem;
 }
 
-.navbar-encargada-usuario img { /* Avatar del usuario, que es un círculo con la inicial de su nombre */
+/* Avatar del usuario */
+.navbar-encargada-usuario img {
   width: 38px;
   height: 38px;
 }
 
-.navbar-encargada-acciones { /* Contenedor de los íconos de acción (notificaciones, opciones) */
+/* Contenedor de los íconos de acción (notificaciones, opciones) */
+.navbar-encargada-acciones {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-/* Contenedor de cada ícono de acción (notificaciones, opciones). "relative" permite
-   que el badge y el dropdown se posicionen tomando este div como referencia */
+/* Contenedor de cada ícono de acción. "relative" permite que el badge y el
+   dropdown se posicionen tomando este div como referencia */
 .navbar-icon-wrapper {
   position: relative;
   display: flex;
 }
 
+/* Ícono de notificaciones/opciones, recoloreado igual que el resto del navbar */
 .navbar-icon-wrapper > img {
   width: 34px;
   height: 34px;
@@ -139,8 +148,9 @@
   transition: opacity 0.2s;
 }
 
+/* Se atenúa un poco al pasar el mouse, para dar feedback visual de que es clickeable */
 .navbar-icon-wrapper > img:hover {
-  opacity: 0.7; /* Se atenúa un poco al pasar el mouse, para dar feedback visual de que es clickeable */
+  opacity: 0.7;
 }
 
 /* Globito rojo con el número de notificaciones sin leer, flotando en la esquina de la campana */
@@ -168,12 +178,13 @@
   right: 0;
   background-color: white;
   border-radius: 10px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); /* Sombra pronunciada para que se note que "flota" sobre el resto */
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   min-width: 230px;
   padding: 10px;
   z-index: 50; /* Se asegura de que el dropdown quede siempre por encima de otros elementos de la página */
 }
 
+/* Título de cada dropdown (ej. "Notificaciones") */
 .navbar-dropdown-titulo {
   font-weight: 700;
   font-size: 0.85rem;
@@ -192,10 +203,12 @@
   color: var(--marron-oscuro);
 }
 
+/* Resalta la notificación al pasar el mouse */
 .navbar-notif-item:hover {
   background-color: rgba(153, 78, 20, 0.08);
 }
 
+/* Ícono de advertencia de cada notificación */
 .navbar-notif-item img {
   width: 18px;
   height: 18px;
@@ -217,6 +230,7 @@
   transition: background-color 0.2s, color 0.2s;
 }
 
+/* Ícono de "Cerrar Sesión" dentro del dropdown */
 .navbar-dropdown-item img {
   width: 20px;
   height: 20px;
@@ -229,6 +243,7 @@
   color: white;
 }
 
+/* El ícono también pasa a blanco en hover */
 .navbar-dropdown-item:hover img {
   filter: brightness(0) invert(1);
 }

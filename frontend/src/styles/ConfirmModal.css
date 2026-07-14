@@ -1,4 +1,7 @@
-/* Este archivo contiene los estilos para el componente ConfirmModal */
+/* Estilos del componente ConfirmModal: el modal genérico de "¿Estás seguro?"
+   que se usa para confirmar acciones importantes (ej. cerrar sesión). Define
+   el overlay oscuro de fondo, la tarjeta del mensaje y los botones de
+   Cancelar / Confirmar. */
 
 /* Fondo oscuro que cubre toda la pantalla mientras el modal está abierto */
 .confirm-modal-overlay {
@@ -24,26 +27,30 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); /* Sombra marcada para reforzar la sensación de que "flota" sobre la página */
 }
 
-.confirm-modal h3 { /* Título del modal, que indica la acción que se va a realizar */
+/* Título del modal, que indica la acción que se va a realizar */
+.confirm-modal h3 {
   margin: 0 0 10px;
   color: var(--marron-oscuro);
   font-size: 1.15rem;
 }
 
-.confirm-modal p { /* Mensaje del modal, que explica la acción que se va a realizar */
+/* Mensaje del modal, que explica la acción que se va a realizar */
+.confirm-modal p {
   margin: 0 0 22px;
   color: var(--marron-oscuro);
   font-size: 0.95rem;
 }
 
-.confirm-modal-botones { /* Contenedor de los botones de acción: Cancelar y Confirmar */
+/* Contenedor de los botones de acción: Cancelar y Confirmar */
+.confirm-modal-botones {
   display: flex;
   gap: 12px;
   justify-content: center;
 }
 
-.confirm-modal-botones button { /* Estilos comunes a ambos botones (Cancelar y Confirmar) */
-  flex: 1; /* Ambos botones (Cancelar / Cerrar Sesión) ocupan el mismo ancho, repartido en partes iguales */
+/* Estilos comunes a ambos botones (Cancelar y Confirmar) */
+.confirm-modal-botones button {
+  flex: 1; /* Ambos botones ocupan el mismo ancho, repartido en partes iguales */
   padding: 10px 0;
   border: none;
   border-radius: 8px;
@@ -59,16 +66,18 @@
   color: var(--marron-oscuro);
 }
 
-.confirm-modal-cancelar:hover { /* Efecto visual al pasar el mouse por encima del botón "Cancelar" */
+/* Efecto visual al pasar el mouse por encima del botón "Cancelar" */
+.confirm-modal-cancelar:hover {
   opacity: 0.8;
 }
 
-/* Botón "Cerrar Sesión" — rojo oscuro, para indicar que es una acción irreversible/importante */
+/* Botón "Cerrar Sesión"/confirmar — rojo oscuro, para indicar que es una acción irreversible/importante */
 .confirm-modal-confirmar {
   background-color: #8b0000;
   color: white;
 }
 
-.confirm-modal-confirmar:hover { /* Efecto visual al pasar el mouse por encima del botón "Cerrar Sesión" */
+/* Efecto visual al pasar el mouse por encima del botón de confirmar */
+.confirm-modal-confirmar:hover {
   opacity: 0.85;
 }

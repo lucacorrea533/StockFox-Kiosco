@@ -1,12 +1,29 @@
-/* Este archivo es el corazón del catálogo, donde se muestra la lista de productos disponibles para comprar. Acá se implementa la lógica para filtrar por categorías, buscar por nombre y agregar productos al carrito. */
+/*
+ * Catalogo.jsx
+ * Vista principal del Alumno: catálogo de productos del kiosco.
+ * Muestra el carrusel de menú del día/promociones, filtros por categoría,
+ * buscador, grilla de productos y el carrito de compras (ModalCarrito, exportado
+ * para ser reutilizado también en MisPedidos.jsx).
+ * Consume la API del backend para traer productos, categorías y el menú del día,
+ * y persiste el carrito en localStorage para que sobreviva a recargas de página.
+ */
 
-// ── IMPORTS ───────────────────────────────────────────────────────────────────
-// Importa React y sus hooks, así como los componentes y assets necesarios para el catálogo
+// ── IMPORTS: React y componentes que sirven para el uso de la página ──────────────────────────────────────────────
 import { useState, useEffect, useRef } from 'react'
 import NavbarAlumno from '../components/NavbarAlumno'
 import CardProducto from '../components/CardProducto'
+import { authFetch } from '../api/authFetch'
+import '../styles/Catalogo.css'
+
+// ── IMPORTS: íconos de UI y simbolos diseñados (buscador, carrito, check, reloj, advertencia, eliminar) ─
 import iconBuscador from '../assets/icons/BuscadorBoton.png'
 import iconCarrito from '../assets/icons/VentasBoton.png'
+import iconCheck from '../assets/icons/SimboloCheck.png'
+import iconReloj from '../assets/icons/Reloj.png'
+import iconAdvertencia from '../assets/icons/Advertencia.png'
+import iconEliminar from '../assets/icons/EliminarBoton.png'
+
+// ── IMPORTS: íconos de categorías (simbolos diseñados) ──────────────────────────────────────────────
 import btnTodos from '../assets/icons/Todos.png'
 import btnSnacks from '../assets/icons/Snacks.png'
 import btnBebidas from '../assets/icons/Bebidas.png'
@@ -17,6 +34,8 @@ import btnBebCalientes from '../assets/icons/Beb.Calientes.png'
 import btnServicios from '../assets/icons/Servicios.png'
 import btnGalletitas from '../assets/icons/Galletitas.png'
 import btnProductosExtra from '../assets/icons/ProductosExtra.png'
+
+// ── IMPORTS: íconos de horarios de retiro (Mañana/Tarde/Noche) ────────────────
 import hor1 from '../assets/icons/Horario1.png'
 import hor2 from '../assets/icons/Horario2.png'
 import hor3 from '../assets/icons/Horario3.png'
@@ -29,16 +48,9 @@ import hor9 from '../assets/icons/Horario9.png'
 import hor10 from '../assets/icons/Horario10.png'
 import hor11 from '../assets/icons/Horario11.png'
 import hor12 from '../assets/icons/Horario12.png'
-import iconCheck from '../assets/icons/SimboloCheck.png'
-import iconReloj from '../assets/icons/Reloj.png'
-import iconAdvertencia from '../assets/icons/Advertencia.png'
-import iconEliminar from '../assets/icons/EliminarBoton.png'
-import '../styles/Catalogo.css'
-import { authFetch } from '../api/authFetch'
 
-// Diccionario que relaciona el NOMBRE de cada categoría (tal cual viene de la base de datos)
-// con el ícono PNG que le corresponde. Se usa para pintar el botón de filtro de cada categoría
-// sin tener que hardcodear el ícono en cada lugar donde se necesite
+// ── CONSTANTES: categorías e ícono ─────────────────────────────────────────────
+// Relaciona el nombre de categoría tal cual viene de la BBDD con su ícono de filtro.
 const iconosCategorias = {
   "Todos": btnTodos,
   "Snacks": btnSnacks,
@@ -52,43 +64,38 @@ const iconosCategorias = {
   "Servicios": btnServicios
 }
 
-// Determina si el producto es un Servicio sin foto (ej. "Calentar Comida"), para mostrar
-// un fondo especial en vez de una imagen rota o un placeholder genérico
+// Determina si un producto es un Servicio sin foto (ej. "Calentar Comida"),
+// para mostrarle un fondo especial en vez de una imagen rota
 function esServicioSinFoto(p) {
   return p.categoria === 'Servicios' && !p.imagen
 }
 
-// ── CATEGORÍAS ────────────────────────────────────────────────────────────────
-// NOTA: esta constante "categorias" queda pisada/no usada como filtro real, porque más abajo
-// el componente Catalogo() define su PROPIO estado también llamado "categorias" (con setCategorias),
-// que es el que efectivamente se llena desde la API y se muestra en pantalla.
+// Esta constante queda pisada por el estado "categorias" del componente Catalogo(),
+// que es el que realmente se usa (se llena desde la API). Se deja documentada, no se modifica.
 const categorias = [
-  { nombre: 'Todos',          imagen: btnTodos },
-  { nombre: 'Snacks',         imagen: btnSnacks },
-  { nombre: 'Bebidas',        imagen: btnBebidas },
-  { nombre: 'Alfajores',      imagen: btnAlfajores },
-  { nombre: 'Dulces',         imagen: btnDulces },
-  { nombre: 'Bocados',        imagen: btnBocados },
+  { nombre: 'Todos', imagen: btnTodos },
+  { nombre: 'Snacks', imagen: btnSnacks },
+  { nombre: 'Bebidas', imagen: btnBebidas },
+  { nombre: 'Alfajores', imagen: btnAlfajores },
+  { nombre: 'Dulces', imagen: btnDulces },
+  { nombre: 'Bocados', imagen: btnBocados },
   { nombre: 'Beb. Calientes', imagen: btnBebCalientes },
-  { nombre: 'Servicios',      imagen: btnServicios },
+  { nombre: 'Servicios', imagen: btnServicios },
 ]
 
-// ── MENÚ DEL DÍA Y PROMOCIONES ────────────────────────────────────────────────
-// Datos de ejemplo "hardcodeados" (fijos en el código) para el carrusel de arriba del catálogo.
-// A futuro esto se reemplazaría por datos reales que vengan de las tablas MENU_DIA y PROMOCIONES del backend
+// ── CONSTANTES: carrusel de menú del día y promociones (datos de ejemplo) ─────
+// A futuro se reemplaza por datos reales de las tablas MENU_DIA y PROMOCIONES.
 const menuYpromociones = [
-  { id: 'menu1',  tipo: 'MENÚ DEL DÍA', nombre: 'Hamburguesa Completa + Cono de Papas + Jugo Placer', desc: 'Precio especial · Separado sale $12.300', precio: 9000, comprable: false },
-  { id: 'promo1', tipo: 'PROMOCIÓN',    nombre: 'Café con Leche + 5 Chipá',                            desc: 'Café mediano + 5 chipas',                 precio: 3800, comprable: false },
-  { id: 'promo2', tipo: 'PROMOCIÓN',    nombre: 'Café + Medialuna c/ J y Q',                           desc: 'Desayuno completo',                        precio: 3800, comprable: false },
-  { id: 'promo3', tipo: 'PROMOCIÓN',    nombre: 'Café + 2 Medialunas',                                 desc: 'Café mediano + 2 medialunas',              precio: 4500, comprable: false },
-  { id: 'promo4', tipo: 'PROMOCIÓN',    nombre: 'Desayuno: Café + Tostado J y Q',                      desc: 'Café mediano + tostado',                   precio: 3500, comprable: false },
-  { id: 'promo5', tipo: 'PROMOCIÓN',    nombre: '2 Empanadas + Jugo Baggio',                           desc: '2 empanadas + jugo 200ml',                 precio: 5000, comprable: false },
-  { id: 'promo6', tipo: 'PROMOCIÓN',    nombre: 'Chocolatada + Bizcochuelo',                           desc: 'Chocolatada caliente + porción',           precio: 3500, comprable: false },
+  { id: 'menu1', tipo: 'MENÚ DEL DÍA', nombre: 'Hamburguesa Completa + Cono de Papas + Jugo Placer', desc: 'Precio especial · Separado sale $12.300', precio: 9000, comprable: false },
+  { id: 'promo1', tipo: 'PROMOCIÓN', nombre: 'Café con Leche + 5 Chipá', desc: 'Café mediano + 5 chipas', precio: 3800, comprable: false },
+  { id: 'promo2', tipo: 'PROMOCIÓN', nombre: 'Café + Medialuna c/ J y Q', desc: 'Desayuno completo', precio: 3800, comprable: false },
+  { id: 'promo3', tipo: 'PROMOCIÓN', nombre: 'Café + 2 Medialunas', desc: 'Café mediano + 2 medialunas', precio: 4500, comprable: false },
+  { id: 'promo4', tipo: 'PROMOCIÓN', nombre: 'Desayuno: Café + Tostado J y Q', desc: 'Café mediano + tostado', precio: 3500, comprable: false },
+  { id: 'promo5', tipo: 'PROMOCIÓN', nombre: '2 Empanadas + Jugo Baggio', desc: '2 empanadas + jugo 200ml', precio: 5000, comprable: false },
+  { id: 'promo6', tipo: 'PROMOCIÓN', nombre: 'Chocolatada + Bizcochuelo', desc: 'Chocolatada caliente + porción', precio: 3500, comprable: false },
 ]
 
-// ── HORARIOS ─────────────────────────────────────────────────────────────────
-// Horarios de retiro disponibles, agrupados por turno (Mañana/Tarde/Noche).
-// Cada objeto trae un ícono ilustrativo, la hora exacta y una etiqueta con el "momento" (recreo, entrada, salida)
+// ── CONSTANTES: horarios de retiro, agrupados por turno ───────────────────────
 const turnosHorarios = {
   "Mañana": [
     { id: "h1", imagen: hor1, hora: "07:45", momento: "Entrada" },
@@ -97,7 +104,6 @@ const turnosHorarios = {
     { id: "h4", imagen: hor4, hora: "12:05", momento: "Salida Normal" },
     { id: "h5", imagen: hor5, hora: "12:45", momento: "Salida 7ma" },
   ],
-
   "Tarde": [
     { id: "h6", imagen: hor6, hora: "13:30", momento: "Entrada" },
     { id: "h7", imagen: hor7, hora: "14:50", momento: "1er recreo" },
@@ -105,17 +111,17 @@ const turnosHorarios = {
     { id: "h9", imagen: hor9, hora: "17:50", momento: "Salida Normal" },
     { id: "h10", imagen: hor10, hora: "18:30", momento: "Salida 7ma" },
   ],
-
   "Noche": [
     { id: "h11", imagen: hor11, hora: "18:30", momento: "Entrada" },
     { id: "h12", imagen: hor12, hora: "19:50", momento: "1er recreo" },
   ]
 }
 
-// ── HELPERS LOCALSTORAGE ──────────────────────────────────────────────────────
-const CARRITO_KEY = 'recokiosco_carrito' // Nombre de la "casilla" del localStorage donde se guarda el carrito
+// ── HELPERS: carrito en localStorage ──────────────────────────────────────────
+// Los helpers son funciones puras que no dependen de React ni del estado del componente, y sirven para leer/escribir el carrito en localStorage.
+const CARRITO_KEY = 'recokiosco_carrito'
 
-// Lee el carrito guardado en el navegador. Si no hay nada o el dato está corrupto, devuelve un array vacío
+// Lee el carrito guardado; si no hay nada o está corrupto, devuelve un array vacío
 function cargarCarritoLocal() {
   try {
     const raw = localStorage.getItem(CARRITO_KEY)
@@ -125,43 +131,39 @@ function cargarCarritoLocal() {
   }
 }
 
-// Guarda el carrito actual en localStorage como texto (JSON.stringify), para que persista
-// aunque el alumno recargue la página o cierre y abra el navegador
+// Guarda el carrito actual como JSON en localStorage
 function guardarCarritoLocal(carrito) {
   localStorage.setItem(CARRITO_KEY, JSON.stringify(carrito))
 }
 
-// ── CARRUSEL MENÚ DEL DÍA ─────────────────────────────────────────────────────
-const CARDS_POR_PAGINA = 4 // Cuántas tarjetas de menú/promo se muestran a la vez en el carrusel
+// ── COMPONENTE: Carrusel de menú del día / promociones ────────────────────────
+// Un carrusel es una lista de tarjetas que se muestran de a 4 a la vez, y que se pueden recorrer con "dots" o que avanzan automáticamente cada 4 segundos.
+const CARDS_POR_PAGINA = 4 // Tarjetas visibles a la vez
 
-// Componente del carrusel que va rotando automáticamente entre "páginas" de 4 tarjetas cada una
+// Esta función recibe un array de items y un callback onAgregar, y muestra un carrusel que avanza automáticamente cada 4s.
 function CarruselMenu({ items, onAgregar }) {
-  const [pagina, setPagina] = useState(0) // Página actualmente visible del carrusel
-  const totalPaginas = Math.ceil(items.length / CARDS_POR_PAGINA) // Cuántas páginas hacen falta en total, redondeando hacia arriba
-  const intervalRef = useRef(null) // Guarda la referencia al temporizador de auto-avance, para poder cancelarlo después
+  const [pagina, setPagina] = useState(0)
+  const totalPaginas = Math.ceil(items.length / CARDS_POR_PAGINA)
+  const intervalRef = useRef(null) // Referencia al temporizador de auto-avance
 
-  // Arranca un temporizador que avanza de página automáticamente cada 4 segundos.
-  // El operador "%" (módulo) hace que, al llegar a la última página, vuelva a la primera (efecto ciclo)
+  // Auto-avanza de página cada 4s; el módulo (%) hace que vuelva a la primera al llegar al final
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setPagina(p => (p + 1) % totalPaginas)
-    }, 4000)
-    return () => clearInterval(intervalRef.current) // Limpieza: cancela el temporizador si el componente se desmonta
+    intervalRef.current = setInterval(() => setPagina(p => (p + 1) % totalPaginas), 4000)
+    return () => clearInterval(intervalRef.current)
   }, [totalPaginas])
 
-  // Se ejecuta cuando el usuario clickea manualmente uno de los "dots" (puntitos) de navegación.
-  // Reinicia el temporizador automático para que no "compita" con el cambio manual
+  // Click manual en un "dot": cambia de página y reinicia el auto-avance
   function irAPagina(i) {
     clearInterval(intervalRef.current)
     setPagina(i)
-    intervalRef.current = setInterval(() => {
-      setPagina(p => (p + 1) % totalPaginas)
-    }, 4000)
+    intervalRef.current = setInterval(() => setPagina(p => (p + 1) % totalPaginas), 4000)
   }
 
+  // Calcula qué items son visibles según la página actual, las constantes son para que se vea bien en el carrusel (4 por página)
   const inicio = pagina * CARDS_POR_PAGINA
-  const visibles = items.slice(inicio, inicio + CARDS_POR_PAGINA) // Recorta solo los ítems que corresponden a la página actual
+  const visibles = items.slice(inicio, inicio + CARDS_POR_PAGINA)
 
+  // Renderiza las tarjetas visibles y los "dots" de navegación; si la última página tiene menos de 4 tarjetas, rellena con placeholders invisibles para mantener el layout
   return (
     <div className="carrusel-menu-wrapper">
       <div className="carrusel-menu-track">
@@ -178,13 +180,8 @@ function CarruselMenu({ items, onAgregar }) {
                 <button
                   className="menu-card-btn"
                   onClick={() => onAgregar({
-                    id: item.id,
-                    nombre: item.nombre,
-                    precio: item.precio,
-                    categoria: item.tipo,
-                    stock: 99,
-                    imagen: null,
-                    disponible: true,
+                    id: item.id, nombre: item.nombre, precio: item.precio, categoria: item.tipo,
+                    stock: 99, imagen: null, disponible: true,
                   })}
                 >
                   Agregar
@@ -193,24 +190,17 @@ function CarruselMenu({ items, onAgregar }) {
             </div>
           </div>
         ))}
-        {/* Si la última página tiene menos de 4 tarjetas, se rellena con "espacios fantasma" invisibles
-            para que el grid no se desarme visualmente (mantiene siempre 4 columnas parejas) */}
+        {/* Rellena con placeholders invisibles si la última página tiene menos de 4 tarjetas */}
         {visibles.length < CARDS_POR_PAGINA &&
           Array.from({ length: CARDS_POR_PAGINA - visibles.length }).map((_, i) => (
             <div key={`ph-${i}`} className="catalogo-menu-card-placeholder" />
           ))
         }
       </div>
-      {/* Los puntitos de navegación solo se muestran si hay más de una página */}
       {totalPaginas > 1 && (
         <div className="carrusel-dots">
           {Array.from({ length: totalPaginas }).map((_, i) => (
-            <button
-              key={i}
-              className={`carrusel-dot ${i === pagina ? 'activo' : ''}`}
-              onClick={() => irAPagina(i)}
-              aria-label={`Página ${i + 1}`}
-            />
+            <button key={i} className={`carrusel-dot ${i === pagina ? 'activo' : ''}`} onClick={() => irAPagina(i)} aria-label={`Página ${i + 1}`} />
           ))}
         </div>
       )}
@@ -218,29 +208,26 @@ function CarruselMenu({ items, onAgregar }) {
   )
 }
 
-// ── MODAL VARIANTES ───────────────────────────────────────────────────────────
-// Se usa para productos que tienen distintas variedades (ej. un alfajor blanco/negro).
-// Sirve tanto para AGREGAR un producto nuevo al carrito como para EDITAR la variante
-// de un producto que ya está en el carrito (dependiendo de qué props reciba)
+// ── COMPONENTE: Modal de variantes (ej. alfajor blanco/negro) ─────────────────
+// Sirve para AGREGAR un producto nuevo con variante, o para EDITAR la variante
+// de uno que ya está en el carrito (según si viene onConfirmarEdicion).
 function ModalVariantes({ producto, varianteInicial, onAgregar, onConfirmarEdicion, onCerrar }) {
-  const esEdicion = !!onConfirmarEdicion // Si vino la función onConfirmarEdicion, este modal está en "modo edición" y no "modo agregar"
-  // Si se pasó una variante inicial (porque se está editando un ítem que ya tenía una elegida),
-  // la busca en la lista de variantes del producto; si no la encuentra, usa la primera por defecto
+  const esEdicion = !!onConfirmarEdicion
+
+  // Si viene una variante inicial (edición), la busca en la lista; si no, usa la primera
   const inicial = varianteInicial
     ? producto.variantes.find(v => v.label === varianteInicial) ?? producto.variantes[0]
     : null
+
   const [varianteSeleccionada, setVarianteSeleccionada] = useState(inicial)
-  const variante = varianteSeleccionada ?? producto.variantes[0] // Si no hay ninguna seleccionada todavía, usa la primera de la lista
+  const variante = varianteSeleccionada ?? producto.variantes[0]
 
   return (
     <div className="modal-overlay" onClick={onCerrar}>
       <div className="modal-producto modal-variantes" onClick={e => e.stopPropagation()}>
         <button className="modal-cerrar" onClick={onCerrar}>✕</button>
         <div className="modal-producto-imagen">
-          {variante.imagen
-            ? <img src={variante.imagen} alt={variante.label} />
-            : <div className="card-producto-placeholder" />
-          }
+          {variante.imagen ? <img src={variante.imagen} alt={variante.label} /> : <div className="card-producto-placeholder" />}
         </div>
         <div className="modal-producto-info">
           <p className="modal-producto-categoria">{producto.categoria}</p>
@@ -248,46 +235,33 @@ function ModalVariantes({ producto, varianteInicial, onAgregar, onConfirmarEdici
           <p className="modal-producto-desc">{producto.descripcion}</p>
           <p className="modal-variantes-label">Elegí una opción:</p>
           <div className="modal-variantes-opciones">
-            {/* Recorre todas las variantes disponibles del producto (ej: "Negro", "Blanco") y arma un botón por cada una */}
             {producto.variantes.map((v, i) => (
-              <button
-                key={i}
-                className={`modal-variante-btn ${variante === v ? 'activo' : ''}`}
-                onClick={() => setVarianteSeleccionada(v)}
-              >
+              <button key={i} className={`modal-variante-btn ${variante === v ? 'activo' : ''}`} onClick={() => setVarianteSeleccionada(v)}>
                 <span className="modal-variante-label">{v.label}</span>
                 <span className="modal-variante-precio">${v.precio.toLocaleString('es-AR')}</span>
               </button>
             ))}
           </div>
-          {/* Texto adicional opcional, solo si esa variante en particular lo tiene definido */}
-          {variante.extraInfo && (
-            <p className="modal-variante-extra">{variante.extraInfo}</p>
-          )}
+          {variante.extraInfo && <p className="modal-variante-extra">{variante.extraInfo}</p>}
           <p className="modal-producto-precio">${variante.precio.toLocaleString('es-AR')}</p>
-          {/* Según si es edición o no, el botón hace una cosa distinta */}
+
           {esEdicion ? (
-            <button
-              className="modal-producto-btn"
-              onClick={() => { onConfirmarEdicion(variante.label); onCerrar() }}
-            >
+            <button className="modal-producto-btn" onClick={() => { onConfirmarEdicion(variante.label); onCerrar() }}>
               Guardar cambios
             </button>
           ) : (
             <button
               className="modal-producto-btn"
               disabled={producto.stock === 0}
-              onClick={() => {
-                onAgregar({
-                  ...producto, // Copia todas las propiedades originales del producto
-                  baseId: producto.id, // Guarda el ID original del producto "padre", por si hace falta más adelante
-                  id: `${producto.id}_${variante.label}`, // ID único combinando producto + variante, para diferenciarlo en el carrito
-                  nombre: producto.nombre,
-                  variedadSeleccionada: variante.label,
-                  precio: variante.precio, // El precio final es el de la VARIANTE elegida, no el del producto genérico
-                  imagen: variante.imagen,
-                })
-              }}
+              onClick={() => onAgregar({
+                ...producto,
+                baseId: producto.id, // ID del producto "padre"
+                id: `${producto.id}_${variante.label}`, // ID único producto+variante para el carrito
+                nombre: producto.nombre,
+                variedadSeleccionada: variante.label,
+                precio: variante.precio, // Precio final = precio de la variante elegida
+                imagen: variante.imagen,
+              })}
             >
               {producto.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
             </button>
@@ -298,121 +272,76 @@ function ModalVariantes({ producto, varianteInicial, onAgregar, onConfirmarEdici
   )
 }
 
-// ── MODAL CARRITO ─────────────────────────────────────────────────────────────
-// Ya no maneja el undo internamente. Al eliminar un ítem llama a onEliminar(item)
-// para que el padre (Catalogo) lo gestione como toast flotante.
-// Se exporta con "export" porque MisPedidos.jsx también lo reutiliza tal cual, sin duplicar código
-export function ModalCarrito({
-  carrito, setCarrito, mostrarCarrito, setMostrarCarrito, onEliminarItem, onPedidoCreado
-}) {
-  const [horario, setHorario] = useState(null) // Horario de retiro elegido por el alumno (ej. "10:35")
-  const [pedidoConfirmado, setPedidoConfirmado] = useState(false) // Controla si se muestra la pantalla de "¡Pedido confirmado!"
-  const [turnoActivo, setTurnoActivo] = useState('Mañana') // Qué pestaña de turno (Mañana/Tarde/Noche) está seleccionada
+// ── COMPONENTE: Modal Carrito ──────────────────────────────────────────────────
+// Exportado porque MisPedidos.jsx también lo reutiliza (mismo carrito, misma lógica).
+// El undo de "eliminar" no se maneja acá: se avisa al padre vía onEliminarItem.
+export function ModalCarrito({ carrito, setCarrito, mostrarCarrito, setMostrarCarrito, onEliminarItem, onPedidoCreado }) {
+  const [horario, setHorario] = useState(null)
+  const [pedidoConfirmado, setPedidoConfirmado] = useState(false)
+  const [turnoActivo, setTurnoActivo] = useState('Mañana')
 
-  // Suma o resta 1 a la cantidad de un producto del carrito. Si la cantidad llega a 0, el .filter()
-  // se encarga de sacarlo directamente de la lista (no queda un ítem con cantidad 0 dando vueltas)
+  // Suma/resta 1 a la cantidad; si llega a 0, el producto sale del carrito
   function handleCambiarCantidad(id, delta) {
     setCarrito(prev =>
-      prev
-        .map(item => item.id === id ? { ...item, cantidad: item.cantidad + delta } : item)
+      prev.map(item => item.id === id ? { ...item, cantidad: item.cantidad + delta } : item)
         .filter(item => item.cantidad > 0)
     )
   }
 
-  // Saca el ítem del carrito y avisa al componente padre (Catalogo) para que muestre
-  // el toast de "eliminado, ¿deshacer?" fuera del modal
+  // Saca el ítem del carrito y avisa al padre para mostrar el toast de "deshacer"
   function handleEliminar(item) {
     setCarrito(prev => prev.filter(i => i.id !== item.id))
     onEliminarItem(item)
   }
- 
-// Envía el pedido armado al backend. Es una función "async" porque tiene que esperar
-// la respuesta del servidor antes de poder continuar
-async function enviarPedido() {
 
-  // Arma el objeto con la forma exacta que espera la API: alumno, horario, y lista de productos con sus cantidades
-  const pedido = {
+  // Envía el pedido armado (alumno + horario + productos) al backend
+  async function enviarPedido() {
+    const pedido = {
+      id_alumno: Number(localStorage.getItem('id')),
+      horario_retiro: horario,
+      productos: carrito.map(item => ({ id_producto: item.id, cantidad: item.cantidad }))
+    }
 
-    id_alumno: Number(localStorage.getItem('id')), // Obtiene el ID del alumno logueado desde localStorage, que se guardó al iniciar sesión
-
-    horario_retiro: horario,
-
-    productos: carrito.map(item => ({
-
-      id_producto: item.id,
-
-      cantidad: item.cantidad
-
-    }))
-
-  }
-
-  // "await" pausa la ejecución de la función hasta que el servidor responda, sin bloquear el resto de la app
-const respuesta = await authFetch(
-    "http://127.0.0.1:8000/api/pedidos/crear/",
-    {
+    const respuesta = await authFetch("http://127.0.0.1:8000/api/pedidos/crear/", { // POST al endpoint de creación de pedidos
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(pedido)
-    }
-  )
+    })
+    const datos = await respuesta.json()
 
-  const datos = await respuesta.json() // Convierte la respuesta del servidor de vuelta a un objeto JS
-
-  // respuesta.ok es false si el servidor devolvió un código de error (400, 500, etc).
-  // En ese caso, se corta la ejecución lanzando un error con el mensaje que mandó el backend (o uno genérico)
-  if (!respuesta.ok) {
-
-    throw new Error(
-      datos.error || "No se pudo crear el pedido."
-    )
-
+    if (!respuesta.ok) throw new Error(datos.error || "No se pudo crear el pedido.")
+    return datos
   }
-
-  return datos
-
-}
 
   const totalCarrito = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
- 
-  // Se ejecuta al clickear "Confirmar Pedido"
+
+  // Confirma el pedido: valida horario, lo manda al backend y limpia el carrito
   async function handleConfirmar() {
+    if (!horario) return
 
-  if (!horario) return // Corta acá si todavía no se eligió un horario de retiro
+    try {
+      const datos = await enviarPedido()
+      console.log(datos) // Debug: ver qué devuelve la API
 
-  try {
+      onPedidoCreado() // Recarga stock actualizado en el padre
+      setPedidoConfirmado(true)
+      localStorage.removeItem(CARRITO_KEY)
+      setCarrito([])
 
-    const datos = await enviarPedido() // Espera a que el pedido se guarde en el backend
-
-    console.log(datos) // Log de depuración, para ver qué devolvió la API mientras se prueba
-
-    onPedidoCreado() // Avisa al padre (Catalogo) que se creó un pedido, para que recargue el stock actualizado de productos
-
-    setPedidoConfirmado(true) // Cambia a la pantalla de "¡Pedido confirmado!"
-
-    localStorage.removeItem(CARRITO_KEY) // Borra el carrito guardado en el navegador
-
-    setCarrito([]) // Vacía el carrito en el estado de React también
-
+    } catch (error) {
+      alert(error.message)
+    }
   }
 
-  catch (error) {
+  if (!mostrarCarrito) return null
 
-    alert(error.message) // Si algo falló (ej. sin stock, error de conexión), se lo muestra al usuario con un alert nativo
-
-  }
-
-}
-
-  if (!mostrarCarrito) return null // Si el modal no debe mostrarse, el componente no renderiza absolutamente nada
-
-  return (
+  return ( // Modal overlay: clic afuera cierra el modal, clic adentro no
     <div className="modal-overlay" onClick={() => setMostrarCarrito(false)}>
       <div className="modal-carrito" onClick={e => e.stopPropagation()}>
 
-        {/* Muestra una vista u otra según si el pedido ya fue confirmado o todavía se está armando */}
         {!pedidoConfirmado ? (
           <>
+            {/* Columna izquierda: lista de productos del pedido */}
             <div className="modal-carrito-izq">
               <h2 className="modal-carrito-titulo">Tu Pedido</h2>
               <p className="modal-carrito-subtitulo">Productos seleccionados</p>
@@ -424,32 +353,21 @@ const respuesta = await authFetch(
                 </p>
               )}
 
-              {/* Recorre cada producto del carrito y arma su fila con imagen, nombre, precio, controles de cantidad y subtotal */}
-              {carrito.map(item => (
+              {carrito.map(item => ( // Renderiza cada producto del carrito con imagen, nombre, precio, controles de cantidad y botón de eliminar
                 <div key={item.id} className="modal-carrito-item">
                   <div className="modal-carrito-item-imagen">
                     {item.imagen
                       ? <img src={item.imagen} alt={item.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : esServicioSinFoto(item)
-                        ? <div className="card-producto-servicio-fondo" />
-                        : <div className="card-producto-placeholder" />
-                    }
+                      : esServicioSinFoto(item) ? <div className="card-producto-servicio-fondo" /> : <div className="card-producto-placeholder" />}
                   </div>
                   <div className="modal-carrito-item-info">
                     <span className="modal-carrito-item-nombre">{item.nombre}</span>
                     <span className="modal-carrito-item-precio">${item.precio.toLocaleString('es-AR')} c/u</span>
                   </div>
                   <div className="carrito-item-centro">
-                    {/* La etiqueta de variedad (ej. "Negro") solo aparece si el producto tiene una variante seleccionada */}
-                    {item.variedadSeleccionada && (
-                      <span className="carrito-variedad-tag">{item.variedadSeleccionada}</span>
-                    )}
+                    {item.variedadSeleccionada && <span className="carrito-variedad-tag">{item.variedadSeleccionada}</span>}
                     <div className="carrito-item-acciones">
-                      <button
-                        className="carrito-btn-eliminar"
-                        onClick={() => handleEliminar(item)}
-                        title="Eliminar producto"
-                      >
+                      <button className="carrito-btn-eliminar" onClick={() => handleEliminar(item)} title="Eliminar producto">
                         <img src={iconEliminar} alt="Eliminar" />
                       </button>
                     </div>
@@ -459,26 +377,20 @@ const respuesta = await authFetch(
                     <span>{item.cantidad}</span>
                     <button onClick={() => handleCambiarCantidad(item.id, +1)}>+</button>
                   </div>
-                  <span className="modal-carrito-item-subtotal">
-                    ${(item.precio * item.cantidad).toLocaleString('es-AR')}
-                  </span>
+                  <span className="modal-carrito-item-subtotal">${(item.precio * item.cantidad).toLocaleString('es-AR')}</span>
                 </div>
               ))}
 
-              <button className="modal-seguir-btn" onClick={() => setMostrarCarrito(false)}>
-                + Seguir comprando
-              </button>
+              <button className="modal-seguir-btn" onClick={() => setMostrarCarrito(false)}>+ Seguir comprando</button>
             </div>
 
+            {/* Columna derecha: resumen, horario de retiro y confirmación */}
             <div className="modal-carrito-der">
               <div className="modal-resumen">
                 <h3>Resumen</h3>
-                {/* Lista resumida de cada producto con su subtotal, a modo de "recibo" antes de confirmar */}
                 {carrito.map(item => (
                   <div key={item.id} className="modal-resumen-fila">
-                    <span>
-                      {item.nombre} {item.variedadSeleccionada && `(${item.variedadSeleccionada})`} x{item.cantidad}
-                    </span>
+                    <span>{item.nombre} {item.variedadSeleccionada && `(${item.variedadSeleccionada})`} x{item.cantidad}</span>
                     <span>${(item.precio * item.cantidad).toLocaleString('es-AR')}</span>
                   </div>
                 ))}
@@ -491,30 +403,19 @@ const respuesta = await authFetch(
               <div className="modal-horarios">
                 <h3>Elegir horario de retiro</h3>
                 <div className="modal-turno-selector">
-                  {/* Botones para elegir el turno del día. Al cambiar de turno, resetea el horario elegido
-                      (porque los horarios de un turno no tienen sentido en otro) */}
+                  {/* Cambiar de turno resetea el horario, porque los horarios no son los mismos entre turnos */}
                   {['Mañana', 'Tarde', 'Noche'].map(turno => (
-                    <button
-                      key={turno}
-                      className={`modal-turno-btn ${turnoActivo === turno ? 'activo' : ''}`}
-                      onClick={() => { setTurnoActivo(turno); setHorario(null) }}
-                    >
+                    <button key={turno} className={`modal-turno-btn ${turnoActivo === turno ? 'activo' : ''}`} onClick={() => { setTurnoActivo(turno); setHorario(null) }}>
                       {turno}
                     </button>
                   ))}
                 </div>
-                {/* Muestra solo los horarios del turno actualmente seleccionado */}
                 {turnosHorarios[turnoActivo].map(h => (
-                  <button
-                    key={h.id}
-                    className={`modal-horario-btn ${horario === h.hora ? 'activo' : ''}`}
-                    onClick={() => setHorario(h.hora)}
-                  >
+                  <button key={h.id} className={`modal-horario-btn ${horario === h.hora ? 'activo' : ''}`} onClick={() => setHorario(h.hora)}>
                     <span className="modal-horario-hora">{h.hora}</span>
                     <span className="modal-horario-momento">{h.momento}</span>
                   </button>
                 ))}
-                {/* Aviso que recuerda elegir un horario antes de poder confirmar */}
                 {!horario && (
                   <p className="modal-horario-aviso">
                     <img src={iconAdvertencia} alt="!" className="modal-aviso-icono" />
@@ -523,38 +424,25 @@ const respuesta = await authFetch(
                 )}
               </div>
 
-              {/* El botón de confirmar se deshabilita si no hay horario elegido o si el carrito está vacío */}
-              <button
-                className="modal-confirmar-btn"
-                onClick={handleConfirmar}
-                disabled={!horario || carrito.length === 0}
-              >
+              <button className="modal-confirmar-btn" onClick={handleConfirmar} disabled={!horario || carrito.length === 0}>
                 Confirmar Pedido
               </button>
-              <button
-                className="modal-cancelar-btn"
-                onClick={() => { setMostrarCarrito(false); setCarrito([]); setHorario(null); setPedidoConfirmado(false) }}
-              >
+              <button className="modal-cancelar-btn" onClick={() => { setMostrarCarrito(false); setCarrito([]); setHorario(null); setPedidoConfirmado(false) }}>
                 Cancelar
               </button>
             </div>
           </>
         ) : (
-          // Pantalla que se muestra DESPUÉS de confirmar el pedido exitosamente
+          // Pantalla post-confirmación
           <div className="modal-confirmado">
-            <div className="modal-confirmado-icono">
-              <img src={iconCheck} alt="Confirmado" />
-            </div>
+            <div className="modal-confirmado-icono"><img src={iconCheck} alt="Confirmado" /></div>
             <h2>¡Pedido confirmado!</h2>
             <p className="modal-confirmado-sub">Pedido enviado al kiosco</p>
             <p className="modal-confirmado-horario">
               <img src={iconReloj} alt="Horario" className="modal-aviso-icono" />
               Retirá tu pedido a partir de las {horario}
             </p>
-            <button
-              className="modal-confirmar-btn"
-              onClick={() => { setMostrarCarrito(false); setPedidoConfirmado(false); setHorario(null) }}
-            >
+            <button className="modal-confirmar-btn" onClick={() => { setMostrarCarrito(false); setPedidoConfirmado(false); setHorario(null) }}>
               Seguir comprando
             </button>
           </div>
@@ -564,37 +452,43 @@ const respuesta = await authFetch(
   )
 }
 
-// ── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
+// ── COMPONENTE PRINCIPAL: Catalogo ────────────────────────────────────────────
+// Con esto se exporta la función Catalogo() para que pueda ser usada en otras partes de la aplicación.
 function Catalogo() {
-  const [categoriaActiva, setCategoriaActiva] = useState('Todos') // Qué categoría de filtro está seleccionada
-  const [busqueda, setBusqueda] = useState('') // Texto escrito en el buscador
-  const [carrito, setCarrito]   = useState(() => cargarCarritoLocal()) // Carrito de compras, inicializado desde localStorage
-  const [productoModal, setProductoModal]       = useState(null) // Producto SIN variantes que se está mostrando en el modal simple
-  const [productoVariantes, setProductoVariantes] = useState(null) // Producto CON variantes que se está mostrando en ModalVariantes
-  const [mostrarCarrito, setMostrarCarrito]     = useState(false) // Controla si el modal del carrito está visible
-  const [productos, setProductos] = useState([]) // --------------------------
-  const [categorias, setCategorias] = useState([]) // Lista de categorías reales, traída desde el backend (pisa a la constante "categorias" de más arriba)
-  
-  // ── Toast de undo (fuera del modal, nivel página) ─────────────────────────
-  // undoItem: { item, timerId } | null — solo un undo activo a la vez.
-  const [undoItem, setUndoItem]   = useState(null) // Guarda el último producto eliminado, por si el usuario quiere deshacerlo
-  const undoTimerRef              = useRef(null) // Referencia al temporizador que hace desaparecer el toast de "deshacer"
-  const UNDO_DURACION             = 3500 // ms — cuánto tiempo queda visible el toast antes de desaparecer solo
+  // Filtros de la grilla
+  const [categoriaActiva, setCategoriaActiva] = useState('Todos')
+  const [busqueda, setBusqueda] = useState('')
+
+  // Datos traídos del backend
+  const [productos, setProductos] = useState([])
+  const [categorias, setCategorias] = useState([]) // Pisa a la constante "categorias" de arriba
   const [menuDelDiaBackend, setMenuDelDiaBackend] = useState(null)
 
+  // Carrito y modales
+  const [carrito, setCarrito] = useState(() => cargarCarritoLocal())
+  const [productoModal, setProductoModal] = useState(null) // Producto SIN variantes
+  const [productoVariantes, setProductoVariantes] = useState(null) // Producto CON variantes
+  const [mostrarCarrito, setMostrarCarrito] = useState(false)
+
+  // Toast de "deshacer" al eliminar del carrito (solo uno activo a la vez)
+  const [undoItem, setUndoItem] = useState(null)
+  const undoTimerRef = useRef(null)
+  const UNDO_DURACION = 3500 // ms
+
+  // Trae el menú del día vigente
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/menu-dia/actual/')
+    fetch('http://127.0.0.1:8000/api/menu-dia/actual/') // Endpoint que devuelve el menú del día vigente, o null si no hay
       .then(response => response.json())
       .then(data => setMenuDelDiaBackend(data))
       .catch(error => console.error(error))
   }, [])
-  // Cada vez que el carrito cambia, se vuelve a guardar automáticamente en localStorage
+
+  // Persiste el carrito en localStorage cada vez que cambia
   useEffect(() => {
     guardarCarritoLocal(carrito)
   }, [carrito])
 
-  // Escucha globalmente la tecla ESC: si está apretada, cierra cualquier modal que esté abierto
-  // (carrito, producto simple o producto con variantes), todo de una sola vez
+  // ESC cierra cualquier modal abierto (carrito, producto simple o con variantes)
   useEffect(() => {
     function handleEsc(e) {
       if (e.key === 'Escape') {
@@ -604,127 +498,90 @@ function Catalogo() {
       }
     }
     window.addEventListener('keydown', handleEsc)
-    return () => window.removeEventListener('keydown', handleEsc) // Limpieza: saca el listener si el componente se desmonta
+    return () => window.removeEventListener('keydown', handleEsc)
   }, [])
 
-  // Limpia el timer de undo al desmontar el componente, para evitar que intente actualizar
-  // un estado de un componente que ya no existe (lo que generaría un warning de React)
+  // Limpia el timer de undo al desmontar, para evitar setState sobre un componente ya destruido
   useEffect(() => {
     return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current) }
   }, [])
 
-  // Trae la lista de productos actual desde el backend y la deja lista para mostrar en la grilla.
-  // Se define como función aparte (no directo en un useEffect) porque también se necesita
-  // volver a llamarla después de confirmar un pedido, para reflejar el stock actualizado
+  // Trae los productos disponibles y los adapta a la forma que usa el resto del componente.
+  // Función aparte (no inline en el useEffect) porque también se re-llama tras confirmar un pedido.
   function cargarProductos() {
+    fetch("http://127.0.0.1:8000/api/productos/disponibles/") // Endpoint que devuelve todos los productos disponibles para el kiosco
+      .then(response => response.json())
+      .then(data => {
+        const productosFormateados = data.map(p => ({
+          id: p.id_producto,
+          nombre: p.nombre,
+          precio: Number(p.precio_actual),
+          imagen: p.foto_url,
+          stock: p.stock,
+          disponible: p.disponible,
+          categoria: p.categoria,
+          descripcion: "", // Todavía no viene del backend
+          variantes: null // Sistema de variantes aún no conectado a datos reales
+        }))
+        setProductos(productosFormateados)
+      })
+      .catch(error => console.error(error))
+  }
 
-  fetch("http://127.0.0.1:8000/api/productos/disponibles/")
-    .then(response => response.json())
-    .then(data => {
+  // Carga inicial de productos
+  useEffect(() => {
+    cargarProductos()
+  }, [])
 
-      // Traduce cada producto tal cual viene de la base de datos a la forma que usa el resto del componente
-      const productosFormateados = data.map(p => ({
-        id: p.id_producto,
-        nombre: p.nombre,
-        precio: Number(p.precio_actual), // Se asegura de que sea un número, no un string, para poder hacer cuentas
-        imagen: p.foto_url,
-        stock: p.stock,
-        disponible: p.disponible,
-        categoria: p.categoria,
-        descripcion: "", // Todavía no viene descripción desde el backend, se deja vacía por ahora
-        variantes: null // Ídem: el sistema de variantes (ver ModalVariantes) todavía no está conectado a datos reales
-    }))
+  // Trae las categorías reales para pintar los botones de filtro
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/categorias/')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data) // Debug: qué trae la API
+        // Debug: nombre de categoría vs. ícono asignado (detecta typos entre BBDD e iconosCategorias)
+        data.forEach(cat => console.log("Categoria:", `"${cat.nombre}"`, "Icono:", iconosCategorias[cat.nombre]))
+        setCategorias(data)
+      })
+      .catch(error => console.error(error))
+  }, [])
 
-      setProductos(productosFormateados)
-
-    })
-    .catch(error => {
-      console.error(error) // Si falla la conexión, lo avisa en consola en vez de romper la pantalla
-    })
-}
-
-// Carga los productos una sola vez al montar la página
-useEffect(() => {
-  cargarProductos()
-}, [])
-
-  // Aplica los dos filtros activos (categoría elegida + texto buscado) sobre la lista completa de productos
+  // Filtra la grilla por categoría activa + texto buscado (sin distinguir mayúsculas/minúsculas)
   const productosFiltrados = productos.filter(p => {
     const coincideCategoria = categoriaActiva === 'Todos' || p.categoria === categoriaActiva
-    const coincideBusqueda  = p.nombre.toLowerCase().includes(busqueda.toLowerCase()) // toLowerCase() para que la búsqueda no distinga mayúsculas/minúsculas
+    const coincideBusqueda = p.nombre.toLowerCase().includes(busqueda.toLowerCase())
     return coincideCategoria && coincideBusqueda
   })
 
-  // Trae la lista de categorías reales desde el backend, para pintar los botones de filtro arriba de la grilla
-  useEffect(() => {
-  fetch('http://127.0.0.1:8000/api/categorias/') // FEETCHHHHHH CATEGORIASASSSA
-    .then(response => response.json())
-    .then(data => {
-
-  console.log(data) // Log de depuración para revisar qué trae la API mientras se prueba
-
-  // Otro log de depuración: por cada categoría, muestra su nombre y qué ícono le fue asignado
-  // (útil para detectar errores de tipeo entre el nombre de la BBDD y las claves de "iconosCategorias")
-  data.forEach(cat => {
-    console.log(
-      "Categoria:",
-      `"${cat.nombre}"`,
-      "Icono:",
-      iconosCategorias[cat.nombre]
-    )
-  })
-
-  setCategorias(data)
-
-})
-    .catch(error => {
-      console.error(error)
-    })
-}, [])
-
-  // Se ejecuta al clickear una card de producto en la grilla: decide qué modal abrir
+  // Decide qué modal abrir al clickear una card
   function handleClickProducto(producto) {
-
-  if (!producto.disponible) return // Si el producto no está disponible, no hace nada al clickearlo
-
-  if (producto.variantes) {
-    setProductoVariantes(producto) // Si tiene variantes (ej. blanco/negro), abre el modal de selección de variantes
-  } else {
-    setProductoModal(producto) // Si no, abre el modal simple de "Agregar al carrito"
+    if (!producto.disponible) return
+    producto.variantes ? setProductoVariantes(producto) : setProductoModal(producto)
   }
-}
 
-  // Agrega un producto al carrito. Si ya existía, solo le suma 1 a la cantidad;
-  // si es nuevo, lo agrega como un ítem más con cantidad inicial 1
+  // Agrega un producto al carrito (suma cantidad si ya existía) y cierra los modales
   function handleAgregar(producto) {
+    if (!producto.disponible) return
 
-  if (!producto.disponible) return
+    setCarrito(prev => {
+      const existe = prev.find(item => item.id === producto.id)
+      return existe
+        ? prev.map(item => item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item)
+        : [...prev, { ...producto, cantidad: 1 }]
+    })
 
-  setCarrito(prev => {
-    const existe = prev.find(item => item.id === producto.id)
-    return existe
-      ? prev.map(item =>
-          item.id === producto.id
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        )
-      : [...prev, { ...producto, cantidad: 1 }]
-  })
-
-  setProductoModal(null) // Cierra cualquier modal que haya quedado abierto después de agregar
-  setProductoVariantes(null)
-}
-
-  // Recibe el item eliminado desde ModalCarrito y lanza el toast de "X eliminado, ¿deshacer?"
-  function handleEliminarItem(item) {
-    if (undoTimerRef.current) clearTimeout(undoTimerRef.current) // Si ya había un toast corriendo, lo cancela (solo puede haber uno a la vez)
-    const timerId = setTimeout(() => setUndoItem(null), UNDO_DURACION) // Después de UNDO_DURACION ms, el toast desaparece solo
-    undoTimerRef.current = timerId
-    setUndoItem({ item, timerId })
+    setProductoModal(null)
+    setProductoVariantes(null)
   }
 
-  // Se ejecuta si el usuario clickea "Deshacer" en el toast: cancela el temporizador
-  // y vuelve a agregar el producto eliminado al carrito, tal cual estaba
+  // Recibe el item eliminado desde ModalCarrito y dispara el toast de "eliminado, ¿deshacer?"
+  function handleEliminarItem(item) {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current) // Solo un toast a la vez
+    undoTimerRef.current = setTimeout(() => setUndoItem(null), UNDO_DURACION)
+    setUndoItem({ item, timerId: undoTimerRef.current })
+  }
+
+  // Cancela el timer y vuelve a agregar el producto eliminado, tal cual estaba
   function handleDeshacer() {
     if (!undoItem) return
     clearTimeout(undoItem.timerId)
@@ -732,95 +589,65 @@ useEffect(() => {
     setUndoItem(null)
   }
 
-  const totalCarrito   = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
-  const cantidadTotal  = carrito.reduce((acc, item) => acc + item.cantidad, 0)
+  const totalCarrito = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0)
+  const cantidadTotal = carrito.reduce((acc, item) => acc + item.cantidad, 0)
 
+  // Arma los ítems del carrusel: menú del día real (si hay) + promociones fijas
   const itemsCarrusel = [
-  ...(menuDelDiaBackend ? [{
-    id: `menu-${menuDelDiaBackend.id_menu}`,
-    tipo: 'MENÚ DEL DÍA',
-    nombre: menuDelDiaBackend.descripcion,
-    desc: 'Precio especial del día',
-    precio: Number(menuDelDiaBackend.precio),
-    comprable: false,
-  }] : []),
-  ...menuYpromociones.filter(item => item.tipo === 'PROMOCIÓN'),
-]
+    ...(menuDelDiaBackend ? [{
+      id: `menu-${menuDelDiaBackend.id_menu}`,
+      tipo: 'MENÚ DEL DÍA',
+      nombre: menuDelDiaBackend.descripcion,
+      desc: 'Precio especial del día',
+      precio: Number(menuDelDiaBackend.precio),
+      comprable: false,
+    }] : []),
+    ...menuYpromociones.filter(item => item.tipo === 'PROMOCIÓN'),
+  ]
 
   return (
     <div className="catalogo-layout">
       <NavbarAlumno cantidadCarrito={cantidadTotal} onAbrirCarrito={() => setMostrarCarrito(true)} />
       <main className="catalogo-contenido">
 
-        {/* Carrusel de menú del día y promociones, arriba de todo */}
+        {/* Carrusel de menú del día y promociones */}
         <div className="catalogo-banner-menu">
           <h2 className="catalogo-banner-titulo">Promociones y Menú del Día</h2>
           <CarruselMenu items={itemsCarrusel} onAgregar={handleAgregar} />
         </div>
 
-        {/* Fila de botones de filtro por categoría, con "Todos" fijo primero y el resto según venga del backend */}
+        {/* Filtros por categoría: "Todos" fijo primero, el resto viene del backend */}
         <div className="catalogo-categorias">
-
-  <button
-    className={`catalogo-cat-btn ${categoriaActiva === "Todos" ? "activo" : ""}`}
-    onClick={() => setCategoriaActiva("Todos")}
-  >
-    <img src={btnTodos} alt="Todos" />
-  </button>
-
-  {categorias.map(cat => (
-    <button
-      key={cat.id_categoria}
-      className={`catalogo-cat-btn ${categoriaActiva === cat.nombre ? "activo" : ""}`}
-      onClick={() => setCategoriaActiva(cat.nombre)}
-    >
-      <img
-  src={iconosCategorias[cat.nombre]}
-  alt={cat.nombre}
-   />
-
-    </button>
-  ))}
-
-</div>
-
-        {/* Buscador de productos por nombre */}
-        <div className="catalogo-buscador">
-          <img src={iconBuscador} alt="Buscar" className="catalogo-buscador-icono" />
-          <input
-            type="text"
-            placeholder="Buscar producto..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-          />
+          <button className={`catalogo-cat-btn ${categoriaActiva === "Todos" ? "activo" : ""}`} onClick={() => setCategoriaActiva("Todos")}>
+            <img src={btnTodos} alt="Todos" />
+          </button>
+          {categorias.map(cat => (
+            <button key={cat.id_categoria} className={`catalogo-cat-btn ${categoriaActiva === cat.nombre ? "activo" : ""}`} onClick={() => setCategoriaActiva(cat.nombre)}>
+              <img src={iconosCategorias[cat.nombre]} alt={cat.nombre} />
+            </button>
+          ))}
         </div>
 
-        {/* Grilla principal de productos, ya filtrada por categoría y búsqueda */}
+        {/* Buscador por nombre */}
+        <div className="catalogo-buscador">
+          <img src={iconBuscador} alt="Buscar" className="catalogo-buscador-icono" />
+          <input type="text" placeholder="Buscar producto..." value={busqueda} onChange={e => setBusqueda(e.target.value)} />
+        </div>
+
+        {/* Grilla de productos filtrados */}
         <div className="catalogo-grilla">
           {productosFiltrados.map(producto => (
-            <div
-              key={producto.id}
-              onClick={() => handleClickProducto(producto)}
-              className="catalogo-card-wrapper"
-            >
+            <div key={producto.id} onClick={() => handleClickProducto(producto)} className="catalogo-card-wrapper">
               <CardProducto
                 producto={producto}
-                onAgregar={(p) => {
-                  // Si el botón "Agregar" de la card se clickea directo (sin pasar por el modal),
-                  // igual respeta la regla de abrir el selector de variantes si el producto las tiene
-                  if (p.variantes) {
-                    setProductoVariantes(p)
-                  } else {
-                    handleAgregar(p)
-                  }
-                }}
+                onAgregar={(p) => p.variantes ? setProductoVariantes(p) : handleAgregar(p)}
               />
             </div>
           ))}
         </div>
       </main>
 
-      {/* Botón flotante del carrito, solo visible si hay al menos un producto agregado */}
+      {/* Botón flotante del carrito, visible solo con productos agregados */}
       {cantidadTotal > 0 && (
         <button className="catalogo-carrito-flotante" onClick={() => setMostrarCarrito(true)}>
           <img src={iconCarrito} alt="Carrito" />
@@ -829,16 +656,12 @@ useEffect(() => {
         </button>
       )}
 
-      {/* Modal de selección de variantes, solo aparece si hay un producto con variantes seleccionado */}
+      {/* Modal de variantes */}
       {productoVariantes && (
-        <ModalVariantes
-          producto={productoVariantes}
-          onAgregar={handleAgregar}
-          onCerrar={() => setProductoVariantes(null)}
-        />
+        <ModalVariantes producto={productoVariantes} onAgregar={handleAgregar} onCerrar={() => setProductoVariantes(null)} />
       )}
 
-      {/* Modal simple de producto (sin variantes), solo aparece si hay un producto seleccionado */}
+      {/* Modal simple de producto (sin variantes) */}
       {productoModal && (
         <div className="modal-overlay" onClick={() => setProductoModal(null)}>
           <div className="modal-producto" onClick={e => e.stopPropagation()}>
@@ -846,21 +669,14 @@ useEffect(() => {
             <div className="modal-producto-imagen">
               {productoModal.imagen
                 ? <img src={productoModal.imagen} alt={productoModal.nombre} />
-                : esServicioSinFoto(productoModal)
-                  ? <div className="card-producto-servicio-fondo" />
-                  : <div className="card-producto-placeholder" />
-              }
+                : esServicioSinFoto(productoModal) ? <div className="card-producto-servicio-fondo" /> : <div className="card-producto-placeholder" />}
             </div>
             <div className="modal-producto-info">
               <p className="modal-producto-categoria">{productoModal.categoria}</p>
               <h2 className="modal-producto-nombre">{productoModal.nombre}</h2>
               <p className="modal-producto-desc">{productoModal.descripcion}</p>
               <p className="modal-producto-precio">${productoModal.precio.toLocaleString('es-AR')}</p>
-              <button
-                className="modal-producto-btn"
-                onClick={() => handleAgregar(productoModal)}
-                disabled={productoModal.stock === 0}
-              >
+              <button className="modal-producto-btn" onClick={() => handleAgregar(productoModal)} disabled={productoModal.stock === 0}>
                 {productoModal.stock === 0 ? 'Sin stock' : 'Agregar al carrito'}
               </button>
             </div>
@@ -868,7 +684,7 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Modal del carrito de compras, con toda la lógica de horarios y confirmación de pedido */}
+      {/* Modal del carrito */}
       <ModalCarrito
         carrito={carrito}
         setCarrito={setCarrito}
@@ -878,13 +694,11 @@ useEffect(() => {
         onPedidoCreado={cargarProductos}
       />
 
-      {/* ── Toast flotante de undo — igual que GestionProductos ── */}
+      {/* Toast flotante de "deshacer" (igual patrón que GestionProductos) */}
       {undoItem && (
         <div className="catalogo-toast">
           <span>"{undoItem.item.nombre}" eliminado</span>
-          <button className="catalogo-toast-btn" onClick={handleDeshacer}>
-            Deshacer
-          </button>
+          <button className="catalogo-toast-btn" onClick={handleDeshacer}>Deshacer</button>
         </div>
       )}
     </div>
