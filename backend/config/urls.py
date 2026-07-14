@@ -1,27 +1,19 @@
-"""
-URL configuration for config project.
+# urls.py es el archivo encargado de definir las rutas del proyecto
+# Recibe cada solicitud que llega al servidor y decide a qué parte del programa debe enviarla para ser atendida
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
+# Se definen las herramientas necesarias para definir las rutas del proyecto 
+from django.contrib import admin # Importa el panel de administrador que incorpora Django, gracias a esto podemos acceder a administrador mediante URL
+
 from django.urls import include, path # path definir rutas y el include sirve para delegar rutas a otro archivo 
 
+# Lista que contiene todas las rutas principales del proyecto.
+# Cada vez que llega una solcitud, Django revisa esta lista para encontrar una ruta que coincida con la dirección solicitada 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls), # Ruta que activa el panel de administración de Django
 
     path(
         "api/",
-        include("api.urls")
+        include("api.urls") # Cuando una solicitud comienza con /api/ django no la procesa directamente 
+        # En cambio, la envía al archivo api/urls.py para que allí se siga buscando la ruta específica
     ),
 ]

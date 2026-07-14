@@ -10,56 +10,69 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
-from decouple import config
+# El archivo settings.py es el centro de coniguraciones del proyecto. Aquí se definen cosas como:
+# Aplicaciones que utilziará el proyecto
+# Conexión con BBDD
+# Seguridad
+# Idioma
+# Cada vez que Django se inicia, lee esste archivo para saber cómo funcionará el proyecto
+
+from pathlib import Path # Herramietna que permite trabjar fácilmente con rutas de carpetas y archivos
+from decouple import config # Herramietna cuya función es leer variables de entorno almacenadas en el archivo .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent # Variable que guarda la ruta de la carpeta principal del proyecto
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
+# La SECRET_KEY es una clave secreta utilziada por Django para proteger el proyecto
+# Se utiliza para: firmar cookies, proteger sesiones, generar tokens, evitar manipulaciones de datos
+# En este proyecto se obtiene desde el archivo .env para mantenerla privada. 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True # Indica que el proyecto está en modo desarrollo
+# Mientras esté en True: Muestra errores detallados facilitando encontrar problemas 
+# De lo contrario couta errores al usuario, aumenta la seguridad, sólo se utiliza en producción 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [] # Define qué direcciones pueden accederse al proyecto. Cuando el sistema se pública en internet aquí se agregan los dominios permitidos
 
-
-# Application definition
-
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
+#Aquí se registran tdoas las aplicaciones que utilizará Django, como una lsita de oódulos que estarán activos dentro del proyecto 
+INSTALLED_APPS = [ 
+    'django.contrib.admin', # Permite utilziar el panel de adminitración
+    'django.contrib.auth', # Gestiona usuarios, contraseñas, permisos y autenticación 
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'django.contrib.sessions', # Permite guardar información de las sesiones de los usuarios 
+    'django.contrib.messages', # Permite mostrar mensajes al usuario 
+    'django.contrib.staticfiles', # Adminstra archivos estáticos como CSS, JS o imágenes 
 
-    "corsheaders",
+    "corsheaders", # Permite que el frontend (React) pueda comunicarse con el backend (Django)
+    # Sin el CORS el navegador bloquearía las solicitudes por seguridad  
 
-    "rest_framework",
-    "api",
+    "rest_framework", # Activa DRF, gracias a esta libreria podemos crear APIs REST para que React intercambie datos con Django mediante JSON 
+    "api", # Aplicación desarrollada por StockFox, aquí se encuentran: modelos, vistas, serializers, endpoints.
 ]
 
+# Los middleware son como filtros o controles de paso que procesan cada solicitud antes de que lleguen a las vistas y también procesan las respeustas antes de enviarlas al cliente 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware', # Agrega distintas protecciones de seguridad 
 
-    "corsheaders.middleware.CorsMiddleware",
+    "corsheaders.middleware.CorsMiddleware", # Permite aceptar solicitudes provenientes del frontend 
 
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', # Administra las sesiones de usuario 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Identifa qué usuario realizó la solicitud 
+    'django.contrib.messages.middleware.MessageMiddleware', # Permite utilziar el sistema de mensjae de Django
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'config.urls' # Le indica a Django dónde se encuentra el archivo principal de rutas
+# Es el encargado de decidir qué vista ejecutar cuando llegue una solicitud
 
+#Configura el sistema de plantilla HTML de Django, pero tenemos el frontend en React por lo que lo salteamos.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -81,14 +94,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
+#Aquí se configura la conexión con la base de datos
+# En este caso todas son variables de entornos que se encuentran en el .env
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
+        "ENGINE": "django.db.backends.mysql", #Motor utilizado
+        "NAME": config("DB_NAME"), # Nombre de la bbdd
+        "USER": config("DB_USER"), # usuario
+        "PASSWORD": config("DB_PASSWORD"), # Contraseña de usuario
+        "HOST": config("DB_HOST"), # Servidor
+        "PORT": config("DB_PORT"), # Puerto 
     }
 }
 
@@ -96,6 +112,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
+# Validaciones que Django aplica a las contraseñas de los usuarios con el objetivo de mejorar la seguridad de las cuentas
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -115,20 +132,21 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-us' # Idioma predeterminado del proyecto
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'UTC' # Zona horaria utilziada por Django
 
-USE_I18N = True
+USE_I18N = True # Soporte para múltiples idiomas activado 
 
-USE_TZ = True
+USE_TZ = True # Almacena fechas y horas utilizando zonas horarias 
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'static/' # Define la ruta desde la cual Django servirá los archivos estáticos 
 
+# En este apartado se especifican qué sitios tienen permiso para comunicarse con el backend 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "http://localhost:5173", # Se autoriza el frontend que durante el desarrollo se ejecuta en http://localhost:5173
 ]

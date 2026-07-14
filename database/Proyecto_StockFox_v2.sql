@@ -236,12 +236,13 @@ CREATE TABLE PROVEEDOR_PRODUCTO (
 -- TABLA: USUARIOS --
 -- Se insertan los usuarios del sistema: encargadas y ayudantes del kiosco.
 INSERT INTO USUARIOS (nombre, apellido, usuario, contrasena_hash, rol) VALUES
-('María',     'González',  'maria.gonzalez',     '$2b$12$KIXabc123placeholder001', 'Encargada'),
+('María',     'González',  'maria.gonzalez',     'pbkdf2_sha256$1200000$K4HftykvC37cjuDUhqkGx1$InHXuzRfS5fvhvQEk8brro7ZY5NsL5KdcIgafAK3Z+k=', 'Encargada'),
 ('Laura',     'Fernández', 'laura.fernandez',    '$2b$12$KIXabc123placeholder002', 'Encargada'),
 ('Sofía',     'Ramírez',   'sofia.ramirez',      '$2b$12$KIXabc123placeholder003', 'Ayudante'),
 ('Valentina', 'López',     'valentina.lopez',    '$2b$12$KIXabc123placeholder004', 'Ayudante'),
-('Camila',    'Martínez',  'camila.martinez',    '$2b$12$KIXabc123placeholder005', 'Ayudante');
-
+('Camila',    'Martínez',  'camila.martinez',    '$2b$12$KIXabc123placeholder005', 'Ayudante'),
+('Yazmin', 'Zárate', 'yaz.zar', 'pbkdf2_sha256$1200000$wL8z2iDX0MJYtKDobSlwEJ$myC/k7ZBeU7SEpB6ht48XTljnG3LJ3M11oVl/y1OiHE=', 'Encargada'),
+('Taylor', 'Swift', 'tay.alis', 'pbkdf2_sha256$1200000$twuc8RN4QP8K3XJ6hEknAR$tqaGn0tTEC6hpCALZ0+n9eZp6cFPGVwz0OtuJjA9j3w=', 'Ayudante' );
 -- TABLA: ALUMNOS --
 -- Se insertan alumnos de distintos cursos que pueden realizar pedidos.
 
@@ -250,7 +251,8 @@ INSERT INTO ALUMNOS (nombre, apellido, anio, division, usuario, pin_hash) VALUES
 ('Mirian',    'Anaya',   6, 7, 'mirian.anaya',      '$2b$12$PINabc123placeholder002'),
 ('Madelaine', 'Tumiri',  4, 8, 'madelaine.tumiri',  '$2b$12$PINabc123placeholder003'),
 ('Luca',      'Correa',  5, 8, 'luca.correa',       '$2b$12$PINabc123placeholder004'),
-('Perla',     'Salas',   5, 8, 'perla.salas',       '$2b$12$PINabc123placeholder005');
+('Perla',     'Salas',   5, 8, 'perla.salas',       '$2b$12$PINabc123placeholder005'),
+('Iris', 'Herrero', 5, 8, 'iri.sher', 'pbkdf2_sha256$1200000$Nn936hz6vC9jFh1TUfYaJl$Oitu6AYJE+6G9BHn+m18vqiri4IVsQxypjqE2Lfn/WA=');
 
 -- TABLA: CATEGORIA_PRODUCTO --
 -- Categorías que agrupan los productos reales del kiosco.
@@ -668,13 +670,3 @@ INSERT INTO PROVEEDOR_PRODUCTO (id_proveedor, id_producto) VALUES
 (9, 33),   -- Opera Chiquitas
 (9, 48);   -- Tita Chocolate
 
-SELECT DATABASE();
-USE stockfox_v2;
-
-UPDATE usuarios
-SET contrasena_hash = "pbkdf2_sha256$1200000$WnIE6safWYXJdDfPE8UpBK$dEeBqZnYP1R+wd/ySjkq6S//iNkNOWYN/nd8GAF7hLw="
-WHERE usuario = 'maria.gonzalez';
-
-UPDATE usuarios
-SET contrasena_hash = 'pbkdf2_sha256$1200000$SljpxZiHp9kh1EuM1eGhah$0Y3Q0Cpx9m4jlUGeasQEhHaoRJdyUN2FMROJUi134Qg='
-WHERE usuario = 'sofia.ramirez';

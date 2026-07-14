@@ -1,16 +1,21 @@
-/* Este archivo contiene los estilos globales para la página de RecoKiosco, incluyendo la configuración de la tipografía, la paleta de colores oficial y las clases reutilizables para contenedores, tarjetas y títulos. Se ha diseñado con un enfoque en la simplicidad y la coherencia visual, utilizando colores cálidos y una tipografía moderna para mejorar la experiencia del usuario. */
+/* Este archivo contiene los estilos globales para la página de RecoKiosco, 
+incluyendo la configuración de la tipografía, la paleta de colores oficial y las clases reutilizables 
+para contenedores, tarjetas y títulos. Se ha diseñado con un enfoque en la simplicidad y la coherencia 
+visual, utilizando colores cálidos y una tipografía moderna para mejorar la experiencia del usuario. */
 
 /* =======================================================
    FONT: LEXEND
 ======================================================= */
-/* Importa la fuente Lexend directo desde Google Fonts, en varios grosores (400 normal, 500, 600, 700 y 900 negrita). Esto tiene que ir siempre al principio del archivo, si no el navegador lo ignora. */
+/* Importa la fuente Lexend directo desde Google Fonts, en varios grosores (400 normal, 500, 600, 700 y 
+900 negrita). Esto tiene que ir siempre al principio del archivo, si no el navegador lo ignora. */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;900&display=swap');
 
 /* =======================================================
    PALETA DE COLORES OFICIAL STOCKFOX
 ======================================================= */
-/* :root define "variables CSS". Son valores que se guardan acá una sola vez y después se reutilizan en cualquier parte del proyecto escribiendo var(--nombre-variable).
-   Si un día hay que cambiar el naranja del proyecto, se cambia acá y se actualiza en todos lados. */
+/* :root define "variables CSS". Son valores que se guardan acá una sola vez y después se reutilizan en 
+cualquier parte del proyecto escribiendo var(--nombre-variable).
+Si un día hay que cambiar el naranja del proyecto, se cambia acá y se actualiza en todos lados. */
 
 :root {
   --naranja: #e8813a;         /* Naranja principal: botones, acentos, elementos destacados */
@@ -23,7 +28,8 @@
 /* =======================================================
    CONFIGURACIÓN GENERAL
 ======================================================= */
-/* El selector * (asterisco) aplica el estilo a todos los elementos de la página, sin excepción. Se usa para "resetear" los estilos por defecto que trae cada navegador (que no siempre son iguales entre sí). */
+/* El selector * (asterisco) aplica el estilo a todos los elementos de la página, sin excepción. Se usa 
+para "resetear" los estilos por defecto que trae cada navegador (que no siempre son iguales entre sí). */
 * {
   margin: 0;   /* Saca el margen exterior que el navegador le pone por defecto a cada elemento */
   padding: 0;  /* Saca el espacio interior por defecto */
@@ -31,7 +37,9 @@
 }
 
 body {
-  /* font-family en cascada: el navegador intenta usar 'Lexend' primero; si por algún motivo no cargó (por ejemplo, sin internet), usa Arial, y si tampoco existe, cae en cualquier fuente sans-serif del sistema */
+  /* font-family en cascada: el navegador intenta usar 'Lexend' primero; si por algún motivo no cargó 
+  (por ejemplo, sin internet), usa Arial, y si tampoco existe, cae en cualquier fuente sans-serif del 
+  sistema */
   font-family: 'Lexend', Arial, Helvetica, sans-serif;
   background-color: var(--naranja-claro); /* Fondo general de toda la página */
   color: var(--marron-oscuro);            /* Color de texto por defecto */
@@ -49,21 +57,21 @@ h1, h2, h3 {
    ya hereda automáticamente este look, sin necesidad de definirlo de nuevo */
 button {
   background-color: var(--naranja);
-  color: white;
+  color: white; /* Color de texto blanco para que contraste con el fondo naranja */
   border: none;        /* Saca el borde gris feo que traen los botones por defecto */
   padding: 10px 16px;   /* Espacio interno: 10px arriba/abajo, 16px a los costados */
   border-radius: 8px;   /* Bordes redondeados */
   cursor: pointer;      /* Cambia el cursor a "manito" al pasar por encima, para indicar que es clickeable */
   transition: 0.3s;     /* Hace que cualquier cambio de estilo (como el color en hover) sea gradual/animado
                            en 0.3 segundos, en vez de cambiar de golpe */
-  font-family: 'Lexend', Arial, Helvetica, sans-serif;
+  font-family: 'Lexend', Arial, Helvetica, sans-serif; /* Asegura que los botones usen la misma tipografía que el resto de la página */
 }
 
 /* Estado ":hover" = mientras el mouse está posicionado arriba del botón.
    Gracias al "transition" de arriba, este cambio de color se ve como una animación suave */
 button:hover {
-  background-color: var(--marron-naranja);
-}
+  background-color: var(--marron-naranja); /* Cambia el fondo a un marrón anaranjado más oscuro al pasar el mouse por encima */
+} 
 
 /* =======================================================
    CLASES REUTILIZABLES
@@ -79,9 +87,10 @@ button:hover {
   background-color: white;
   border-radius: 12px;
   padding: 15px;
-  /* box-shadow agrega una sombra sutil debajo de la tarjeta para darle sensación de "relieve"/profundidad.
-     Los valores son: desplazamiento horizontal (0), desplazamiento vertical (2px), difuminado (8px),
-     y color negro con solo 10% de opacidad (rgba con el último valor en 0.1) */
+  /* box-shadow agrega una sombra sutil debajo de la tarjeta para darle sensación de "relieve"/
+  profundidad.
+  Los valores son: desplazamiento horizontal (0), desplazamiento vertical (2px), difuminado (8px),
+  y color negro con solo 10% de opacidad (rgba con el último valor en 0.1) */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 

@@ -1,4 +1,6 @@
-/* Este archivo contiene los estilos para la página de registro. */
+/* Estilos de la pantalla de Registro (alta de cuenta para alumnos). Define el
+   layout en dos mitades (imagen + formulario), los campos, los selects de
+   año/división, los estados de error y la versión mobile. */
 
 /* Contenedor principal que ocupa toda la altura de la ventana y divide la pantalla en dos mitades */
 .registro-wrapper {
@@ -17,7 +19,8 @@
   justify-content: center;
 }
 
-.registro-logo { /* Logo del kiosco centrado en la mitad izquierda */
+/* Logo del kiosco centrado en la mitad izquierda */
+.registro-logo {
   width: 220px;
 }
 
@@ -30,11 +33,12 @@
   align-items: center;
   justify-content: center;
   padding: 30px 40px;
-  box-sizing: border-box; /* Para que el padding no afecte al ancho total del panel */ /* El padding es el espacio interno entre el contenido y el borde del contenedor. */
+  box-sizing: border-box; /* Para que el padding no afecte al ancho total del panel */
   overflow: hidden;
 }
 
-.registro-titulo { /* Título de la pantalla de registro */
+/* Título de la pantalla de registro */
+.registro-titulo {
   font-family: 'Lexend', sans-serif;
   font-weight: 800;
   font-size: 1.7rem;
@@ -43,7 +47,8 @@
   text-align: center;
 }
 
-.registro-subtitulo { /* Subtítulo de la pantalla de registro */
+/* Subtítulo de la pantalla de registro */
+.registro-subtitulo {
   font-family: 'Lexend', sans-serif;
   font-size: 0.85rem;
   color: var(--marron-oscuro);
@@ -51,6 +56,7 @@
   text-align: center;
 }
 
+/* Contenedor de todo el formulario, con ancho máximo y los campos apilados */
 .registro-form {
   width: 100%;
   max-width: 500px;
@@ -59,24 +65,28 @@
   gap: 12px;
 }
 
+/* Cada campo del formulario: label arriba, input abajo */
 .registro-campo {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.registro-campo label { /* Etiqueta de cada campo del formulario */
+/* Etiqueta de cada campo del formulario */
+.registro-campo label {
   font-family: 'Lexend', sans-serif;
   font-weight: 700;
   font-size: 0.88rem;
   color: var(--marron-oscuro);
 }
 
-.registro-input-wrapper { /* Contenedor del input, que permite posicionar el botón del ojito dentro del campo */ /* El ojito es un botón que permite mostrar u ocultar la contraseña escrita en el campo de contraseña. */
-  position: relative; 
+/* Contenedor del input, que permite posicionar el botón del ojito dentro del campo de contraseña */
+.registro-input-wrapper {
+  position: relative;
 }
 
-.registro-input-wrapper input { /* Estilo de los inputs de texto y contraseña */
+/* Estilo de los inputs de texto y contraseña */
+.registro-input-wrapper input {
   width: 100%;
   box-sizing: border-box;
   background-color: rgba(92, 45, 10, 0.18);
@@ -89,10 +99,12 @@
   transition: border-color 0.2s;
 }
 
-.registro-input-wrapper input::placeholder { /* Estilo del texto de placeholder dentro de los inputs */
+/* Estilo del texto de placeholder dentro de los inputs */
+.registro-input-wrapper input::placeholder {
   color: rgba(92, 45, 10, 0.45);
 }
 
+/* Resalta el borde cuando el usuario hace foco en el campo */
 .registro-input-wrapper input:focus {
   outline: none;
   border-color: var(--marron-naranja);
@@ -122,11 +134,13 @@
   cursor: pointer;
 }
 
+/* Ícono del ojito */
 .registro-toggle-password img {
   width: 30px;
   height: 30px;
 }
 
+/* Mensaje de error debajo del campo, en rojo */
 .registro-error {
   font-family: 'Lexend', sans-serif;
   font-size: 0.78rem;
@@ -141,6 +155,7 @@
   gap: 16px;
 }
 
+/* Cada campo dentro de la fila de contraseñas ocupa el mismo ancho */
 .registro-fila-passwords .registro-campo {
   flex: 1;
 }
@@ -162,6 +177,7 @@
   transition: background-color 0.3s;
 }
 
+/* Oscurece el botón al pasar el mouse */
 .registro-boton:hover {
   background-color: var(--marron-oscuro);
 }
@@ -185,6 +201,7 @@
   gap: 8px;
 }
 
+/* Estilo común de los links de "Iniciá Sesión" y "Volver al Inicio" */
 .registro-login-link,
 .registro-volver {
   font-family: 'Lexend', sans-serif;
@@ -194,11 +211,13 @@
   text-decoration: none;
 }
 
+/* El link de "Volver" es un poco más chico/liviano que el de "Iniciá Sesión" */
 .registro-volver {
   font-weight: 500;
   font-size: 0.88rem;
 }
 
+/* Subraya los links al pasar el mouse */
 .registro-login-link:hover,
 .registro-volver:hover {
   text-decoration: underline;
@@ -231,6 +250,7 @@
   gap: 16px;
 }
 
+/* Cada select dentro de la fila ocupa el mismo ancho */
 .registro-fila-curso .registro-campo {
   flex: 1;
 }
@@ -251,11 +271,13 @@
   transition: border-color 0.2s;
 }
 
+/* Resalta el borde al hacer foco en el select */
 .registro-select:focus {
   outline: none;
   border-color: var(--marron-naranja);
 }
 
+/* Se activa por JS cuando no se eligió año o división */
 .registro-select.input-error {
   border-color: #c0392b;
 }

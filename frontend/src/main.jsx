@@ -1,6 +1,13 @@
-// Este archivo es el punto de entrada de la aplicación React. Se encarga de montar el componente raíz (App) dentro del contenedor HTML (div#root) definido en index.html. También importa los estilos globales del proyecto.
-// React es resumidamente una biblioteca de JavaScript para construir interfaces de usuario. Vite es un bundler que permite desarrollar aplicaciones web modernas con recarga rápida y soporte para módulos ES.
-// Un bundler es una herramienta que toma todos los archivos de un proyecto (JavaScript, CSS, imágenes, etc.) y los combina en un solo archivo o en varios archivos optimizados para que el navegador pueda cargarlos más rápido. Vite es un bundler moderno que permite desarrollar aplicaciones web con recarga rápida y soporte para módulos ES.
+// Este archivo es el punto de entrada de la aplicación React. Se encarga de montar el componente raíz 
+// (App) dentro del contenedor HTML (div#root) definido en index.html. También importa los estilos 
+// globales del proyecto.
+// React es resumidamente una biblioteca de JavaScript para construir interfaces de usuario. 
+// Vite es un bundler que permite desarrollar aplicaciones web modernas con recarga rápida y soporte 
+// para módulos ES.
+// Un bundler es una herramienta que toma todos los archivos de un proyecto (JavaScript, CSS, 
+// imágenes, etc.) y los combina en un solo archivo o en varios archivos optimizados para que el navegador
+//  pueda cargarlos más rápido. Vite es un bundler moderno que permite desarrollar aplicaciones web con 
+// recarga rápida y soporte para módulos ES.
 
 //Importa React y ReactDOM para renderizar la aplicación en el navegador
 import { StrictMode } from 'react' // StrictMode es un componente de React que ayuda a detectar problemas potenciales en la aplicación durante el desarrollo. No afecta el comportamiento de la app en producción.

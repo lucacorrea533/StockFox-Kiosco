@@ -1,40 +1,44 @@
-/* Este archivo contiene los estilos CSS para la pantalla de login. Define el diseño de la página, los estilos de los campos de entrada, el botón de login y los enlaces para recuperar la contraseña y registrarse. El diseño se divide en dos mitades: una con una imagen y otra con el formulario de login. */
+/* Estilos de la pantalla de Login. Define el layout en dos mitades (imagen +
+   formulario), los campos de usuario/contraseña, el botón de ingresar y los
+   enlaces de recuperar contraseña / registrarse. */
 
 /* Contenedor principal que ocupa toda la altura de la ventana y divide la pantalla en dos mitades */
 .login-wrapper {
-  display: flex; /* Flexbox para dividir la pantalla en dos mitades */ /*El flexblox permite que los elementos hijos se distribuyan en fila o columna, y se ajusten automáticamente al tamaño del contenedor.*/
-  height: 100vh; /* Height de la ventana del navegador */
+  display: flex;
+  height: 100vh;
   overflow: hidden; /* Evita que aparezca scroll si el contenido se desborda */
 }
 
 /* Mitad de la Izquierda en la Página - Foto de fondo del kiosco con el logo centrado */
 .login-imagen {
-  flex: 1; /* Ocupa la mitad izquierda de la pantalla */
+  flex: 1;
   background-size: 240%; /* Aumenta el tamaño de la imagen para que se vea más grande y centrada */
-  background-position: center; /* Centra la imagen de fondo */
-  display: flex; /* Flexbox para centrar el logo dentro de la mitad izquierda */
-  align-items: center; /* Centra verticalmente el logo */
-  justify-content: center; /* Centra horizontalmente el logo */
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.login-logo { /* Logo del kiosco centrado en la mitad izquierda */
+/* Logo del kiosco centrado en la mitad izquierda */
+.login-logo {
   width: 220px;
 }
 
 /* Mitad de la Derecha en la Página - Panel con el formulario, fondo naranja pastel */
 .login-panel {
   flex: 1;
-  background-color: var(--naranja-pastel); /* Color de fondo naranja pastel */
+  background-color: var(--naranja-pastel);
   display: flex;
-  flex-direction: column; /* Flexbox para organizar los elementos del formulario en columna */
+  flex-direction: column;
   align-items: center;
-  justify-content: center; /* Centra el contenido vertical y horizontalmente */
-  padding: 50px 40px; /* Padding interno para que el contenido no quede pegado a los bordes */ /* El padding es el espacio interno entre el contenido y el borde del contenedor. */
-  box-sizing: border-box;
+  justify-content: center;
+  padding: 50px 40px;
+  box-sizing: border-box; /* Para que el padding no afecte al ancho total del panel */
 }
 
-.login-titulo { /* Título de la pantalla de login */
-  font-family: 'Lexend', sans-serif; /* Fuente Lexend para el título */
+/* Título de la pantalla de login */
+.login-titulo {
+  font-family: 'Lexend', sans-serif;
   font-weight: 800;
   font-size: 1.8rem;
   color: var(--marron-oscuro);
@@ -42,7 +46,8 @@
   text-align: center;
 }
 
-.login-form { /* Contenedor del formulario de login, con ancho máximo de 400px y centrado */
+/* Contenedor del formulario de login, con ancho máximo y centrado */
+.login-form {
   width: 100%;
   max-width: 400px;
   display: flex;
@@ -50,12 +55,14 @@
   gap: 20px;
 }
 
-.login-campo { /* Cada campo del formulario (usuario y contraseña) */
+/* Cada campo del formulario (usuario y contraseña) */
+.login-campo {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+/* Etiqueta de cada campo del formulario */
 .login-campo label {
   font-family: 'Lexend', sans-serif;
   font-weight: 700;
@@ -63,11 +70,13 @@
   color: var(--marron-oscuro);
 }
 
-.login-input-wrapper { /* Contenedor del input, que permite posicionar el botón del ojito dentro del campo */
-  position: relative; 
+/* Contenedor del input, que permite posicionar el botón del ojito dentro del campo */
+.login-input-wrapper {
+  position: relative;
   display: flex;
 }
 
+/* Estilo de los inputs de texto y contraseña */
 .login-input-wrapper input {
   width: 100%;
   box-sizing: border-box;
@@ -81,13 +90,15 @@
   transition: border-color 0.2s;
 }
 
+/* Estilo del texto de placeholder dentro de los inputs */
 .login-input-wrapper input::placeholder {
   color: rgba(92, 45, 10, 0.45);
 }
 
+/* Resalta el borde cuando el usuario hace foco en el campo */
 .login-input-wrapper input:focus {
   outline: none;
-  border-color: var(--marron-naranja); /* Resalta el borde cuando el usuario hace click en el campo */
+  border-color: var(--marron-naranja);
 }
 
 /* Se activa por JS cuando falta completar el campo o hay un error de validación */
@@ -114,12 +125,14 @@
   cursor: pointer;
 }
 
-.login-toggle-password img { /* Icono del ojito */
+/* Ícono del ojito */
+.login-toggle-password img {
   width: 30px;
   height: 30px;
 }
 
-.login-error { /* Mensaje de error debajo del campo, en rojo */
+/* Mensaje de error debajo del campo, en rojo */
+.login-error {
   font-family: 'Lexend', sans-serif;
   font-size: 0.8rem;
   color: #c0392b;
@@ -144,7 +157,8 @@
   transition: background-color 0.3s;
 }
 
-.login-boton:hover { /* Cambia el color de fondo cuando el usuario pasa el mouse por encima */
+/* Oscurece el botón al pasar el mouse */
+.login-boton:hover {
   background-color: var(--marron-oscuro);
 }
 
@@ -157,7 +171,8 @@
   gap: 12px;
 }
 
-.login-olvido { /* Enlace de "Olvidé mi contraseña" */
+/* Enlace de "Olvidé mi contraseña" */
+.login-olvido {
   font-family: 'Lexend', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
@@ -166,10 +181,12 @@
   cursor: pointer;
 }
 
+/* Subraya el enlace al pasar el mouse */
 .login-olvido:hover {
   text-decoration: underline;
 }
 
+/* Enlace de "Volver al Inicio" */
 .login-volver {
   font-family: 'Lexend', sans-serif;
   font-weight: 500;
@@ -178,7 +195,8 @@
   text-decoration: none;
 }
 
-.login-registro { /* Enlace de "Registrarse" */
+/* Texto de "¿No tenés cuenta?" */
+.login-registro {
   font-family: 'Lexend', sans-serif;
   font-weight: 500;
   font-size: 0.9rem;
@@ -186,12 +204,14 @@
   margin: 0;
 }
 
+/* Link "Registrate acá" dentro del texto anterior */
 .login-registro a {
   color: var(--marron-naranja);
   font-weight: 700;
   text-decoration: none;
 }
 
+/* Subraya el link al pasar el mouse */
 .login-registro a:hover {
   text-decoration: underline;
 }

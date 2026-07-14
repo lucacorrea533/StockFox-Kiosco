@@ -1,3 +1,7 @@
+# views.py es el lugar donde se ejecutan las acciones de la aplicación.
+#  Cada función recibe una solicitud, realiza el trabajo correspondiente y devuelve una respuesta. 
+
+# Importamos todas las herramietnas que utilziarán las vistas 
 from rest_framework.decorators import api_view # Transforma una función común en endpoint REST.
 from rest_framework.response import Response #Devuelve JSON
 
@@ -38,9 +42,9 @@ from .models import (
     Usuarios,
     GastosOperativos,
     MenuDia,
-) #Consulta los modelos de la bbdd
+) # Importamos los modelos para consultas y modificar la ORM 
 
-from .serializers import ( # Importamos los serializadores que convertirán objetos a JSON
+from .serializers import ( # Importamos los serializadores para valida datps y converitr objetos eentre Python y JSON
     ProductoSerializer,
     CategoriaProductoSerializer,
     PedidoSerializer,
@@ -67,7 +71,7 @@ from .auth import (
     solo_alumno
 )
 
-@api_view(["GET"])
+@api_view(["GET"]) # Convierte la función en un endpoint de la API y especifica qué método HTTP acepta.
 @login_requerido
 def listar_productos(request):
 
@@ -123,6 +127,8 @@ def obtener_producto(request, id_producto):
 #=====================================================================================
 
 @api_view(["POST"]) # Acepta únicamente peticiones HTTP POST
+# Antes de ejecutar la función se verifica que el usuario haya iniciado sesión
+# y que tenga los permisos necesarios para acceder.
 @login_requerido # Verifica que el usuario haya iniciado sesión mediante un token válido
 @roles_permitidos("Encargada") # Permite acceder únicamente a usuarios con el rol Encargada
 def crear_producto(request):
@@ -133,7 +139,7 @@ def crear_producto(request):
 
     if serializer.is_valid(): # ¿Los datos cumplen las reglas?
 
-        serializer.save() # Guarda y Django genera el INSERT 
+        serializer.save() # Guarda los datos validados en la bbdd; Django genera el INSERT 
 
         return Response(
             serializer.data,
@@ -577,7 +583,8 @@ def actualizar_estado_pedido(request, id_pedido):
 
         if usuario is not None:
 
-            with transaction.atomic():
+            with transaction.atomic(): # Agrupa varias operaciones en una sola transacción.
+            # Si alguna falla, se deshacen todos los cambios para mantener la base de datos consistente.
 
                 venta = Ventas.objects.create(
                     id_usuario=usuario,
@@ -1023,14 +1030,14 @@ def registro(request):
 @roles_permitidos("Encargada")
 def listar_usuarios(request):
 
-    usuarios = Usuarios.objects.all()
+    usuarios = Usuarios.objects.all() # Lista todos los usuarios del personal 
 
-    serializer = UsuarioSerializer(
+    serializer = UsuarioSerializer( # Convierte los usuarios en formato JSON
         usuarios,
         many=True
     )
 
-    return Response(serializer.data)
+    return Response(serializer.data) # Devuelve el JSON al frontend 
 
 #=====================================================================================
 
@@ -1039,9 +1046,9 @@ def listar_usuarios(request):
 @roles_permitidos("Encargada")
 def listar_alumnos(request):
 
-    alumnos = Alumnos.objects.all()
+    alumnos = Alumnos.objects.all() # Lista los alumnos registrados
 
-    serializer = AlumnoSerializer(
+    serializer = AlumnoSerializer( 
         alumnos,
         many=True
     )
@@ -1055,11 +1062,12 @@ def listar_alumnos(request):
 @roles_permitidos("Encargada")
 def crear_usuario(request):
 
-    datos = request.data.copy()
+    datos = request.data.copy() # Hace una copia de los datos recibidos para poder modificarlos 
+    # Sin alterar la información original enviada por el cliente. 
+
     datos["rol"] = "Ayudante"  # Forzamos el rol: desde acá solo se pueden crear Ayudantes
 
-    serializer = CrearUsuarioSerializer(data=datos)
-
+    serializer = CrearUsuarioSerializer(data=datos) # Utiliza el serializer encargado de validar y crear el usuario 
     if serializer.is_valid():
         usuario = serializer.save()
         return Response(
@@ -1087,14 +1095,15 @@ def actualizar_usuario(request, id_usuario):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    serializer = ActualizarUsuarioSerializer(
+    serializer = ActualizarUsuarioSerializer( 
         usuario,
         data=request.data,
-        partial=True
+        partial=True # Partial = true Permite modificar solamente algunos campos. 
+        # No es obligatorio enviar todos los datos del usuario
     )
 
     if serializer.is_valid():
-        serializer.save()
+        serializer.save() # Se actualiza el usuario en la bbdd
         return Response(UsuarioSerializer(usuario).data)
 
     return Response(
@@ -1117,7 +1126,7 @@ def eliminar_usuario(request, id_usuario):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    if usuario.rol == "Encargada":
+    if usuario.rol == "Encargada": # Al eliminar un usuario comprueba que no sea una encargada 
         return Response(
             {"error": "No se puede eliminar a una Encargada"},
             status=status.HTTP_403_FORBIDDEN
@@ -1137,8 +1146,8 @@ def eliminar_usuario(request, id_usuario):
 @roles_permitidos("Encargada", "Ayudante")
 def listar_gastos(request):
 
-    gastos = GastosOperativos.objects.all().order_by("-fecha")
-
+    gastos = GastosOperativos.objects.all().order_by("-fecha") 
+    # Ordena los gastos desde el más reciente hasta el más antiguo
     serializer = GastoOperativoSerializer(gastos, many=True)
 
     return Response(serializer.data)
@@ -1152,13 +1161,14 @@ def crear_gasto(request):
 
     try:
         usuario = Usuarios.objects.get(id_usuario=request.usuario["id"])
+        # Obtiene el usuario autenticado que está creando el gasto. El ID se obtiene del token JWT
     except Usuarios.DoesNotExist:
         return Response({"error": "Usuario no válido"}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = GastoOperativoSerializer(data=request.data)
 
     if serializer.is_valid():
-        serializer.save(id_usuario=usuario)
+        serializer.save(id_usuario=usuario) # Guarda el gasto asociándolo automáticametne al usuario que lo registró
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1186,7 +1196,7 @@ def eliminar_gasto(request, id_gasto):
 @roles_permitidos("Encargada", "Ayudante")
 def resumen_ventas(request):
 
-    periodo = request.GET.get("periodo", "semana")  # dia | semana | mes
+    periodo = request.GET.get("periodo", "semana")  # dia | semana | mes Obtiene el período solicitado desde la URL
     ahora = timezone.now()
 
     if periodo == "dia":
@@ -1196,15 +1206,16 @@ def resumen_ventas(request):
     else:
         desde = ahora - datetime.timedelta(days=7)
 
-    ventas = Ventas.objects.filter(fecha_hora__gte=desde)
+    ventas = Ventas.objects.filter(fecha_hora__gte=desde) # Obtiene solamente las ventas realizadas desde la fecha calculada 
 
-    total_vendido = ventas.aggregate(total=Sum("total"))["total"] or 0
+    total_vendido = ventas.aggregate(total=Sum("total"))["total"] or 0 
+    # Aggregate se utiliza para realziar operaciones mátematicas sobre varios registros
     cantidad_ventas = ventas.count()
 
     gastos = GastosOperativos.objects.filter(fecha__gte=desde.date())
-    total_gastos = gastos.aggregate(total=Sum("monto"))["total"] or 0
+    total_gastos = gastos.aggregate(total=Sum("monto"))["total"] or 0 
 
-    ganancia_neta = float(total_vendido) - float(total_gastos)
+    ganancia_neta = float(total_vendido) - float(total_gastos) # Se calcula Ventas - Gastos
 
     # Ventas agrupadas por día, para el gráfico de barras
     ventas_por_dia = {}
@@ -1217,7 +1228,7 @@ def resumen_ventas(request):
     # Ventas agrupadas por categoría, para el gráfico de torta
     detalles = DetalleVenta.objects.filter(id_venta__in=ventas)
 
-    por_categoria = {}
+    por_categoria = {} # Agrupa cuánto dinero generó cada categoría de productos 
     for detalle in detalles:
         categoria = detalle.id_producto.id_categoria.nombre
         subtotal = float(detalle.cantidad * detalle.precio_unitario)
@@ -1236,12 +1247,12 @@ def resumen_ventas(request):
     ]
 
     # Ranking de productos más vendidos
-    ranking = {}
+    ranking = {} # Cuenta cuántas unidades se vendieron de cada producto
     for detalle in detalles:
         nombre = detalle.id_producto.nombre
         ranking[nombre] = ranking.get(nombre, 0) + detalle.cantidad
 
-    top = sorted(ranking.items(), key=lambda x: x[1], reverse=True)[:5]
+    top = sorted(ranking.items(), key=lambda x: x[1], reverse=True)[:5] # Luego sorted lo ordena de mayor a menor
 
     top_formateado = [
         {"pos": i + 1, "nombre": nombre, "unidades": cantidad}
@@ -1267,7 +1278,7 @@ def notificaciones_encargada(request):
 
     productos_bajo = Productos.objects.filter(
         disponible=1,
-        stock__lte=F("stock_minimo")
+        stock__lte=F("stock_minimo") # Busca productos cuyo stock sea menor o igual al stock mínimo 
     )
 
     alertas = [
@@ -1279,7 +1290,7 @@ def notificaciones_encargada(request):
 
     if pendientes > 0:
         plural = "s" if pendientes != 1 else ""
-        alertas.append(f"Hay {pendientes} pedido{plural} pendiente{plural} por entregar.")
+        alertas.append(f"Hay {pendientes} pedido{plural} pendiente{plural} por entregar.") # Va agregando mensajes de alerta 
 
     return Response({"alertas": alertas})
 #=====================================================================================
@@ -1287,7 +1298,8 @@ def notificaciones_encargada(request):
 @api_view(["GET"])
 def obtener_menu_dia(request):
 
-    menu = MenuDia.objects.order_by("-fecha", "-id_menu").first()
+    menu = MenuDia.objects.order_by("-fecha", "-id_menu").first() 
+    # Devuelve el primer registro encontrado, el más reciente únicamente
 
     if menu is None:
         return Response(None)
