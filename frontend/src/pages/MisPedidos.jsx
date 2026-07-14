@@ -15,6 +15,7 @@ import iconPedido from '../assets/icons/MisPedidos2.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import iconCarrito from '../assets/icons/VentasBoton.png'
 import '../styles/MisPedidos.css'
+import { API_BASE_URL } from '../api/config'
 
 // ── HELPERS: carrito en localStorage (mismo esquema que Catalogo.jsx) ────────
 const CARRITO_KEY = 'recokiosco_carrito'
@@ -133,7 +134,7 @@ function MisPedidos() {
   useEffect(() => {
     const idAlumno = localStorage.getItem('id')
 
-    fetch(`http://127.0.0.1:8000/api/alumnos/${idAlumno}/pedidos/detalle/`) // Endpoint que devuelve los pedidos del alumno logueado
+    fetch(`${API_BASE_URL}/alumnos/${idAlumno}/pedidos/detalle/`) // Endpoint que devuelve los pedidos del alumno logueado
       .then(response => response.json())
       .then(data => {
         console.log(data) // Debug: qué trae la API, o sea, los pedidos del alumno logueado
