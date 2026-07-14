@@ -25,6 +25,7 @@ import iconCerrarSesion from '../assets/icons/SimboloCerrarSesion.png'
 import iconAdvertencia from '../assets/icons/Advertencia.png'
 import ConfirmModal from './ConfirmModal'
 import '../styles/NavbarEncargada.css'
+import { API_BASE_URL } from '../api/config'
 
 // Secciones del panel admin: ruta, ícono y etiqueta.
 // "end: true" en Inicio evita que se marque activo también en subrutas (ej. /admin/productos)
@@ -48,7 +49,7 @@ function NavbarEncargada({ onCerrarSesion }) {
 
   // Trae las alertas de stock al montar el componente
   useEffect(() => {
-    authFetch("http://127.0.0.1:8000/api/notificaciones/") // Llama al endpoint de notificaciones del backend, que devuelve un JSON con las alertas de stock bajo
+    authFetch(`${API_BASE_URL}/notificaciones/`) // Llama al endpoint de notificaciones del backend, que devuelve un JSON con las alertas de stock bajo
       .then(response => response.json())
       .then(data => setAlertasStock(data.alertas || []))
       .catch(error => console.error(error))

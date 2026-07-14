@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from 'react'
 import NavbarAlumno from '../components/NavbarAlumno'
 import CardProducto from '../components/CardProducto'
 import { authFetch } from '../api/authFetch'
+import { API_BASE_URL } from '../api/config'
 import '../styles/Catalogo.css'
 
 // ── IMPORTS: íconos de UI y simbolos diseñados (buscador, carrito, check, reloj, advertencia, eliminar) ─
@@ -302,7 +303,7 @@ export function ModalCarrito({ carrito, setCarrito, mostrarCarrito, setMostrarCa
       productos: carrito.map(item => ({ id_producto: item.id, cantidad: item.cantidad }))
     }
 
-    const respuesta = await authFetch("http://127.0.0.1:8000/api/pedidos/crear/", { // POST al endpoint de creación de pedidos
+    const respuesta = await authFetch(`${API_BASE_URL}/pedidos/crear/`, { // POST al endpoint de creación de pedidos
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(pedido)
@@ -477,7 +478,7 @@ function Catalogo() {
 
   // Trae el menú del día vigente
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/menu-dia/actual/') // Endpoint que devuelve el menú del día vigente, o null si no hay
+    fetch(`${API_BASE_URL}/menu-dia/actual/`) // Endpoint que devuelve el menú del día vigente, o null si no hay
       .then(response => response.json())
       .then(data => setMenuDelDiaBackend(data))
       .catch(error => console.error(error))
@@ -509,7 +510,7 @@ function Catalogo() {
   // Trae los productos disponibles y los adapta a la forma que usa el resto del componente.
   // Función aparte (no inline en el useEffect) porque también se re-llama tras confirmar un pedido.
   function cargarProductos() {
-    fetch("http://127.0.0.1:8000/api/productos/disponibles/") // Endpoint que devuelve todos los productos disponibles para el kiosco
+    fetch(`${API_BASE_URL}/productos/disponibles/`) // Endpoint que devuelve todos los productos disponibles para el kiosco
       .then(response => response.json())
       .then(data => {
         const productosFormateados = data.map(p => ({
@@ -535,7 +536,7 @@ function Catalogo() {
 
   // Trae las categorías reales para pintar los botones de filtro
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/categorias/')
+    fetch(`${API_BASE_URL}/categorias/`)
       .then(response => response.json())
       .then(data => {
         console.log(data) // Debug: qué trae la API

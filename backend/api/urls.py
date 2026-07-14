@@ -1,7 +1,6 @@
 # El archivo urls.py define todas las rutas o endpoints de la API. 
-# Su función es indicar qué función (vista) debe ejecutarse cuando el cliente realiza una solicitud a una dirección determinada. 
-
-
+# Su función es indicar qué función (vista) debe ejecutarse cuando el cliente realiza una solicitud a 
+# una dirección determinada. 
 
 from django.urls import path
 
@@ -172,13 +171,6 @@ urlpatterns = [
     "alumnos/<int:id_alumno>/pedidos/detalle/",
     pedidos_alumno_detalle,
     name="pedidos_alumno_detalle"
-  ),
-  
-  # Endpoint para registrar un nuevo alumno
-  path(
-    "auth/registro/",
-    registrar_alumno,
-    name="registrar_alumno"
   ),
 
 # Endpoint para iniciar sesión

@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000/api"
+import { API_BASE_URL } from '../api/config'
 
 export async function fetchConAuth(endpoint, options = {}) {
 
@@ -13,7 +13,7 @@ export async function fetchConAuth(endpoint, options = {}) {
     headers.Authorization = `Bearer ${token}`
   }
 
-  return fetch(`${API_URL}${endpoint}`, {
+  return fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers
   })

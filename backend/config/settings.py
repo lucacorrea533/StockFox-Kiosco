@@ -33,11 +33,15 @@ SECRET_KEY = config("SECRET_KEY")
 # En este proyecto se obtiene desde el archivo .env para mantenerla privada. 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True # Indica que el proyecto está en modo desarrollo
+DEBUG = config("DEBUG", default=False, cast=bool) # Indica que el proyecto está en modo desarrollo
 # Mientras esté en True: Muestra errores detallados facilitando encontrar problemas 
 # De lo contrario couta errores al usuario, aumenta la seguridad, sólo se utiliza en producción 
 
-ALLOWED_HOSTS = [] # Define qué direcciones pueden accederse al proyecto. Cuando el sistema se pública en internet aquí se agregan los dominios permitidos
+ALLOWED_HOSTS = config(
+    "ALLOWED_HOSTS",
+    default="localhost,127.0.0.1",
+    cast=lambda v: [s.strip() for s in v.split(",")]
+) # Define qué direcciones pueden accederse al proyecto. Cuando el sistema se pública en internet aquí se agregan los dominios permitidos
 
 #Aquí se registran tdoas las aplicaciones que utilizará Django, como una lsita de oódulos que estarán activos dentro del proyecto 
 INSTALLED_APPS = [ 
@@ -147,6 +151,8 @@ USE_TZ = True # Almacena fechas y horas utilizando zonas horarias
 STATIC_URL = 'static/' # Define la ruta desde la cual Django servirá los archivos estáticos 
 
 # En este apartado se especifican qué sitios tienen permiso para comunicarse con el backend 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", # Se autoriza el frontend que durante el desarrollo se ejecuta en http://localhost:5173
-]
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://localhost:5173",
+    cast=lambda v: [s.strip() for s in v.split(",")]
+)
