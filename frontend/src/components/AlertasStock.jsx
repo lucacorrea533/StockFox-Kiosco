@@ -8,6 +8,7 @@ import iconAdvertencia from '../assets/icons/Advertencia.png'
 import '../styles/PanelAdministracion.css'
 // Función personalizada que envuelve al fetch normal, agregando el token de autenticación en la request
 import { authFetch } from '../api/authFetch'
+import { API_BASE_URL } from '../api/config'
 
 // Componente que muestra un listado de productos con stock bajo (alerta para la Encargada)
 function AlertasStock() {
@@ -19,7 +20,7 @@ function AlertasStock() {
   // Efecto que se ejecuta una sola vez al montar el componente (array de dependencias vacío [])
   useEffect(() => {
     // Hacemos la petición al endpoint que devuelve los productos con stock bajo
-    authFetch("http://127.0.0.1:8000/api/productos/stock-bajo/")
+    authFetch(`${API_BASE_URL}/productos/stock-bajo/`)
       .then(response => response.json()) // Convertimos la respuesta a JSON
       .then(data => setAlertas(data))    // Guardamos los datos recibidos en el estado "alertas"
       .catch(error => console.error(error)) // Si hay un error, lo mostramos en consola

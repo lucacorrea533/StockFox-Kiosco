@@ -16,6 +16,7 @@ import iconGasto        from '../assets/icons/RegistrodeGasto.png'
 import iconEliminar     from '../assets/icons/EliminarBoton.png'
 import '../styles/InformeVentas.css'
 import { authFetch } from "../api/authFetch"
+import { API_BASE_URL } from '../api/config'
 
 /* Constante con los periodos de tiempo disponibles para segmentar la información */
 const PERIODOS = ['Día', 'Semana', 'Mes']
@@ -49,7 +50,7 @@ function InformeVentas() {
   useEffect(() => {
     // Mapeamos el periodo amigable de la UI al formato de parámetro esperado por la API
     const periodoParam = periodoActivo === 'Día' ? 'dia' : periodoActivo === 'Mes' ? 'mes' : 'semana'
-    authFetch(`http://127.0.0.1:8000/api/informes/resumen-ventas/?periodo=${periodoParam}`)
+    authFetch(`${API_BASE_URL}/informes/resumen-ventas/?periodo=${periodoParam}`)
       .then(response => response.json())
       .then(data => setResumen(data))
       .catch(error => console.error(error))
@@ -57,7 +58,7 @@ function InformeVentas() {
 
   /* Segundo useEffect: Obtiene todos los gastos registrados del buffet */
   useEffect(() => {
-    authFetch("http://127.0.0.1:8000/api/gastos/")
+    authFetch(`${API_BASE_URL}/gastos/`)
       .then(response => response.json())
       .then(data => {
         // Mapeamos los campos del backend (descripcion, id_gasto) a propiedades más directas en el cliente
@@ -97,7 +98,7 @@ function InformeVentas() {
     if (!formGasto.fecha)                                 { setErrorGasto('Ingresá una fecha.'); return }
 
     try {
-      const respuesta = await authFetch("http://127.0.0.1:8000/api/gastos/crear/", {
+      const respuesta = await authFetch(`${API_BASE_URL}/gastos/crear/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -126,7 +127,7 @@ function InformeVentas() {
   /* handleEliminarGasto: Realiza la llamada DELETE a la API para eliminar físicamente un gasto */
   async function handleEliminarGasto(gasto) {
     try {
-      await authFetch(`http://127.0.0.1:8000/api/gastos/eliminar/${gasto.id}/`, { method: "DELETE" })
+      await authFetch(`${API_BASE_URL}/gastos/eliminar/${gasto.id}/`, { method: "DELETE" })
       setGastos(prev => prev.filter(g => g.id !== gasto.id))
       
       // Seteamos el Toast para dar un feedback visual de que el elemento fue removido

@@ -13,6 +13,7 @@ import fondoKiosco from '../assets/images/fondos/Kiosco-Fondo.png'
 import ojoMostrar from '../assets/icons/OjoMostrar.png'
 import ojoNoMostrar from '../assets/icons/OjoNoMostrar.png'
 import '../styles/Registro.css'
+import { API_BASE_URL } from '../api/config'
 
 // Componente principal de la página de registro
 function Registro() { 
@@ -55,7 +56,7 @@ function Registro() {
     if (Object.keys(nuevosErrores).length > 0) return
 
     try { // Intenta hacer el fetch al backend, si falla (no hay conexión) cae en el catch
-      const respuesta = await fetch("http://127.0.0.1:8000/api/auth/registro/", { // Endpoint de registro del backend
+      const respuesta = await fetch(`${API_BASE_URL}/auth/registro/`, { // Endpoint de registro del backend
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

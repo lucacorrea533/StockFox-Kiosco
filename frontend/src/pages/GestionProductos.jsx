@@ -12,6 +12,7 @@ import iconBuscador from '../assets/icons/BuscadorBoton.png'
 import '../styles/GestionProductos.css'
 import api from "../api/axiosClient"
 import { authFetch } from "../api/authFetch"
+import { API_BASE_URL } from '../api/config'
 
 // Las fotos de producto ya NO se importan desde assets: viven en /public/images
 // y se referencian como string (foto_url), igual que va a llegar desde la API
@@ -52,7 +53,7 @@ function GestionProductos() {
   /* Primer useEffect: Se ejecuta una sola vez al montar el componente. 
      Trae los productos de la API usando authFetch (petición autenticada con token) */
   useEffect(() => {
-    authFetch("http://127.0.0.1:8000/api/productos/")
+    authFetch(`${API_BASE_URL}/productos/`)
       .then(response => response.json())
       .then(data => {
         console.log(data)
@@ -83,7 +84,7 @@ function GestionProductos() {
   /* Segundo useEffect: Se ejecuta una sola vez al montar el componente.
      Trae las categorías de productos disponibles desde la base de datos de Django */
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/categorias/")
+    fetch(`${API_BASE_URL}/categorias/`)
       .then(response => response.json())
       .then(data => {
         console.log(data)

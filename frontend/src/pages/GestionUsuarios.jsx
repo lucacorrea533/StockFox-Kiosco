@@ -22,6 +22,8 @@ import { authFetch } from "../api/authFetch"
 /* Cliente Axios configurado para consumir la API del sistema. */
 import api from "../api/axiosClient"
 
+import { API_BASE_URL } from '../api/config'
+
 /* Objeto utilizado para inicializar o reiniciar los campos del formulario. */
 const FORM_VACIO = {
   nombre: '',
@@ -134,7 +136,7 @@ function GestionUsuarios() {
   /* Al cargar la página obtiene el listado del personal desde la API. */
   useEffect(() => {
 
-    authFetch("http://127.0.0.1:8000/api/usuarios/")
+    authFetch(`${API_BASE_URL}/usuarios/`)
       .then(response => response.json())
       .then(data => {
 
@@ -159,7 +161,7 @@ function GestionUsuarios() {
   /* Obtiene el listado de alumnos desde la API al iniciar la página. */
   useEffect(() => {
 
-    authFetch("http://127.0.0.1:8000/api/alumnos/")
+    authFetch(`${API_BASE_URL}/alumnos/`)
       .then(response => response.json())
       .then(data => {
 
