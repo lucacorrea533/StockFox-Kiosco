@@ -1,26 +1,263 @@
-#El archivo models.py se utiliza para definir la estructura de la base de datos dentro de Django. 
-# En él se crean los modelos, que representan las tablas de la base de datos, 
-# indicando qué campos tiene cada una y cómo se relacionan entre sí. 
-# Gracias a estos modelos, Django puede consultar, agregar, modificar y eliminar datos 
-# sin necesidad de escribir SQL directamente. 
+# models.py define la estructura de la base de datos: cada clase representa una tabla
+# y cada atributo, una columna. Django usa estos modelos para consultar, crear, modificar
+# y eliminar datos sin necesidad de escribir SQL a mano.
+#
+# Todas las tablas usan managed=False porque la base de datos ya existe (fue creada con
+# el script SQL del proyecto) y no se administra mediante migraciones de Django.
+#
+# El archivo se divide en dos partes:
+#   1) Modelos propios del negocio ( del Kiosco Escolar)
+#   2) Tablas internas de Django (auth, sesiones, admin) que no se usan en la lógica del kiosco,
+#      pero deben declararse porque comparten la misma base de datos.
 
 from django.db import models
 
 
+# ════════════════════════════════════════════════════════════════════════════
+# MODELOS DEL NEGOCIO
+# ════════════════════════════════════════════════════════════════════════════
+
+class Usuarios(models.Model):
+    """Personal del kiosco: Encargada o Ayudante."""
+    id_usuario = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50)
+    apellido = models.CharField(max_length=50)
+    usuario = models.CharField(max_length=50)
+    contrasena_hash = models.CharField(max_length=255)  # Contraseña cifrada con bcrypt
+    rol = models.CharField(max_length=9)  # 'Encargada' o 'Ayudante'
+
+    class Meta:
+        managed = False
+        db_table = 'usuarios'
+
+
 class Alumnos(models.Model):
+    """Alumnos que pueden autenticarse y realizar pedidos anticipados."""
     id_alumno = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     usuario = models.CharField(max_length=50)
-    anio = models.IntegerField()
-    division = models.IntegerField()
-    
-    pin_hash = models.CharField(max_length=255)
+    anio = models.IntegerField()      # 1 a 6
+    division = models.IntegerField()  # 1, 2, 3...
+    pin_hash = models.CharField(max_length=255)  # PIN cifrado con bcrypt
 
     class Meta:
         managed = False
         db_table = 'alumnos'
 
+
+class CategoriaProducto(models.Model):
+    """Categorías que agrupan los productos (Snacks, Bebidas, etc.)."""
+    id_categoria = models.AutoField(primary_key=True)
+    nombre = models.CharField(unique=True, max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'categoria_producto'
+
+
+class Productos(models.Model):
+    """Catálogo de productos del kiosco."""
+    id_producto = models.AutoField(primary_key=True)
+    id_categoria = models.ForeignKey(CategoriaProducto, models.DO_NOTHING, db_column='id_categoria')
+    nombre = models.CharField(max_length=100)
+    precio_actual = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    stock_minimo = models.IntegerField()  # Umbral que dispara la alerta de reposición
+    foto_url = models.CharField(max_length=255, blank=True, null=True)
+    disponible = models.IntegerField()  # 1 = visible para la venta, 0 = oculto
+
+    class Meta:
+        managed = False
+        db_table = 'productos'
+
+
+class Proveedores(models.Model):
+    """Proveedores que abastecen al kiosco."""
+    id_proveedor = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=20)
+    dias_visita = models.CharField(max_length=50)  # Ej: 'Lunes, Miércoles'
+
+    class Meta:
+        managed = False
+        db_table = 'proveedores'
+
+
+class Ventas(models.Model):
+    """Cabecera de una venta (de mostrador o generada desde un pedido entregado)."""
+    id_venta = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey(Usuarios, models.DO_NOTHING, db_column='id_usuario')  # Quién la registró
+    fecha_hora = models.DateTimeField()
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'ventas'
+
+
+class DetalleVenta(models.Model):
+    """Productos incluidos en cada venta."""
+    id_detalleventa = models.AutoField(primary_key=True)
+    id_venta = models.ForeignKey('Ventas', models.DO_NOTHING, db_column='id_venta')
+    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
+    cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)  # Precio al momento de vender
+
+    class Meta:
+        managed = False
+        db_table = 'detalle_venta'
+
+
+class Pedidos(models.Model):
+    """Pedidos anticipados realizados por los alumnos."""
+    id_pedido = models.AutoField(primary_key=True)
+    id_alumno = models.ForeignKey(Alumnos, models.DO_NOTHING, db_column='id_alumno')
+    horario_retiro = models.TimeField()
+    estado = models.CharField(max_length=9)  # 'pendiente' | 'listo' | 'entregado'
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_creacion = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'pedidos'
+
+
+class DetallePedido(models.Model):
+    """Productos incluidos en cada pedido."""
+    id_detallepedido = models.AutoField(primary_key=True)
+    id_pedido = models.ForeignKey('Pedidos', models.DO_NOTHING, db_column='id_pedido')
+    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
+    cantidad = models.IntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)  # Precio al momento del pedido
+
+    class Meta:
+        managed = False
+        db_table = 'detalle_pedido'
+
+
+class ComprasProveedor(models.Model):
+    """Compras realizadas a un proveedor para reponer stock."""
+    id_compra = models.AutoField(primary_key=True)
+    id_proveedor = models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='id_proveedor')
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')  # Quién la registró
+    fecha = models.DateTimeField()
+    monto_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'compras_proveedor'
+
+
+class DetalleCompra(models.Model):
+    """Productos incluidos en cada compra a proveedor."""
+    id_detallecompra = models.AutoField(primary_key=True)
+    id_compra = models.ForeignKey(ComprasProveedor, models.DO_NOTHING, db_column='id_compra')
+    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
+    cantidad = models.IntegerField()
+    precio_costo = models.DecimalField(max_digits=10, decimal_places=2)  # Costo unitario en esa compra
+
+    class Meta:
+        managed = False
+        db_table = 'detalle_compra'
+
+
+class Promociones(models.Model):
+    """Promociones activas del kiosco (ej: combos con precio especial)."""
+    id_promocion = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')  # Quién la creó
+    nombre = models.CharField(max_length=100)
+    precio_especial = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+
+    class Meta:
+        managed = False
+        db_table = 'promociones'
+
+
+class DetallePromocion(models.Model):
+    """Productos que componen cada promoción."""
+    id_detallepromo = models.AutoField(primary_key=True)
+    id_promocion = models.ForeignKey('Promociones', models.DO_NOTHING, db_column='id_promocion')
+    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
+    cantidad = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'detalle_promocion'
+
+
+class ProveedorProducto(models.Model):
+    """Relación M:N entre proveedores y los productos que suministran."""
+    pk = models.CompositePrimaryKey('id_proveedor', 'id_producto')
+    id_proveedor = models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='id_proveedor')
+    id_producto = models.ForeignKey(Productos, models.DO_NOTHING, db_column='id_producto')
+
+    class Meta:
+        managed = False
+        db_table = 'proveedor_producto'
+
+
+class GastosOperativos(models.Model):
+    """Gastos del kiosco no relacionados con compras a proveedores (limpieza, insumos, etc.)."""
+    id_gasto = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')  # Quién lo registró
+    descripcion = models.CharField(max_length=255)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateField()
+    categoria = models.CharField(max_length=50, blank=True, null=True)  # Ej: 'Insumos', 'Limpieza'
+
+    class Meta:
+        managed = False
+        db_table = 'gastos_operativos'
+
+
+class HistorialPrecios(models.Model):
+    """Registro histórico de cambios de precio de cada producto."""
+    id_historial = models.AutoField(primary_key=True)
+    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')  # Quién hizo el cambio
+    precio_anterior = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_nuevo = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_cambio = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'historial_precios'
+
+
+class MenuDia(models.Model):
+    """Menú del día cargado por la Encargada (solo puede existir uno activo a la vez)."""
+    id_menu = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
+    descripcion = models.CharField(max_length=255)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateField()
+
+    class Meta:
+        managed = False
+        db_table = 'menu_dia'
+
+
+class PagosProveedor(models.Model):
+    """Pagos realizados a proveedores por las compras."""
+    id_pago = models.AutoField(primary_key=True)
+    id_proveedor = models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='id_proveedor')
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')  # Quién lo registró
+    fecha = models.DateTimeField()
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        managed = False
+        db_table = 'pagos_proveedor'
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# TABLAS INTERNAS DE DJANGO
+# Mapean las tablas propias del framework (autenticación, sesiones, panel admin).
+# No se usan en la lógica del kiosco, el login del sistema es propio (JWT + bcrypt).
+# ════════════════════════════════════════════════════════════════════════════
 
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
@@ -28,17 +265,6 @@ class AuthGroup(models.Model):
     class Meta:
         managed = False
         db_table = 'auth_group'
-
-
-class AuthGroupPermissions(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-    permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'auth_group_permissions'
-        unique_together = (('group', 'permission'),)
 
 
 class AuthPermission(models.Model):
@@ -50,6 +276,17 @@ class AuthPermission(models.Model):
         managed = False
         db_table = 'auth_permission'
         unique_together = (('content_type', 'codename'),)
+
+
+class AuthGroupPermissions(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
+    permission = models.ForeignKey(AuthPermission, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'auth_group_permissions'
+        unique_together = (('group', 'permission'),)
 
 
 class AuthUser(models.Model):
@@ -91,88 +328,6 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user', 'permission'),)
 
 
-class CategoriaProducto(models.Model):
-    id_categoria = models.AutoField(primary_key=True)
-    nombre = models.CharField(unique=True, max_length=50)
-
-    class Meta:
-        managed = False
-        db_table = 'categoria_producto'
-
-
-class ComprasProveedor(models.Model):
-    id_compra = models.AutoField(primary_key=True)
-    id_proveedor = models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='id_proveedor')
-    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
-    fecha = models.DateTimeField()
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'compras_proveedor'
-
-
-class DetalleCompra(models.Model):
-    id_detallecompra = models.AutoField(primary_key=True)
-    id_compra = models.ForeignKey(ComprasProveedor, models.DO_NOTHING, db_column='id_compra')
-    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
-    cantidad = models.IntegerField()
-    precio_costo = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'detalle_compra'
-
-
-class DetallePedido(models.Model):
-    id_detallepedido = models.AutoField(primary_key=True)
-    id_pedido = models.ForeignKey('Pedidos', models.DO_NOTHING, db_column='id_pedido')
-    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
-    cantidad = models.IntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'detalle_pedido'
-
-
-class DetallePromocion(models.Model):
-    id_detallepromo = models.AutoField(primary_key=True)
-    id_promocion = models.ForeignKey('Promociones', models.DO_NOTHING, db_column='id_promocion')
-    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
-    cantidad = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'detalle_promocion'
-
-
-class DetalleVenta(models.Model):
-    id_detalleventa = models.AutoField(primary_key=True)
-    id_venta = models.ForeignKey('Ventas', models.DO_NOTHING, db_column='id_venta')
-    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
-    cantidad = models.IntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'detalle_venta'
-
-
-class DjangoAdminLog(models.Model):
-    action_time = models.DateTimeField()
-    object_id = models.TextField(blank=True, null=True)
-    object_repr = models.CharField(max_length=200)
-    action_flag = models.PositiveSmallIntegerField()
-    change_message = models.TextField()
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'django_admin_log'
-
-
 class DjangoContentType(models.Model):
     app_label = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
@@ -181,6 +336,20 @@ class DjangoContentType(models.Model):
         managed = False
         db_table = 'django_content_type'
         unique_together = (('app_label', 'model'),)
+
+
+class DjangoAdminLog(models.Model):
+    action_time = models.DateTimeField()
+    object_id = models.TextField(blank=True, null=True)
+    object_repr = models.CharField(max_length=200)
+    action_flag = models.PositiveSmallIntegerField()
+    change_message = models.TextField()
+    content_type = models.ForeignKey(DjangoContentType, models.DO_NOTHING, blank=True, null=True)
+    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'django_admin_log'
 
 
 class DjangoMigrations(models.Model):
@@ -202,139 +371,3 @@ class DjangoSession(models.Model):
     class Meta:
         managed = False
         db_table = 'django_session'
-
-
-class GastosOperativos(models.Model):
-    id_gasto = models.AutoField(primary_key=True)
-    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
-    descripcion = models.CharField(max_length=255)
-    monto = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha = models.DateField()
-    categoria = models.CharField(max_length=50, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'gastos_operativos'
-
-
-class HistorialPrecios(models.Model):
-    id_historial = models.AutoField(primary_key=True)
-    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
-    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
-    precio_anterior = models.DecimalField(max_digits=10, decimal_places=2)
-    precio_nuevo = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha_cambio = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'historial_precios'
-
-
-class MenuDia(models.Model):
-    id_menu = models.AutoField(primary_key=True)
-    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
-    descripcion = models.CharField(max_length=255)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha = models.DateField()
-
-    class Meta:
-        managed = False
-        db_table = 'menu_dia'
-
-
-class PagosProveedor(models.Model):
-    id_pago = models.AutoField(primary_key=True)
-    id_proveedor = models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='id_proveedor')
-    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
-    fecha = models.DateTimeField()
-    monto = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'pagos_proveedor'
-
-
-class Pedidos(models.Model):
-    id_pedido = models.AutoField(primary_key=True)
-    id_alumno = models.ForeignKey(Alumnos, models.DO_NOTHING, db_column='id_alumno')
-    horario_retiro = models.TimeField()
-    estado = models.CharField(max_length=9)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha_creacion = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'pedidos'
-
-
-class Productos(models.Model):
-    id_producto = models.AutoField(primary_key=True)
-    id_categoria = models.ForeignKey(CategoriaProducto, models.DO_NOTHING, db_column='id_categoria')
-    nombre = models.CharField(max_length=100)
-    precio_actual = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.IntegerField()
-    stock_minimo = models.IntegerField()
-    foto_url = models.CharField(max_length=255, blank=True, null=True)
-    disponible = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'productos'
-
-
-class Promociones(models.Model):
-    id_promocion = models.AutoField(primary_key=True)
-    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
-    nombre = models.CharField(max_length=100)
-    precio_especial = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
-
-    class Meta:
-        managed = False
-        db_table = 'promociones'
-
-
-class ProveedorProducto(models.Model):
-    pk = models.CompositePrimaryKey('id_proveedor', 'id_producto')
-    id_proveedor = models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='id_proveedor')
-    id_producto = models.ForeignKey(Productos, models.DO_NOTHING, db_column='id_producto')
-
-    class Meta:
-        managed = False
-        db_table = 'proveedor_producto'
-
-
-class Proveedores(models.Model):
-    id_proveedor = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=20)
-    dias_visita = models.CharField(max_length=50)
-
-    class Meta:
-        managed = False
-        db_table = 'proveedores'
-
-
-class Usuarios(models.Model):
-    id_usuario = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=50)
-    apellido = models.CharField(max_length=50)
-    usuario = models.CharField(max_length=50)
-    contrasena_hash = models.CharField(max_length=255)
-    rol = models.CharField(max_length=9)
-
-    class Meta:
-        managed = False
-        db_table = 'usuarios'
-
-
-class Ventas(models.Model):
-    id_venta = models.AutoField(primary_key=True)
-    id_usuario = models.ForeignKey(Usuarios, models.DO_NOTHING, db_column='id_usuario')
-    fecha_hora = models.DateTimeField()
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        managed = False
-        db_table = 'ventas'
