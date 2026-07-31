@@ -1,48 +1,88 @@
-/* Estilos del navbar de la Encargada/Ayudante (panel admin). Sidebar fijo con
-   el logo, los 7 links de sección con scroll interno si hace falta, el
-   footer con usuario, y los dropdowns de notificaciones y opciones. */
+/* Estilos del navbar de la Encargada/Ayudante (panel admin), versión 2.
+   Sidebar colapsable en desktop (76px solo íconos / 240px expandido, con
+   tooltip flotante calculado por JS al hacer hover sobre cada ítem cuando
+   está colapsada) y drawer angosto de 150px en mobile, que se abre con un
+   botón de hamburguesa desde una barra superior fija. */
 
-/* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
+/* Anchos del sidebar como variables, para que las páginas que lo usan puedan
+   alinear su <main> sin duplicar estos números en cada archivo. El propio
+   componente actualiza --sidebar-ancho-actual por JS al colapsar/expandir
+   (ver NavbarEncargada.jsx). */
+:root {
+  --sidebar-ancho-expandido: 240px;
+  --sidebar-ancho-colapsado: 76px;
+  --sidebar-ancho-mobile: 150px;
+  --sidebar-ancho-actual: var(--sidebar-ancho-expandido);
+}
+
+/* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones.
+   OJO: a diferencia de v1, NO lleva overflow: hidden. En v1 eso cortaba
+   cualquier hijo que sobresaliera (dropdowns, tooltips); ahora ese trabajo
+   lo hace overflow-y: auto solo en .navbar-encargada-links, puntual donde
+   hace falta el scroll de los 7 links. */
 .navbar-encargada {
-  width: 350px;
+  width: var(--sidebar-ancho-expandido);
   height: 100vh;
   background-color: var(--naranja);
   display: flex;
   flex-direction: column;
   padding: 16px 0;
-  /* Fija la barra en la esquina superior izquierda, para que quede siempre visible al hacer scroll */
   position: fixed;
   left: 0;
   top: 0;
-  overflow: hidden;
+  transition: width 0.2s ease;
+  z-index: 40;
 }
 
-/* Logo */
+.navbar-encargada.colapsado {
+  width: var(--sidebar-ancho-colapsado);
+}
+
 .navbar-encargada-logo {
   display: flex;
-  justify-content: center;
-  padding: 6px 60px 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px 14px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.445);
   flex-shrink: 0;
 }
-
-/* Logo del kiosco, PNG transparente recoloreado al marrón oscuro del proyecto por CSS */
 .navbar-encargada-logo img {
-  width: 115px;
+  width: 60px;
+  flex-shrink: 0;
+  transition: width 0.2s ease;
+}
+.navbar-encargada.colapsado .navbar-encargada-logo {
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 4px 14px;
+}
+.navbar-encargada.colapsado .navbar-encargada-logo img {
+  width: 34px;
 }
 
-/* Contenedor de los links del medio, ocupa todo el espacio libre entre el logo y el footer */
+.navbar-encargada-toggle {
+  color: var(--marron-oscuro);
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+.navbar-encargada-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .navbar-encargada-links {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 10px 10px;
   flex: 1;
-  min-height: 0; /* Clave para que el overflow-y funcione dentro de un flex item */
-  overflow-y: auto; /* Como acá hay 7 secciones (más que en el navbar del alumno), es más probable que necesite scroll */
+  min-height: 0;
+  overflow-y: auto;
 }
-
-/* Personaliza la apariencia del scroll interno (si aparece), en vez de la barra gris fea por defecto */
 .navbar-encargada-links::-webkit-scrollbar {
   width: 4px;
 }
@@ -51,7 +91,6 @@
   border-radius: 4px;
 }
 
-/* Cada item del navbar (ícono + texto) */
 .navbar-encargada-item {
   display: flex;
   align-items: center;
@@ -64,41 +103,37 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s;
-  height: 44px; /* Un poco más bajo que en el navbar del alumno, porque acá hay más ítems */
+  height: 44px;
   flex-shrink: 0;
 }
-
-/* Ícono de cada item, recoloreado al marrón oscuro del proyecto (mismo truco que en NavbarAlumno) */
 .navbar-encargada-item img {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
-
-/* Al pasar el mouse sobre un item, se resalta con fondo marrón oscuro y texto naranja claro */
 .navbar-encargada-item:hover {
   background-color: var(--marron-oscuro);
   color: var(--naranja-claro);
 }
-
-/* El ícono pasa a blanco al pasar el mouse */
 .navbar-encargada-item:hover img {
   filter: brightness(0) invert(1);
 }
-
-/* Activo — resalta la sección en la que está parada la encargada actualmente */
 .navbar-encargada-item.activo {
   background-color: rgba(153, 78, 20, 0.75);
   color: rgb(252, 175, 103);
 }
-
-/* Ícono blanco cuando el link está activo */
 .navbar-encargada-item.activo img {
   filter: brightness(0) invert(1);
 }
+.navbar-encargada.colapsado .navbar-encargada-item {
+  justify-content: center;
+  padding: 8px;
+}
+.navbar-encargada.colapsado .navbar-encargada-item span {
+  display: none;
+}
 
-/* Contenedor del footer: usuario a la izquierda, íconos de acción a la derecha */
 .navbar-encargada-footer {
   padding: 16px 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.445);
@@ -106,9 +141,23 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  gap: 8px;
 }
 
-/* Contenedor del avatar y nombre del usuario */
+/* Colapsado (desktop): footer en columna, con menos padding arriba para que
+   el bloque de acciones quede más pegado a la línea divisoria en vez de
+   suelto en medio del espacio vacío */
+.navbar-encargada.colapsado .navbar-encargada-footer {
+  flex-direction: column;
+  align-items: center; 
+  padding: 8px 8px 14px;
+  gap: 14px;
+}
+
+.navbar-encargada.colapsado .navbar-encargada-usuario {
+  justify-content: center;
+}
+
 .navbar-encargada-usuario {
   display: flex;
   align-items: center;
@@ -116,29 +165,55 @@
   color: var(--marron-oscuro);
   font-weight: 700;
   font-size: 1.05rem;
+  min-width: 0;
 }
-
-/* Avatar del usuario */
 .navbar-encargada-usuario img {
   width: 38px;
   height: 38px;
+  flex-shrink: 0;
+}
+.navbar-encargada.colapsado .navbar-encargada-usuario span {
+  display: none;
 }
 
-/* Contenedor de los íconos de acción (notificaciones, opciones) */
+.navbar-encargada-tooltip {
+  position: fixed;
+  left: calc(var(--sidebar-ancho-colapsado) + 8px);
+  transform: translateY(-50%);
+  background-color: var(--marron-oscuro);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}
+
 .navbar-encargada-acciones {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
-/* Contenedor de cada ícono de acción. "relative" permite que el badge y el
-   dropdown se posicionen tomando este div como referencia */
+/* Colapsado (desktop): notificaciones y cerrar sesión pasan de estar en fila
+   a uno abajo del otro, centrados, para que no queden apretados en 76px de ancho */
+.navbar-encargada.colapsado .navbar-encargada-acciones {
+  width: 100%;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
 .navbar-icon-wrapper {
   position: relative;
   display: flex;
+  width: 40px;              
+  justify-content: center;  
+  align-items: center;    
 }
 
-/* Ícono de notificaciones/opciones, recoloreado igual que el resto del navbar */
 .navbar-icon-wrapper > img {
   width: 34px;
   height: 34px;
@@ -147,13 +222,34 @@
   cursor: pointer;
   transition: opacity 0.2s;
 }
-
-/* Se atenúa un poco al pasar el mouse, para dar feedback visual de que es clickeable */
 .navbar-icon-wrapper > img:hover {
   opacity: 0.7;
 }
 
-/* Globito rojo con el número de notificaciones sin leer, flotando en la esquina de la campana */
+.navbar-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+.navbar-icon-btn img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+  transition: filter 0.2s;
+}
+.navbar-icon-btn-peligro:hover {
+  background-color: #8b0000;
+}
+.navbar-icon-btn-peligro:hover img {
+  filter: brightness(0) invert(1);
+}
+
 .navbar-notif-badge {
   position: absolute;
   top: -6px;
@@ -168,82 +264,131 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none; /* Evita que el globito "robe" el click; el click siempre le llega al ícono de abajo */
+  pointer-events: none;
 }
 
-/* Dropdowns comunes (tanto el de notificaciones como el de opciones comparten esta base visual) */
 .navbar-dropdown {
   position: absolute;
-  bottom: 46px; /* Se abre hacia ARRIBA del ícono, ya que el navbar está pegado abajo de la pantalla */
+  bottom: 46px;
   right: 0;
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   min-width: 230px;
   padding: 10px;
-  z-index: 50; /* Se asegura de que el dropdown quede siempre por encima de otros elementos de la página */
+  z-index: 50;
+}
+.navbar-encargada.colapsado .navbar-dropdown {
+  left: 0;
+  right: auto;
 }
 
-/* Título de cada dropdown (ej. "Notificaciones") */
 .navbar-dropdown-titulo {
   font-weight: 700;
   font-size: 0.85rem;
   color: var(--marron-oscuro);
   margin: 0 0 8px 4px;
 }
-
-/* Dropdown de notificaciones — cada notificación individual dentro de la lista */
 .navbar-notif-item {
   display: flex;
-  align-items: flex-start; /* Alinea el ícono arriba, por si el mensaje ocupa más de una línea */
+  align-items: flex-start;
   gap: 8px;
   padding: 8px;
   border-radius: 8px;
   font-size: 0.82rem;
   color: var(--marron-oscuro);
 }
-
-/* Resalta la notificación al pasar el mouse */
 .navbar-notif-item:hover {
   background-color: rgba(153, 78, 20, 0.08);
 }
-
-/* Ícono de advertencia de cada notificación */
 .navbar-notif-item img {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  margin-top: 1px; /* Ajuste fino para alinear el ícono con la primera línea de texto */
+  margin-top: 1px;
 }
 
-/* Dropdown de opciones — actualmente solo tiene la opción de "Cerrar Sesión" */
-.navbar-dropdown-item {
-  display: flex;
+.navbar-encargada-topbar-mobile {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background-color: var(--naranja);
   align-items: center;
-  gap: 10px;
-  padding: 10px 8px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.9rem;
+  gap: 12px;
+  padding: 0 14px;
+  z-index: 45;
+}
+.navbar-encargada-hamburguesa {
   color: var(--marron-oscuro);
+  font-size: 1.5rem;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  line-height: 1;
+}
+.navbar-encargada-logo-mobile {
+  width: 34px;
 }
 
-/* Ícono de "Cerrar Sesión" dentro del dropdown */
-.navbar-dropdown-item img {
-  width: 20px;
-  height: 20px;
-  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+.navbar-encargada-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 39;
 }
 
-/* Al pasar el mouse sobre "Cerrar Sesión" se pone rojo, para señalar que es una acción delicada/irreversible */
-.navbar-dropdown-item:hover {
-  background-color: #8b0000;
-  color: white;
-}
+@media (max-width: 768px) {
+  .navbar-encargada-topbar-mobile {
+    display: flex;
+  }
+  .navbar-encargada-toggle {
+    display: none;
+  }
+  .navbar-encargada {
+    width: var(--sidebar-ancho-mobile) !important;
+    top: 48px;
+    height: calc(100vh - 48px);
+    transform: translateX(calc(-1 * var(--sidebar-ancho-mobile) - 10px));
+    transition: transform 0.2s ease;
+  }
+  .navbar-encargada.mobile-abierto {
+    transform: translateX(0);
+  }
+  .navbar-encargada-logo {
+    display: none;
+  }
+  .navbar-encargada-item {
+    justify-content: center;
+    padding: 8px 4px;
+  }
+  .navbar-encargada-item span {
+    display: none;
+  }
+  .navbar-encargada-usuario span {
+    display: none;
+  }
 
-/* El ícono también pasa a blanco en hover */
-.navbar-dropdown-item:hover img {
-  filter: brightness(0) invert(1);
+  /* Mismo criterio que en desktop colapsado: footer apilado y prolijo */
+.navbar-encargada-footer {
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 6px 14px;
+    gap: 14px;
+  }
+  .navbar-encargada-acciones {
+    width: 100%;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+  }
+  .navbar-encargada-usuario {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .navbar-encargada-backdrop {
+    display: block;
+  }
 }

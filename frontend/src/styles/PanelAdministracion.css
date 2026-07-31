@@ -14,7 +14,8 @@
 /* Área principal donde se muestra todo el contenido del panel.
    Se desplaza hacia la derecha para dejar espacio al menú lateral y agrega un espaciado interno. */
 .pa-main {
-  margin-left: 350px;
+  margin-left: var(--sidebar-ancho-actual);
+  transition: margin-left 0.2s ease;
   flex: 1;
   padding: 2rem 2.5rem;
   background: var(--naranja-pastel);

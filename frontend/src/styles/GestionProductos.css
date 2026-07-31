@@ -8,7 +8,8 @@
 
 /* Contenedor general de la vista, desplazado a la derecha para dejar lugar al menú lateral fijo */
 .gestion-productos {
-  margin-left: 350px;
+  margin-left: var(--sidebar-ancho-actual);
+  transition: margin-left 0.2s ease;
   flex: 1;
   padding: 2rem 2.5rem;
   background: var(--naranja-pastel);

@@ -14,7 +14,8 @@
 /* Área principal donde se muestra el contenido de ventas presenciales.
    Deja espacio para el menú lateral y agrega el espaciado interno. */
 .vp-main {
-  margin-left: 350px;
+  margin-left: var(--sidebar-ancho-actual);
+  transition: margin-left 0.2s ease;
   flex: 1;
   min-height: 100vh;
   background: var(--naranja-pastel);

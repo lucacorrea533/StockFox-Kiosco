@@ -1,72 +1,61 @@
-/* Estilos del navbar del Alumno, que se muestra fijo a la izquierda en la
-   mayoría de las vistas. Sidebar con el logo arriba, los links de navegación
-   en el medio y el usuario + acciones (carrito, cerrar sesión) abajo. */
+/* Estilos del navbar del Alumno, versión 2. Deja de ser un sidebar lateral:
+   pasa a ser una barra horizontal fija arriba en desktop (logo, links y
+   usuario/carrito/cerrar sesión en una sola fila), y se simplifica en mobile
+   a una barra superior mínima más una barra de tabs fija abajo, pensada
+   para el pulgar, con las 2 secciones del alumno. */
 
-/* Barra lateral izquierda que contiene el logo, los links y el footer con usuario y acciones */
+/* Barra principal fija arriba de la pantalla */
 .navbar-alumno {
-  width: 350px;
-  height: 100vh; /* Ocupa toda la altura de la pantalla, sin importar cuánto contenido tenga la página */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
   background-color: var(--naranja);
   display: flex;
-  flex-direction: column;
-  padding: 16px 0;
-  /* position: fixed + left/top: 0 lo "clava" en la esquina superior izquierda de la pantalla,
-     para que quede siempre visible aunque el usuario haga scroll en el contenido de la derecha */
-  position: fixed;
-  left: 0;
-  top: 0;
-  overflow: hidden;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 40;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-/* Logo arriba */
+/* Logo, a la izquierda */
 .navbar-alumno-logo {
   display: flex;
-  justify-content: center;
-  padding: 6px 60px 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.445); /* Línea divisoria semitransparente debajo del logo */
+  align-items: center;
   flex-shrink: 0;
 }
-
-/* Logo del kiosco */
 .navbar-alumno-logo img {
-  width: 115px;
+  width: 44px;
 }
 
-/* Links del medio */
+/* Links centrales */
 .navbar-alumno-links {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 10px;
-  flex: 1; /* Ocupa todo el espacio disponible entre el logo y el footer, empujando al footer hacia abajo */
-  min-height: 0; /* Truco necesario en flexbox: sin esto, el scroll interno (overflow-y) no funcionaría bien */
-  overflow-y: auto; /* Si hay muchos links y no entran, aparece scroll vertical solo en esta zona */
+  align-items: center;
+  gap: 8px;
 }
 
-/* Cada item del navbar (ícono + texto) */
+/* Cada item del navbar (ícono + texto), ahora en fila en vez de columna */
 .navbar-alumno-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: 10px;
   text-decoration: none;
   color: var(--marron-oscuro);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: background-color 0.2s;
-  height: 52px;
-  position: relative;
-  flex-shrink: 0; /* Ningún ítem se achica, todos mantienen su altura fija de 52px */
 }
 
-/* Ícono de cada item: recolorea el PNG original al marrón oscuro del proyecto por CSS,
-   sin necesitar una versión ya coloreada de cada ícono */
+/* Ícono de cada item: recolorea el PNG original al marrón oscuro del proyecto por CSS */
 .navbar-alumno-item img {
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
 }
 
@@ -75,30 +64,22 @@
   background-color: rgba(153, 78, 20, 0.75);
   color: rgb(252, 175, 103);
 }
-
-/* Vuelve el ícono blanco puro cuando el link está activo */
 .navbar-alumno-item.activo img {
   filter: brightness(0) invert(1);
 }
-
-/* Hover general — se aplica al pasar el mouse por cualquier link que no sea el activo */
 .navbar-alumno-item:hover {
   background-color: var(--marron-oscuro);
   color: white;
 }
-
-/* El ícono también se vuelve blanco en hover */
 .navbar-alumno-item:hover img {
   filter: brightness(0) invert(1);
 }
 
-/* Footer — usuario y acciones, más grande como en el mockup */
+/* Usuario + acciones, a la derecha */
 .navbar-alumno-footer {
-  padding: 16px 16px;
-  border-top: 1px solid rgba(0, 0, 0, 0.445);
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Usuario a la izquierda, acciones (carrito/cerrar sesión) a la derecha */
+  gap: 20px;
   flex-shrink: 0;
 }
 
@@ -106,26 +87,24 @@
 .navbar-alumno-usuario {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: var(--marron-oscuro);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
-
-/* Avatar del usuario */
 .navbar-alumno-usuario img {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
 }
 
 /* Contenedor de los íconos de acción (carrito, cerrar sesión) */
 .navbar-alumno-acciones {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
-/* Botón circular que envuelve cada ícono de acción (carrito, cerrar sesión) */
+/* Botón circular que envuelve cada ícono de acción */
 .navbar-icon-btn {
   position: relative; /* Referencia para poder ubicar el globito del carrito (badge) encima del ícono */
   display: flex;
@@ -136,32 +115,24 @@
   border-radius: 50%;
   transition: background-color 0.2s;
 }
-
-/* Ícono dentro del botón circular, recoloreado igual que los links del medio */
 .navbar-icon-btn img {
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
   transition: filter 0.2s;
 }
-
-/* Hover normal (carrito) — fondo gris suave */
 .navbar-icon-btn:hover {
   background-color: rgba(0, 0, 0, 0.08);
 }
-
-/* Hover "peligroso" (cerrar sesión) — se pone rojo, para indicar que es una acción sensible */
 .navbar-icon-btn-peligro:hover {
   background-color: #8b0000;
 }
-
-/* El ícono de cerrar sesión se vuelve blanco puro al pasar el mouse, para contrastar con el fondo rojo */
 .navbar-icon-btn-peligro:hover img {
   filter: brightness(0) invert(1);
 }
 
-/* Globito rojo que muestra la cantidad de productos en el carrito, flotando en la esquina del ícono */
+/* Globito que muestra la cantidad de productos en el carrito */
 .navbar-carrito-badge {
   position: absolute;
   top: -4px;
@@ -176,4 +147,55 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ── Barra de tabs mobile: oculta por defecto, aparece bajo el breakpoint ── */
+.navbar-alumno-tabs-mobile {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 58px;
+  background-color: var(--naranja);
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+  z-index: 40;
+}
+
+.navbar-alumno-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--marron-oscuro);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.navbar-alumno-tab img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(800%) hue-rotate(350deg);
+}
+.navbar-alumno-tab.activo {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ── Breakpoint mobile ── */
+@media (max-width: 768px) {
+  /* Los links del medio desaparecen de la barra de arriba: viven abajo, en la tabs bar */
+  .navbar-alumno-links {
+    display: none;
+  }
+
+  /* Se oculta el nombre para no apretar la barra angosta; el avatar solo ya identifica al usuario */
+  .navbar-alumno-usuario span {
+    display: none;
+  }
+
+  .navbar-alumno-tabs-mobile {
+    display: flex;
+  }
 }

@@ -1,10 +1,12 @@
 /*
  * NavbarAlumno.jsx
- * Barra de navegación lateral para el rol Alumno.
- * Da acceso a Catálogo y Mis Pedidos, muestra el usuario logueado, el ícono
- * del carrito (con cantidad) y el cierre de sesión con confirmación.
+ * Barra de navegación para el rol Alumno.
+ * Versión 2: barra horizontal fija arriba en desktop (logo a la izquierda,
+ * links de sección al medio, usuario/carrito/cerrar sesión a la derecha).
+ * En mobile se simplifica a una barra superior mínima (logo + usuario +
+ * carrito + cerrar sesión) y se agrega una barra de tabs fija abajo con las
+ * 2 secciones del alumno (Catálogo, Mis Pedidos), pensada para el pulgar.
  */
-// Un navbar significa que es una barra de navegación lateral, que permite al usuario moverse entre distintas secciones de la aplicación. En este caso, el navbar es específico para el rol Alumno, y por eso solo tiene links a Catálogo y Mis Pedidos. Además, muestra el nombre del usuario logueado (traído del localStorage), un ícono de carrito con la cantidad de productos que hay en él (si hay alguno), y un ícono de cierre de sesión que abre un modal de confirmación antes de cerrar la sesión.
 
 // Importaciones de React, React Router y otros componentes/recursos
 import { useState } from 'react'
@@ -29,7 +31,6 @@ const LINKS = [
 // - onAbrirCarrito: acción al clickear el ícono del carrito (la define la vista padre)
 // - onCerrarSesion: acción al confirmar el cierre de sesión (la define quien use el navbar)
 // Los props son opcionales, para que el navbar pueda usarse en vistas donde no haya carrito ni cierre de sesión (ej. login)
-// Signfiica que si la vista padre no pasa estas funciones, el navbar no rompe, solo no hace nada al clickear esos íconos.
 function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
   const [confirmando, setConfirmando] = useState(false) // Modal de "¿Seguro que querés cerrar sesión?"
   const navigate = useNavigate()
@@ -41,16 +42,18 @@ function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
     navigate('/login')
   }
 
-  return ( // Renderiza la barra de navegación lateral, el ícono del carrito con badge, y el modal de confirmación de cierre de sesión
+  return ( // Renderiza la barra superior (horizontal en desktop, recortada en mobile), la barra de tabs mobile, y el modal de confirmación
     <>
+      {/* Barra principal fija arriba */}
       <nav className="navbar-alumno">
 
         {/* Logo */}
         <div className="navbar-alumno-logo">
-          <img src={logoKiosco} alt="RecoKiosco2" />
+          <img src={logoKiosco} alt="RecoKiosco" />
         </div>
 
-        {/* Links: NavLink marca automáticamente la ruta activa con la clase "activo" */}
+        {/* Links centrales: NavLink marca automáticamente la ruta activa con la clase "activo".
+            Se ocultan en mobile porque se reemplazan por la barra de tabs de abajo */}
         <div className="navbar-alumno-links">
           {LINKS.map(link => (
             <NavLink key={link.to} to={link.to} className={({ isActive }) => `navbar-alumno-item ${isActive ? 'activo' : ''}`}>
@@ -60,7 +63,7 @@ function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
           ))}
         </div>
 
-        {/* Footer: usuario logueado + accesos rápidos */}
+        {/* Usuario logueado + accesos rápidos */}
         <div className="navbar-alumno-footer">
           <div className="navbar-alumno-usuario">
             <img src={iconUsuario} alt="Usuario" />
@@ -82,6 +85,16 @@ function NavbarAlumno({ cantidadCarrito = 0, onAbrirCarrito, onCerrarSesion }) {
         </div>
 
       </nav>
+
+      {/* Barra de tabs fija abajo, solo visible en mobile (ver CSS): acceso directo a las 2 secciones del alumno */}
+      <div className="navbar-alumno-tabs-mobile">
+        {LINKS.map(link => (
+          <NavLink key={link.to} to={link.to} className={({ isActive }) => `navbar-alumno-tab ${isActive ? 'activo' : ''}`}>
+            <img src={link.icon} alt={link.label} />
+            <span>{link.label}</span>
+          </NavLink>
+        ))}
+      </div>
 
       {/* Modal de confirmación, solo si "confirmando" es true */}
       {confirmando && (
