@@ -6,7 +6,7 @@
 # el script SQL del proyecto) y no se administra mediante migraciones de Django.
 #
 # El archivo se divide en dos partes:
-#   1) Modelos propios del negocio ( del Kiosco Escolar)
+#   1) Modelos propios del negocio (del Kiosco Escolar)
 #   2) Tablas internas de Django (auth, sesiones, admin) que no se usan en la lógica del kiosco,
 #      pero deben declararse porque comparten la misma base de datos.
 
@@ -25,6 +25,7 @@ class Usuarios(models.Model):
     usuario = models.CharField(max_length=50)
     contrasena_hash = models.CharField(max_length=255)  # Contraseña cifrada con bcrypt
     rol = models.CharField(max_length=9)  # 'Encargada' o 'Ayudante'
+    activo = models.BooleanField(default=True)  # NUEVO: TRUE = cuenta habilitada. FALSE = deshabilitada sin borrar historial.
 
     class Meta:
         managed = False
@@ -40,6 +41,8 @@ class Alumnos(models.Model):
     anio = models.IntegerField()      # 1 a 6
     division = models.IntegerField()  # 1, 2, 3...
     pin_hash = models.CharField(max_length=255)  # PIN cifrado con bcrypt
+    activo = models.BooleanField(default=True)  # NUEVO: TRUE = cuenta habilitada. FALSE = deshabilitada.
+    avatar_url = models.CharField(max_length=255, blank=True, null=True)  # NUEVO: avatar elegido en "Mi Perfil"
 
     class Meta:
         managed = False
@@ -65,7 +68,8 @@ class Productos(models.Model):
     stock = models.IntegerField()
     stock_minimo = models.IntegerField()  # Umbral que dispara la alerta de reposición
     foto_url = models.CharField(max_length=255, blank=True, null=True)
-    disponible = models.IntegerField()  # 1 = visible para la venta, 0 = oculto
+    disponible = models.IntegerField()  # 1 = visible para la venta, 0 = oculto. Lo controla el stock.
+    activo = models.BooleanField(default=True)  # NUEVO: TRUE = existe en gestión. FALSE = desactivado manualmente, sin perder historial.
 
     class Meta:
         managed = False
@@ -114,7 +118,8 @@ class Pedidos(models.Model):
     id_pedido = models.AutoField(primary_key=True)
     id_alumno = models.ForeignKey(Alumnos, models.DO_NOTHING, db_column='id_alumno')
     horario_retiro = models.TimeField()
-    estado = models.CharField(max_length=9)  # 'pendiente' | 'listo' | 'entregado'
+    estado = models.CharField(max_length=14)  # 'pendiente' | 'en_preparacion' | 'listo' | 'entregado' | 'cancelado' — ampliado de max_length=9 a 14 para que entre "en_preparacion"
+    motivo_cancelacion = models.CharField(max_length=255, blank=True, null=True)  # NUEVO: motivo mostrado al alumno si se canceló
     total = models.DecimalField(max_digits=10, decimal_places=2)
     fecha_creacion = models.DateTimeField()
 
@@ -251,6 +256,134 @@ class PagosProveedor(models.Model):
     class Meta:
         managed = False
         db_table = 'pagos_proveedor'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Favoritos (Alumno ↔ Producto)
+# ────────────────────────────────────────────────────────────────────────────
+
+class Favoritos(models.Model):
+    """Productos que un alumno marcó como favoritos (♡)."""
+    id_favorito = models.AutoField(primary_key=True)
+    id_alumno = models.ForeignKey('Alumnos', models.DO_NOTHING, db_column='id_alumno')
+    id_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='id_producto')
+    fecha_agregado = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'favoritos'
+        unique_together = (('id_alumno', 'id_producto'),)
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Configuración global del Kiosco (tabla de una sola fila)
+# ────────────────────────────────────────────────────────────────────────────
+
+class ConfiguracionKiosco(models.Model):
+    """Estado global del kiosco: abierto/alta demanda/pausado, pedidos anticipados habilitados o no."""
+    id_configuracion = models.AutoField(primary_key=True)
+    estado = models.CharField(max_length=12)  # 'abierto' | 'alta_demanda' | 'pausado'
+    pedidos_anticipados_habilitados = models.BooleanField(default=True)
+    demora_estimada_minutos = models.IntegerField(blank=True, null=True)  # Solo si estado = 'alta_demanda'
+    id_usuario_ultima_modificacion = models.ForeignKey(
+        'Usuarios', models.DO_NOTHING, db_column='id_usuario_ultima_modificacion', blank=True, null=True
+    )
+    fecha_actualizacion = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'configuracion_kiosco'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Notificaciones individuales (reemplaza el cálculo "al vuelo")
+# ────────────────────────────────────────────────────────────────────────────
+
+class Notificaciones(models.Model):
+    """Notificaciones individuales para personal o alumnos, con estado leída/no leída."""
+    id_notificacion = models.AutoField(primary_key=True)
+    id_usuario_destino = models.ForeignKey(
+        'Usuarios', models.DO_NOTHING, db_column='id_usuario_destino', blank=True, null=True
+    )
+    id_alumno_destino = models.ForeignKey(
+        'Alumnos', models.DO_NOTHING, db_column='id_alumno_destino', blank=True, null=True
+    )
+    seccion = models.CharField(max_length=8)  # 'stock' | 'pedidos' | 'sistema'
+    mensaje = models.CharField(max_length=255)
+    leida = models.BooleanField(default=False)
+    fecha_creacion = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'notificaciones'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Preferencias de notificación por alumno (1:1)
+# ────────────────────────────────────────────────────────────────────────────
+
+class PreferenciasNotificacionAlumno(models.Model):
+    """Qué tipos de notificación quiere recibir cada alumno. Relación 1:1 con Alumnos."""
+    id_alumno = models.OneToOneField('Alumnos', models.DO_NOTHING, db_column='id_alumno', primary_key=True)
+    notif_pedido_recibido = models.BooleanField(default=True)
+    notif_listo_retirar = models.BooleanField(default=True)
+    notif_cancelado = models.BooleanField(default=True)
+    notif_recomendaciones = models.BooleanField(default=True)
+
+    class Meta:
+        managed = False
+        db_table = 'preferencias_notificacion_alumno'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Historial de actividad del personal
+# ────────────────────────────────────────────────────────────────────────────
+
+class LogActividad(models.Model):
+    """Registro de qué hizo cada usuario del personal y cuándo (ej: 'agregó Coca-Cola')."""
+    id_log = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
+    descripcion = models.CharField(max_length=255)
+    fecha_hora = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'log_actividad'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Notas internas del equipo
+# ────────────────────────────────────────────────────────────────────────────
+
+class Notas(models.Model):
+    """Notas internas del equipo (ej: 'reponer bebidas'). Se borran a la semana desde la app."""
+    id_nota = models.AutoField(primary_key=True)
+    id_usuario = models.ForeignKey('Usuarios', models.DO_NOTHING, db_column='id_usuario')
+    contenido = models.CharField(max_length=500)
+    fecha_creacion = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'notas'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# NUEVO: Información de la escuela (tabla de una sola fila)
+# ────────────────────────────────────────────────────────────────────────────
+
+class InfoEscuela(models.Model):
+    """Datos institucionales de la ET 29, mostrados en la sección "Información"."""
+    id_info = models.AutoField(primary_key=True)
+    nombre_escuela = models.CharField(max_length=150)
+    direccion = models.CharField(max_length=255, blank=True, null=True)
+    contacto = models.CharField(max_length=100, blank=True, null=True)
+    sitio_web = models.CharField(max_length=255, blank=True, null=True)
+    horarios = models.CharField(max_length=255, blank=True, null=True)
+    acerca_de = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'info_escuela'
 
 
 # ════════════════════════════════════════════════════════════════════════════

@@ -29,7 +29,8 @@ CREATE TABLE USUARIOS (
     apellido VARCHAR(50) NOT NULL,
     usuario VARCHAR(50) NOT NULL UNIQUE, -- Usuario para iniciar sesión
     contrasena_hash VARCHAR(255) NOT NULL, -- Contraseña encriptada con bcrypt. Nunca se guarda en texto plano. VARCHAR(255) porque bcrypt genera hashes de entre 60 y 72 caracteres.
-    rol ENUM('Encargada', 'Ayudante') NOT NULL -- Define el perfil de acceso. Solo puede ser 'Encargada' o 'Ayudante'. -- ENUM garantiza que no se pueda guardar ningún otro valor.
+    rol ENUM('Encargada', 'Ayudante') NOT NULL, -- Define el perfil de acceso. Solo puede ser 'Encargada' o 'Ayudante'. -- ENUM garantiza que no se pueda guardar ningún otro valor.
+    activo BOOLEAN NOT NULL DEFAULT TRUE -- TRUE = cuenta habilitada. FALSE = deshabilitada por la Encargada, sin borrar el historial de ventas/pedidos asociado.
 );
 
 -- TABLA: ALUMNOS --
@@ -41,7 +42,9 @@ CREATE TABLE ALUMNOS (
     anio TINYINT NOT NULL,      -- 1, 2, 3, 4, 5, 6
 	division TINYINT NOT NULL,  -- 1, 2, 3... 10
     -- PIN encriptado para autenticación del alumno.
-    pin_hash    VARCHAR(255) NOT NULL -- PIN encriptado para autenticación del alumno. VARCHAR(255) por la misma razón que contrasena_hash: longitud del hash.
+    pin_hash    VARCHAR(255) NOT NULL, -- PIN encriptado para autenticación del alumno. VARCHAR(255) por la misma razón que contrasena_hash: longitud del hash.
+    activo BOOLEAN NOT NULL DEFAULT TRUE, -- TRUE = cuenta habilitada. FALSE = deshabilitada.
+    avatar_url VARCHAR(255) NULL -- Avatar elegido por el alumno en "Mi Perfil". NULL = sin avatar personalizado.
 );
 
 -- TABLA: CATEGORIA_PRODUCTO --
@@ -73,7 +76,8 @@ CREATE TABLE PRODUCTOS (
     stock INT NOT NULL CHECK (stock >= 0), -- Stock disponible. CHECK evita que se guarde un número negativo.
     stock_minimo INT NOT NULL, -- Si el stock baja de este número, el sistema genera una alerta.
     foto_url VARCHAR(255) NULL, -- URL de la imagen del producto. NULL porque es opcional.
-    disponible BOOLEAN NOT NULL, -- TRUE si el producto está visible y disponible para venta. FALSE si no.
+    disponible BOOLEAN NOT NULL, -- TRUE si el producto está visible y disponible para venta. FALSE si no. Lo controla automáticamente el stock.
+    activo BOOLEAN NOT NULL DEFAULT TRUE, -- TRUE si el producto sigue existiendo en la gestión. FALSE = "desactivado" manualmente por la Encargada, sin perder su historial de precios/ventas.
     FOREIGN KEY (id_categoria) REFERENCES CATEGORIA_PRODUCTO(id_categoria)
 );
 
@@ -91,7 +95,8 @@ CREATE TABLE PEDIDOS (
     id_pedido INT AUTO_INCREMENT PRIMARY KEY,
     id_alumno INT NOT NULL, -- FK a ALUMNOS: qué alumno realizó el pedido
     horario_retiro TIME NOT NULL, -- Hora acordada para que el alumno retire su pedido 
-    estado  ENUM('pendiente', 'listo', 'entregado') NOT NULL, -- Estado actual del pedido en el flujo del sistema.
+    estado  ENUM('pendiente', 'en_preparacion', 'listo', 'entregado', 'cancelado') NOT NULL, -- Estado actual del pedido en el flujo del sistema.
+    motivo_cancelacion VARCHAR(255) NULL, -- Motivo mostrado al alumno si el pedido se canceló (ej: "Producto agotado"). NULL si nunca se canceló.
     total DECIMAL(10,2) NOT NULL, -- Total del pedido
     fecha_creacion  DATETIME NOT NULL, -- Fecha y hora en que el alumno realizó el pedido.
     FOREIGN KEY (id_alumno) REFERENCES ALUMNOS(id_alumno)
@@ -669,4 +674,140 @@ INSERT INTO PROVEEDOR_PRODUCTO (id_proveedor, id_producto) VALUES
 (9, 32),   -- Oreos
 (9, 33),   -- Opera Chiquitas
 (9, 48);   -- Tita Chocolate
+
+-- ══════════════════════════════════════════════════════════════════════════
+-- Ajustes de esquema para la 2da Versión de RecoKiosco
+-- Fecha: Agosto 2026
+-- ══════════════════════════════════════════════════════════════════════════
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: FAVORITOS
+-- Resuelve la relación M:N entre ALUMNOS y PRODUCTOS para la función de
+-- "♡ Favoritos". UNIQUE evita que el mismo alumno marque el mismo producto
+-- como favorito dos veces.
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE FAVORITOS (
+    id_favorito INT AUTO_INCREMENT PRIMARY KEY,
+    id_alumno INT NOT NULL,   -- FK a ALUMNOS: quién marcó el favorito.
+    id_producto INT NOT NULL, -- FK a PRODUCTOS: qué producto marcó como favorito.
+    fecha_agregado DATETIME NOT NULL, -- Cuándo lo agregó a favoritos.
+    UNIQUE (id_alumno, id_producto), -- Un alumno no puede favoritar el mismo producto dos veces.
+    FOREIGN KEY (id_alumno) REFERENCES ALUMNOS(id_alumno),
+    FOREIGN KEY (id_producto) REFERENCES PRODUCTOS(id_producto)
+);
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: CONFIGURACION_KIOSCO
+-- Tabla de una sola fila (patrón "singleton"): guarda el estado global del
+-- kiosco. Resuelve "Estado del Kiosco" y "Pausar pedidos anticipados" 
+-- en un solo lugar, ya que ambas ideas son configuración global, no
+-- datos por alumno/producto.
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE CONFIGURACION_KIOSCO (
+    id_configuracion INT AUTO_INCREMENT PRIMARY KEY,
+    estado ENUM('abierto', 'alta_demanda', 'pausado') NOT NULL DEFAULT 'abierto', -- Estado visible en el Catálogo del alumno.
+    pedidos_anticipados_habilitados BOOLEAN NOT NULL DEFAULT TRUE, -- "Pedidos Anticipados Pausados" del .txt.
+    demora_estimada_minutos INT NULL, -- Solo se usa si estado = 'alta_demanda'. NULL el resto del tiempo.
+    id_usuario_ultima_modificacion INT NULL, -- FK a USUARIOS: quién hizo el último cambio (para el historial de actividad).
+    fecha_actualizacion DATETIME NOT NULL,
+    FOREIGN KEY (id_usuario_ultima_modificacion) REFERENCES USUARIOS(id_usuario)
+);
+
+-- Fila inicial única: el kiosco arranca "abierto" y con pedidos habilitados.
+INSERT INTO CONFIGURACION_KIOSCO (estado, pedidos_anticipados_habilitados, fecha_actualizacion)
+VALUES ('abierto', TRUE, NOW());
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: NOTIFICACIONES
+-- Reemplaza el sistema actual (que arma las alertas "al vuelo" en cada
+-- request, sin guardarlas). Con esta tabla, cada notificación es un
+-- registro individual: se puede marcar leída, borrar una por una, o todas
+-- juntas, y dividir por sección (stock/pedidos/sistema) como pediste.
+--
+-- El destinatario puede ser un USUARIO (Encargada/Ayudante) o un ALUMNO,
+-- nunca ambos a la vez: por eso son 2 columnas FK nullable en vez de una
+-- sola columna polimórfica, y el CHECK obliga a que se complete exactamente
+-- una de las dos (mismo criterio de integridad que ya usás con los CHECK de
+-- stock y cantidad en otras tablas).
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE NOTIFICACIONES (
+    id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario_destino INT NULL, -- FK a USUARIOS. NULL si el destinatario es un alumno.
+    id_alumno_destino INT NULL,  -- FK a ALUMNOS. NULL si el destinatario es un usuario del personal.
+    seccion ENUM('stock', 'pedidos', 'sistema') NOT NULL, -- Para poder dividirlas por sección en el frontend.
+    mensaje VARCHAR(255) NOT NULL, -- Ej: "María acaba de realizar un pedido" (detallado, no genérico).
+    leida BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha_creacion DATETIME NOT NULL,
+    CHECK (
+        (id_usuario_destino IS NOT NULL AND id_alumno_destino IS NULL) OR
+        (id_usuario_destino IS NULL AND id_alumno_destino IS NOT NULL)
+    ), -- Obliga a que la notificación tenga exactamente un destinatario, nunca los dos ni ninguno.
+    FOREIGN KEY (id_usuario_destino) REFERENCES USUARIOS(id_usuario),
+    FOREIGN KEY (id_alumno_destino) REFERENCES ALUMNOS(id_alumno)
+);
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: PREFERENCIAS_NOTIFICACION_ALUMNO
+-- Relación 1:1 con ALUMNOS. Separada de la tabla ALUMNOS en vez de agregar
+-- 4 columnas ahí, para no ensuciar esa tabla con configuración que no todos
+-- los queries de alumno necesitan. Cada fila define qué tipos de
+-- notificación quiere recibir ese alumno en particular (todas empiezan
+-- activadas por defecto).
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE PREFERENCIAS_NOTIFICACION_ALUMNO (
+    id_alumno INT PRIMARY KEY, -- FK a ALUMNOS. Es PK a la vez, porque es 1:1 (un alumno = una sola fila de preferencias).
+    notif_pedido_recibido BOOLEAN NOT NULL DEFAULT TRUE,
+    notif_listo_retirar BOOLEAN NOT NULL DEFAULT TRUE,
+    notif_cancelado BOOLEAN NOT NULL DEFAULT TRUE,
+    notif_recomendaciones BOOLEAN NOT NULL DEFAULT TRUE,
+    FOREIGN KEY (id_alumno) REFERENCES ALUMNOS(id_alumno)
+);
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: LOG_ACTIVIDAD
+-- Historial de quién hizo qué (Encargada/Ayudante), tal como el ejemplo del
+-- .txt: "10:35 - Luca agregó Coca-Cola". Solo registra acciones del
+-- personal (USUARIOS), no de alumnos — los alumnos no administran nada.
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE LOG_ACTIVIDAD (
+    id_log INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL, -- FK a USUARIOS: quién hizo la acción.
+    descripcion VARCHAR(255) NOT NULL, -- Ej: "agregó el producto Coca-Cola", "modificó precio de Alfajor a $4500".
+    fecha_hora DATETIME NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES USUARIOS(id_usuario)
+);
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: NOTAS
+-- Notas internas del equipo (recordatorios tipo "reponer bebidas"). El
+-- borrado automático a la semana lo maneja la aplicación (no tiene sentido
+-- resolverlo a nivel de base de datos con un evento programado para un
+-- proyecto de este tamaño).
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE NOTAS (
+    id_nota INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL, -- FK a USUARIOS: autor de la nota.
+    contenido VARCHAR(500) NOT NULL,
+    fecha_creacion DATETIME NOT NULL,
+    FOREIGN KEY (id_usuario) REFERENCES USUARIOS(id_usuario)
+);
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- TABLA: INFO_ESCUELA
+-- Tabla de una sola fila (mismo patrón que CONFIGURACION_KIOSCO), con los
+-- datos institucionales que se muestran en "Información".
+-- ──────────────────────────────────────────────────────────────────────────
+CREATE TABLE INFO_ESCUELA (
+    id_info INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_escuela VARCHAR(150) NOT NULL,
+    direccion VARCHAR(255) NULL,
+    contacto VARCHAR(100) NULL,
+    sitio_web VARCHAR(255) NULL,
+    horarios VARCHAR(255) NULL,   -- Ej: "Lunes a Viernes, 7:00 a 18:00"
+    acerca_de TEXT NULL
+);
+
+-- Fila inicial con datos placeholder — actualizar con la info real de la ET 29.
+INSERT INTO INFO_ESCUELA (nombre_escuela, direccion, contacto, sitio_web, horarios, acerca_de)
+VALUES ('E.T. 29° D.E. 06', NULL, NULL, NULL, NULL, 'Kiosco escolar administrado con RecoKiosco, creado por StockFox.');
 
