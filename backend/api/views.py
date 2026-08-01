@@ -327,7 +327,7 @@ def actualizar_estado_pedido(request, id_pedido):
         return Response({"error": "Pedido no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
     nuevo_estado = request.data.get("estado")
-    estados_validos = ["pendiente", "listo", "entregado"]
+    estados_validos = ["pendiente", "en_preparacion", "listo", "entregado"]
 
     if nuevo_estado not in estados_validos:
         return Response({"error": "Estado inválido"}, status=status.HTTP_400_BAD_REQUEST)
@@ -355,6 +355,7 @@ def actualizar_estado_pedido(request, id_pedido):
                     )
 
     return Response({"mensaje": "Estado actualizado correctamente", "id_pedido": pedido.id_pedido, "estado": pedido.estado})
+
 
 
 # GET /pedidos/<id>/detalle/ → productos que componen un pedido
@@ -612,6 +613,15 @@ def listar_alumnos(request):
     alumnos = Alumnos.objects.all()
     return Response(AlumnoSerializer(alumnos, many=True).data)
 
+# GET /alumnos/cursos/ → lista de cursos únicos existentes (Encargada y Ayudante, sin datos sensibles)
+@api_view(["GET"])
+@login_requerido
+@roles_permitidos("Encargada", "Ayudante")
+def listar_cursos(request):
+    """Devuelve los cursos únicos (año + división combinados, ej. '2°2°') de todos los alumnos registrados."""
+    combinaciones = Alumnos.objects.values_list("anio", "division").distinct()
+    cursos = sorted({f"{anio}°{division}°" for anio, division in combinaciones})
+    return Response(cursos)
 
 # POST /usuarios/crear/ → alta de Ayudante (solo Encargada)
 @api_view(["POST"])

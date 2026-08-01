@@ -26,6 +26,8 @@ from .views import (
     resumen_ventas, notificaciones_encargada,
     # Menú del día
     obtener_menu_dia, guardar_menu_dia, eliminar_menu_dia,
+    # Cursos únicos de alumnos
+    listar_usuarios, listar_alumnos, listar_cursos, crear_usuario, actualizar_usuario, eliminar_usuario,
 )
 
 
@@ -54,6 +56,8 @@ urlpatterns = [
     path("pedidos/crear/", crear_pedido, name="crear_pedido"),
     path("pedidos/estado/<int:id_pedido>/", actualizar_estado_pedido, name="actualizar_estado_pedido"),
     path("pedidos/alumno/<int:id_alumno>/", pedidos_alumno, name="pedidos_alumno"),
+    path("alumnos/", listar_alumnos, name="listar_alumnos"),
+    path("alumnos/cursos/", listar_cursos, name="listar_cursos"),
     path("alumnos/<int:id_alumno>/pedidos/detalle/", pedidos_alumno_detalle, name="pedidos_alumno_detalle"),
 
     # ── VENTAS ───────────────────────────────────────────────────────────────
