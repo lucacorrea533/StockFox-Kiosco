@@ -9,6 +9,7 @@ import MetricaCard from '../components/MetricaCard'
 import AlertasStock from '../components/AlertasStock'
 import PedidosRecientes from '../components/PedidosRecientes'
 import GraficoVentas from '../components/GraficoVentas'
+import AccionesRapidas from '../components/AccionesRapidas'
 import '../styles/PanelAdministracion.css'
 import api from '../api/axiosClient'
 
@@ -74,6 +75,12 @@ function PanelAdministracion() {
 
         {/* Mensaje de bienvenida dinámico personalizado */}
         <h1 className="pa-saludo">{getSaludo()}, Encargada</h1>
+
+        {/* ── Accesos rápidos a las tareas más frecuentes ── */}
+        <section className="pa-seccion">
+          <h2 className="pa-subtitulo">Acciones Rápidas</h2>
+          <AccionesRapidas />
+        </section>
 
         {/* ── Sección: Tarjetas de Métricas Rápidas ── */}
         <section className="pa-seccion">

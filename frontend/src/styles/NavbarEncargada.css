@@ -38,19 +38,23 @@
   width: var(--sidebar-ancho-colapsado);
 }
 
+/* Logo centrado + botón de colapsar flotando en la esquina superior derecha */
 .navbar-encargada-logo {
+  position: relative; 
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 14px 14px;
+  justify-content: center;
+  padding: 14px 14px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.445);
   flex-shrink: 0;
 }
+
+/* Logo del kiosco */
 .navbar-encargada-logo img {
-  width: 60px;
+  width: 85px;
   flex-shrink: 0;
   transition: width 0.2s ease;
 }
+
 .navbar-encargada.colapsado .navbar-encargada-logo {
   flex-direction: column;
   gap: 8px;
@@ -60,7 +64,11 @@
   width: 34px;
 }
 
+/* Botón "☰" */
 .navbar-encargada-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   color: var(--marron-oscuro);
   font-size: 1.3rem;
   cursor: pointer;
