@@ -71,6 +71,7 @@ function GestionProductos() {
           stock: producto.stock,
           stock_minimo: producto.stock_minimo,
           foto_url: producto.foto_url,
+          activo: producto.activo,
           historial: [] // Inicialmente el historial se define vacío en esta carga local
         }))
 
@@ -263,6 +264,19 @@ function GestionProductos() {
     }
   }
 
+  /* handleToggleActivo: Activa o desactiva un producto sin eliminarlo, preservando su historial */
+  async function handleToggleActivo(id, activoActual) {
+    try {
+      await api.put(`productos/activo/${id}/`, { activo: !activoActual })
+
+      setProductos((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, activo: !activoActual } : p))
+      )
+    } catch (error) {
+      console.error("ERROR AL CAMBIAR ACTIVO:", error)
+    }
+  }
+
   /* handleDeshacer: Permite recuperar el último producto eliminado volviéndolo a crear en la base de datos */
   async function handleDeshacer() {
     if (!productoEliminado) return
@@ -360,6 +374,7 @@ function GestionProductos() {
           onGuardarEdicion={handleEditar}
           onAgregar={handleAgregar}
           onEliminar={handleEliminar}
+          onToggleActivo={handleToggleActivo}
         />
 
         {/* Componente secundario: Muestra o permite setear los menús destacados del día */}

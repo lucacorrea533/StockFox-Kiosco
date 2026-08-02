@@ -7,7 +7,7 @@ from django.urls import path
 from .views import (
     # Productos
     listar_productos, listar_productos_disponibles, obtener_producto,
-    crear_producto, actualizar_producto, eliminar_producto, productos_stock_bajo,
+    crear_producto, actualizar_producto, cambiar_activo_producto, eliminar_producto, productos_stock_bajo,
     # Categorías
     listar_categorias, obtener_categoria, crear_categoria,
     actualizar_categoria, eliminar_categoria,
@@ -41,6 +41,7 @@ urlpatterns = [
     path("productos/crear/", crear_producto, name="crear_producto"),
     path("productos/editar/<int:id_producto>/", actualizar_producto, name="actualizar_producto"),
     path("productos/eliminar/<int:id_producto>/", eliminar_producto, name="eliminar_producto"),
+    path("productos/activo/<int:id_producto>/", cambiar_activo_producto, name="cambiar_activo_producto"),
 
     # ── CATEGORÍAS ───────────────────────────────────────────────────────────
     path("categorias/", listar_categorias, name="listar_categorias"),

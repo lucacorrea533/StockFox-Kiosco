@@ -46,7 +46,7 @@ def listar_productos(request):
 @api_view(["GET"])
 def listar_productos_disponibles(request):
     """Devuelve solo los productos visibles para la venta (catálogo público)."""
-    productos = Productos.objects.filter(disponible=1, stock__gt=0)
+    productos = Productos.objects.filter(disponible=1, activo=1, stock__gt=0)
     return Response(ProductoSerializer(productos, many=True).data)
 
 
@@ -101,6 +101,34 @@ def actualizar_producto(request, id_producto):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# PUT /productos/activo/<id>/ → activa/desactiva un producto sin eliminarlo (solo Encargada)
+@api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada")
+def cambiar_activo_producto(request, id_producto):
+    """
+    Activa o desactiva un producto sin borrarlo de la base. A diferencia de
+    'disponible' (que lo controla automáticamente el stock), este campo es
+    100% manual: al desactivar, el producto se oculta del catálogo público
+    pero conserva su historial de precios y ventas anteriores.
+    """
+    try:
+        producto = Productos.objects.get(id_producto=id_producto)
+    except Productos.DoesNotExist:
+        return Response({"error": "Producto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    nuevo_valor = request.data.get("activo")
+    if nuevo_valor is None:
+        return Response({"error": "Falta el campo 'activo'"}, status=status.HTTP_400_BAD_REQUEST)
+
+    producto.activo = bool(nuevo_valor)
+    producto.save()
+
+    return Response({
+        "mensaje": "Estado actualizado correctamente",
+        "id_producto": producto.id_producto,
+        "activo": producto.activo,
+    })
 
 # DELETE /productos/eliminar/<id>/ → baja definitiva de producto (solo Encargada)
 @api_view(["DELETE"])

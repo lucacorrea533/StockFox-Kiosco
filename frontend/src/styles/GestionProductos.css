@@ -987,3 +987,104 @@
 .mh-diff--baja {
   color: #27ae60; /* verde — bajó el precio */
 }
+
+/* ─────────────────────────────────────────────
+   Tabla más compacta (foto más chica, menos padding)
+───────────────────────────────────────────── */
+
+.tp-encabezado,
+.tp-fila {
+  padding: 0.45rem 1rem; /* antes 0.65rem — filas más bajas */
+}
+
+.tp-foto {
+  width: 42px;  /* antes 60px */
+  height: 42px;
+}
+
+.tp-foto--placeholder {
+  font-size: 0.85rem;
+}
+
+/* ─────────────────────────────────────────────
+   Producto desactivado: grisado sin ocultarse
+───────────────────────────────────────────── */
+
+.tp-fila--inactivo {
+  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.tp-badge-inactivo {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: rgba(92, 45, 10, 0.15);
+  color: var(--marron-oscuro);
+  font-size: 0.7rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* Botón de Desactivar/Reactivar, mismo patrón visual que el resto de tp-btn */
+.tp-btn--desactivar {
+  background: #8b5e00;
+  color: white;
+}
+.tp-btn--reactivar {
+  background: #27ae60;
+  color: white;
+}
+
+/* Texto de advertencia en el modal de eliminar (aclara que se puede desactivar en vez de borrar) */
+.modal-subtexto {
+  font-size: 0.82rem;
+  color: var(--marron-oscuro);
+  opacity: 0.75;
+  margin: -1rem 0 1.25rem;
+  line-height: 1.4;
+}
+
+/* ─────────────────────────────────────────────
+   Paginación
+───────────────────────────────────────────── */
+
+.tp-paginacion {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+}
+
+.tp-pagina-btn {
+  background: var(--naranja-claro);
+  color: var(--marron-oscuro);
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Lexend', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; 
+  transition: background 0.15s, color 0.15s;
+}
+
+.tp-pagina-btn:hover:not(:disabled) {
+  background: var(--naranja);
+}
+
+.tp-pagina-btn--activa {
+  background: var(--marron-oscuro);
+  color: white;
+}
+
+.tp-pagina-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
