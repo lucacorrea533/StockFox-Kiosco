@@ -12,6 +12,7 @@ from rest_framework import status                      # Códigos HTTP legibles 
 from django.utils import timezone
 from django.db import IntegrityError, transaction
 from django.db.models import Sum, F
+from django.contrib.auth.hashers import make_password
 
 from .jwt_utils import generar_access_token, generar_refresh_token
 from .auth import login_requerido, roles_permitidos, solo_alumno
@@ -641,6 +642,77 @@ def listar_alumnos(request):
     alumnos = Alumnos.objects.all()
     return Response(AlumnoSerializer(alumnos, many=True).data)
 
+# PUT /alumnos/activo/<id>/ → activa/desactiva un alumno sin eliminarlo (solo Encargada)
+@api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada")
+def cambiar_activo_alumno(request, id_alumno):
+    """
+    Activa o desactiva la cuenta de un alumno sin borrarla. Igual que con
+    productos y personal: al desactivar, se conserva todo su historial
+    de pedidos y favoritos, y no puede iniciar sesión hasta reactivarla.
+    """
+    try:
+        alumno = Alumnos.objects.get(id_alumno=id_alumno)
+    except Alumnos.DoesNotExist:
+        return Response({"error": "Alumno no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    nuevo_valor = request.data.get("activo")
+    if nuevo_valor is None:
+        return Response({"error": "Falta el campo 'activo'"}, status=status.HTTP_400_BAD_REQUEST)
+
+    alumno.activo = bool(nuevo_valor)
+    alumno.save()
+
+    return Response({
+        "mensaje": "Estado actualizado correctamente",
+        "id_alumno": alumno.id_alumno,
+        "activo": alumno.activo,
+    })
+
+
+# DELETE /alumnos/eliminar/<id>/ → baja definitiva de un alumno (solo Encargada)
+@api_view(["DELETE"])
+@login_requerido
+@roles_permitidos("Encargada")
+def eliminar_alumno(request, id_alumno):
+    """Elimina un alumno de forma definitiva. Falla si tiene pedidos u otros registros asociados."""
+    try:
+        alumno = Alumnos.objects.get(id_alumno=id_alumno)
+    except Alumnos.DoesNotExist:
+        return Response({"error": "Alumno no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        alumno.delete()
+    except IntegrityError:
+        return Response(
+            {"error": "No se puede eliminar este alumno porque tiene pedidos u otros registros asociados. Usá 'Desactivar' en su lugar."},
+            status=status.HTTP_409_CONFLICT,
+        )
+
+    return Response({"mensaje": "Alumno eliminado correctamente"}, status=status.HTTP_200_OK)
+
+
+# PUT /alumnos/resetear-pin/<id>/ → la Encargada le asigna un PIN nuevo a un alumno (solo Encargada)
+@api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada")
+def resetear_pin_alumno(request, id_alumno):
+    """Permite que la Encargada le asigne un PIN nuevo a un alumno que olvidó el suyo."""
+    try:
+        alumno = Alumnos.objects.get(id_alumno=id_alumno)
+    except Alumnos.DoesNotExist:
+        return Response({"error": "Alumno no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    nuevo_pin = request.data.get("pin")
+    if not nuevo_pin:
+        return Response({"error": "Falta el nuevo PIN"}, status=status.HTTP_400_BAD_REQUEST)
+
+    alumno.pin_hash = make_password(nuevo_pin)
+    alumno.save()
+
+    return Response({"mensaje": "PIN actualizado correctamente", "id_alumno": alumno.id_alumno})
+
 # GET /alumnos/cursos/ → lista de cursos únicos existentes (Encargada y Ayudante, sin datos sensibles)
 @api_view(["GET"])
 @login_requerido
@@ -688,8 +760,7 @@ def actualizar_usuario(request, id_usuario):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# DELETE /usuarios/eliminar/<id>/ → baja de usuario del personal (solo Encargada)
+# DELETE /usuarios/eliminar/<id>/ → baja definitiva de usuario del personal (solo Encargada)
 @api_view(["DELETE"])
 @login_requerido
 @roles_permitidos("Encargada")
@@ -703,9 +774,46 @@ def eliminar_usuario(request, id_usuario):
     if usuario.rol == "Encargada":
         return Response({"error": "No se puede eliminar a una Encargada"}, status=status.HTTP_403_FORBIDDEN)
 
-    usuario.delete()
+    try:
+        usuario.delete()
+    except IntegrityError:
+        return Response(
+            {"error": "No se puede eliminar este usuario porque tiene ventas, gastos u otros registros asociados. Usá 'Desactivar' en su lugar."},
+            status=status.HTTP_409_CONFLICT,
+        )
+
     return Response({"mensaje": "Usuario eliminado correctamente"}, status=status.HTTP_200_OK)
 
+# PUT /usuarios/activo/<id>/ → activa/desactiva un usuario del personal sin eliminarlo (solo Encargada)
+@api_view(["PUT"])
+@login_requerido
+@roles_permitidos("Encargada")
+def cambiar_activo_usuario(request, id_usuario):
+    """
+    Activa o desactiva un usuario del personal sin borrarlo de la base.
+    100% manual (igual que con productos): al desactivar, se conserva
+    todo el historial de ventas, gastos y compras asociado a ese usuario.
+    """
+    try:
+        usuario = Usuarios.objects.get(id_usuario=id_usuario)
+    except Usuarios.DoesNotExist:
+        return Response({"error": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    if usuario.rol == "Encargada":
+        return Response({"error": "No se puede desactivar a una Encargada"}, status=status.HTTP_403_FORBIDDEN)
+
+    nuevo_valor = request.data.get("activo")
+    if nuevo_valor is None:
+        return Response({"error": "Falta el campo 'activo'"}, status=status.HTTP_400_BAD_REQUEST)
+
+    usuario.activo = bool(nuevo_valor)
+    usuario.save()
+
+    return Response({
+        "mensaje": "Estado actualizado correctamente",
+        "id_usuario": usuario.id_usuario,
+        "activo": usuario.activo,
+    })
 
 # ════════════════════════════════════════════════════════════════════════════
 # GASTOS OPERATIVOS

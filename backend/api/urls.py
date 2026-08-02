@@ -19,7 +19,8 @@ from .views import (
     # Autenticación
     login, registro,
     # Usuarios y alumnos (gestión del personal)
-    listar_usuarios, listar_alumnos, crear_usuario, actualizar_usuario, eliminar_usuario,
+    listar_usuarios, listar_alumnos, listar_cursos, crear_usuario, actualizar_usuario, eliminar_usuario, cambiar_activo_usuario,
+    cambiar_activo_alumno, eliminar_alumno, resetear_pin_alumno,
     # Gastos operativos
     listar_gastos, crear_gasto, eliminar_gasto,
     # Informes y notificaciones
@@ -59,6 +60,9 @@ urlpatterns = [
     path("pedidos/alumno/<int:id_alumno>/", pedidos_alumno, name="pedidos_alumno"),
     path("alumnos/", listar_alumnos, name="listar_alumnos"),
     path("alumnos/cursos/", listar_cursos, name="listar_cursos"),
+    path("alumnos/activo/<int:id_alumno>/", cambiar_activo_alumno, name="cambiar_activo_alumno"),
+    path("alumnos/eliminar/<int:id_alumno>/", eliminar_alumno, name="eliminar_alumno"),
+    path("alumnos/resetear-pin/<int:id_alumno>/", resetear_pin_alumno, name="resetear_pin_alumno"),
     path("alumnos/<int:id_alumno>/pedidos/detalle/", pedidos_alumno_detalle, name="pedidos_alumno_detalle"),
 
     # ── VENTAS ───────────────────────────────────────────────────────────────
@@ -75,6 +79,7 @@ urlpatterns = [
     path("usuarios/crear/", crear_usuario, name="crear_usuario"),
     path("usuarios/editar/<int:id_usuario>/", actualizar_usuario, name="actualizar_usuario"),
     path("usuarios/eliminar/<int:id_usuario>/", eliminar_usuario, name="eliminar_usuario"),
+    path("usuarios/activo/<int:id_usuario>/", cambiar_activo_usuario, name="cambiar_activo_usuario"),
     path("alumnos/", listar_alumnos, name="listar_alumnos"),
 
     # ── GASTOS OPERATIVOS ────────────────────────────────────────────────────

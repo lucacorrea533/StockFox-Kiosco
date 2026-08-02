@@ -127,11 +127,34 @@ function GestionUsuarios() {
   /* Usuario eliminado recientemente (para la opción de deshacer). */
   const [eliminado, setEliminado] = useState(null)
 
+  /* Indica si se está activando o desactivando un usuario del personal. */
+  const [toggleandoPersonal, setToggleandoPersonal] = useState(null)
+
+  /* Indica si se está activando o desactivando un alumno. */
+  const [toggleandoAlumno, setToggleandoAlumno] = useState(null)
+  /* Indica si se está eliminando un alumno. */
+  const [eliminandoAlumno, setEliminandoAlumno] = useState(null)
+  /* Indica si se está reseteando el PIN de un alumno. */
+  const [errorEliminarAlumno, setErrorEliminarAlumno] = useState('')
+  const [reseteandoPin, setReseteandoPin] = useState(null)
+  const [pinForm, setPinForm] = useState({ pin: '', confirmar: '' })
+  const [pinErrores, setPinErrores] = useState({})
+
   /* Referencia utilizada para controlar el tiempo de duración del toast. */
   const toastTimeout = useRef(null)
 
+    // Lista oficial de cursos de la ET 29 (T.M. + T.T. + T.N.)
+  const CURSOS_OFICIALES = [
+  '1°1°', '1°2°', '1°3°', '1°4°', '1°5°', '1°6°', '1°7°', '1°9°', '1°10°',
+  '2°1°', '2°2°', '2°3°', '2°4°', '2°5°', '2°6°', '2°7°', '2°8°', '2°9°',
+  '3°1°', '3°2°', '3°3°', '3°4°', '3°5°', '3°6°', '3°7°',
+  '4°1°', '4°2°', '4°3°', '4°4°', '4°5°', '4°6°', '4°7°', '4°8°',
+  '5°1°', '5°2°', '5°3°', '5°4°', '5°5°', '5°6°', '5°7°', '5°8°',
+  '6°1°', '6°2°', '6°3°', '6°4°', '6°5°', '6°6°', '6°7°',
+]
+
   /* Obtiene una lista de cursos únicos para llenar el selector de filtros. */
-  const cursosUnicos = [...new Set(alumnos.map((a) => a.curso))].sort()
+  const cursosUnicos = CURSOS_OFICIALES
 
   /* Al cargar la página obtiene el listado del personal desde la API. */
   useEffect(() => {
@@ -147,7 +170,7 @@ function GestionUsuarios() {
           apellido: u.apellido,
           usuario: u.usuario,
           rol: u.rol,
-          estado: 'Activo' // Estado temporal hasta que exista en la base de datos.
+          estado: u.activo ? 'Activo' : 'Inactivo'
         }))
 
         /* Guarda la información en el estado del componente. */
@@ -172,7 +195,7 @@ function GestionUsuarios() {
           apellido: a.apellido,
           usuario: a.usuario,
           curso: a.curso,
-          estado: 'Activo'
+          estado: a.activo ? 'Activo' : 'Inactivo'
         }))
 
         setAlumnos(formateados)
@@ -383,6 +406,79 @@ async function handleEliminar(u) {
   }
 }
 
+/* handleToggleEstadoPersonal: activa/desactiva a un usuario del personal contra la API real,
+   igual que ya hacemos con productos y (cuando lo conectemos) con alumnos. */
+async function handleToggleEstadoPersonal(u) {
+  const activandoNuevo = u.estado !== 'Activo' // true si hoy está Inactivo y lo vamos a activar
+
+  try {
+    await api.put(`usuarios/activo/${u.id}/`, { activo: activandoNuevo })
+
+    setPersonal(prev =>
+      prev.map(p => p.id === u.id ? { ...p, estado: activandoNuevo ? 'Activo' : 'Inactivo' } : p)
+    )
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+/* handleToggleEstadoAlumno: activa/desactiva a un alumno contra la API real. */
+async function handleToggleEstadoAlumno(a) {
+  const activandoNuevo = a.estado !== 'Activo'
+
+  try {
+    await api.put(`alumnos/activo/${a.id}/`, { activo: activandoNuevo })
+    setAlumnos(prev =>
+      prev.map(x => x.id === a.id ? { ...x, estado: activandoNuevo ? 'Activo' : 'Inactivo' } : x)
+    )
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+/* handleEliminarAlumno: borra definitivamente. Si tiene pedidos asociados, el backend
+   devuelve 409 con el motivo — lo mostramos en el modal en vez de fallar en silencio. */
+async function handleEliminarAlumno(a) {
+  try {
+    await api.delete(`alumnos/eliminar/${a.id}/`)
+    setAlumnos(prev => prev.filter(x => x.id !== a.id))
+    setEliminandoAlumno(null)
+    setErrorEliminarAlumno('')
+  } catch (error) {
+    setErrorEliminarAlumno(error.response?.data?.error || 'No se pudo eliminar el alumno.')
+  }
+}
+
+/* validarPin / handleResetearPin: la Encargada le asigna una contraseña nueva al alumno. */
+function validarPin() {
+  const err = {}
+  if (!pinForm.pin || pinForm.pin.length < 4) err.pin = 'Mínimo 4 caracteres.'
+  if (pinForm.pin !== pinForm.confirmar) err.confirmar = 'No coinciden.'
+  return err
+}
+
+async function handleResetearPin() {
+  const err = validarPin()
+  if (Object.keys(err).length > 0) {
+    setPinErrores(err)
+    return
+  }
+
+  try {
+    await api.put(`alumnos/resetear-pin/${reseteandoPin.id}/`, { pin: pinForm.pin })
+    cerrarModalPin()
+  } catch (error) {
+    console.error(error)
+    setPinErrores({ pin: 'No se pudo actualizar la contraseña.' })
+  }
+}
+
+function cerrarModalPin() {
+  setReseteandoPin(null)
+  setPinForm({ pin: '', confirmar: '' })
+  setPinErrores({})
+}
+
 /* handleDeshacer: Permite revertir de forma local la eliminación de un usuario 
    reinsertándolo en el array local si la encargada pulsa el botón en el Toast 
    antes de que termine el temporizador activo (clearTimeout). */
@@ -391,14 +487,6 @@ function handleDeshacer() {
   setPersonal((prev) => [...prev, eliminado])
   setEliminado(null)
   clearTimeout(toastTimeout.current) // Detiene la desaparición automática de la notificación
-}
-
-/* toggleEstadoAlumno: Cambia dinámicamente el estado ('Activo' / 'Inactivo') de un alumno.
-   Mapea el listado actualizando el campo correspondiente en el cliente de forma reactiva. */
-function toggleEstadoAlumno(id) {
-  setAlumnos((prev) =>
-    prev.map((a) => a.id === id ? { ...a, estado: a.estado === 'Activo' ? 'Inactivo' : 'Activo' } : a)
-  )
 }
 
 /* cambiarPestana: Controla la navegación del módulo. Al cambiar de sección, limpia todos 
@@ -412,8 +500,13 @@ function cambiarPestana(p) {
 }
 
 /* ── Aplicación de Filtros sobre los Listados Originales ───────────────────── */
-const personalFiltrado = filtrarPersonal(personal)
-const alumnosFiltrados = filtrarAlumnos(alumnos)
+const personalFiltrado = filtrarPersonal(personal).sort((a, b) => {
+  if (a.rol === b.rol) return 0
+  return a.rol === 'Encargada' ? -1 : 1
+})
+const alumnosFiltrados = filtrarAlumnos(alumnos).sort((a, b) =>
+  `${a.apellido} ${a.nombre}`.localeCompare(`${b.apellido} ${b.nombre}`)
+)
 
 /* ── Renderizado del Módulo Principal ───────────────────────────────────────── */
 return (
@@ -425,7 +518,9 @@ return (
 
       <div className="gu-header">
         <h1 className="gu-titulo">Gestión de Usuarios</h1>
-        <button className="gu-btn-agregar" onClick={abrirAgregar}>+ Agregar Ayudante</button>
+        {pestana === 'personal' && (
+          <button className="gu-btn-agregar" onClick={abrirAgregar}>+ Agregar Ayudante</button>
+        )}
       </div>
 
       {/* Pestañas: Alternan las vistas principales y muestran contadores en tiempo real (length) */}
@@ -450,9 +545,13 @@ return (
           <img src={iconBuscador} alt="Buscar" className="gu-buscador-icono" />
           <input
             type="text"
+            name="busqueda-gestion-usuarios"
             placeholder="Buscar por nombre o usuario..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
+            autoComplete="off"
+            data-lpignore="true"
+            data-1p-ignore="true"
           />
         </div>
 
@@ -501,19 +600,26 @@ return (
                 <span>{badgeRol(u.rol)}</span>
                 <span>{badgeEstado(u.estado)}</span>
                 <div className="gu-acciones">
-                  <button className="gu-btn gu-btn--editar" onClick={() => abrirEditar(u)} title="Editar">
-                    <img src={iconEditar} alt="Editar" />
-                  </button>
-                  {/* Deshabilita el botón de borrado si la fila corresponde a una Encargada, previniendo accidentes */}
-                  <button
-                    className={`gu-btn gu-btn--eliminar ${u.rol === 'Encargada' ? 'gu-btn--disabled' : ''}`}
-                    onClick={() => u.rol !== 'Encargada' && setEliminando(u)}
-                    title={u.rol === 'Encargada' ? 'Las Encargadas no se pueden eliminar' : 'Eliminar'}
-                    disabled={u.rol === 'Encargada'}
-                  >
-                    <img src={iconEliminar} alt="Eliminar" />
-                  </button>
-                </div>
+                <button className="gu-btn gu-btn--editar" onClick={() => abrirEditar(u)} title="Editar">
+                  <img src={iconEditar} alt="Editar" />
+                </button>
+                <button
+                  className={`gu-btn-toggle ${u.estado === 'Activo' ? 'gu-btn-toggle--activo' : 'gu-btn-toggle--inactivo'} ${u.rol === 'Encargada' ? 'gu-btn--disabled' : ''}`}
+                  onClick={() => u.rol !== 'Encargada' && setToggleandoPersonal(u)}
+                  title={u.rol === 'Encargada' ? 'Las Encargadas no se pueden desactivar' : (u.estado === 'Activo' ? 'Desactivar' : 'Activar')}
+                  disabled={u.rol === 'Encargada'}
+                >
+                  {u.estado === 'Activo' ? 'Desactivar' : 'Activar'}
+                </button>
+                <button
+                  className={`gu-btn gu-btn--eliminar ${u.rol === 'Encargada' ? 'gu-btn--disabled' : ''}`}
+                  onClick={() => u.rol !== 'Encargada' && setEliminando(u)}
+                  title={u.rol === 'Encargada' ? 'Las Encargadas no se pueden eliminar' : 'Eliminar'}
+                  disabled={u.rol === 'Encargada'}
+                >
+                  <img src={iconEliminar} alt="Eliminar" />
+                </button>
+              </div>
               </div>
             ))
           )}
@@ -540,12 +646,17 @@ return (
                 <span className="gu-curso">{a.curso}</span>
                 <span>{badgeEstado(a.estado)}</span>
                 <div className="gu-acciones">
-                  {/* Botón interruptor (switch) para suspender o habilitar cuentas de forma rápida */}
+                  <button className="gu-btn gu-btn--editar" onClick={() => setReseteandoPin(a)} title="Restablecer contraseña">
+                    <img src={iconEditar} alt="Restablecer contraseña" />
+                  </button>
                   <button
                     className={`gu-btn-toggle ${a.estado === 'Activo' ? 'gu-btn-toggle--activo' : 'gu-btn-toggle--inactivo'}`}
-                    onClick={() => toggleEstadoAlumno(a.id)}
+                    onClick={() => setToggleandoAlumno(a)}
                   >
                     {a.estado === 'Activo' ? 'Desactivar' : 'Activar'}
+                  </button>
+                  <button className="gu-btn gu-btn--eliminar" onClick={() => setEliminandoAlumno(a)} title="Eliminar">
+                    <img src={iconEliminar} alt="Eliminar" />
                   </button>
                 </div>
               </div>
@@ -630,6 +741,96 @@ return (
         </div>
       </ModalWrapper>
     )}
+
+    {/* ── Modal de Confirmación de Activación/Desactivación ── */}
+    {toggleandoPersonal && (
+      <ModalWrapper onClose={() => setToggleandoPersonal(null)}>
+        <div className="gu-modal--confirm">
+          <p className="gu-confirm-texto">
+            {toggleandoPersonal.estado === 'Activo'
+              ? <>¿Estás segura que querés desactivar a <strong>{toggleandoPersonal.nombre} {toggleandoPersonal.apellido}</strong>? No va a poder iniciar sesión hasta que lo reactives.</>
+              : <>¿Reactivar a <strong>{toggleandoPersonal.nombre} {toggleandoPersonal.apellido}</strong>? Va a poder volver a iniciar sesión.</>
+            }
+          </p>
+          <div className="gu-modal-botones">
+            <button className="gu-modal-btn gu-modal-btn--cancelar" onClick={() => setToggleandoPersonal(null)}>
+              Cancelar
+            </button>
+            <button
+              className="gu-modal-btn gu-modal-btn--guardar"
+              onClick={() => { handleToggleEstadoPersonal(toggleandoPersonal); setToggleandoPersonal(null) }}
+            >
+              {toggleandoPersonal.estado === 'Activo' ? 'Sí, desactivar' : 'Sí, reactivar'}
+            </button>
+          </div>
+        </div>
+      </ModalWrapper>
+    )}
+
+    {/* ── Modal confirmar desactivar/activar Alumno ── */}
+{toggleandoAlumno && (
+  <ModalWrapper onClose={() => setToggleandoAlumno(null)}>
+    <div className="gu-modal--confirm">
+      <p className="gu-confirm-texto">
+        {toggleandoAlumno.estado === 'Activo'
+          ? <>¿Estás segura que querés desactivar a <strong>{toggleandoAlumno.nombre} {toggleandoAlumno.apellido}</strong>? No va a poder iniciar sesión hasta que lo reactives.</>
+          : <>¿Reactivar a <strong>{toggleandoAlumno.nombre} {toggleandoAlumno.apellido}</strong>? Va a poder volver a iniciar sesión.</>
+        }
+      </p>
+      <div className="gu-modal-botones">
+        <button className="gu-modal-btn gu-modal-btn--cancelar" onClick={() => setToggleandoAlumno(null)}>Cancelar</button>
+        <button
+          className="gu-modal-btn gu-modal-btn--guardar"
+          onClick={() => { handleToggleEstadoAlumno(toggleandoAlumno); setToggleandoAlumno(null) }}
+        >
+          {toggleandoAlumno.estado === 'Activo' ? 'Sí, desactivar' : 'Sí, reactivar'}
+        </button>
+      </div>
+    </div>
+  </ModalWrapper>
+)}
+
+{/* ── Modal confirmar eliminar Alumno ── */}
+{eliminandoAlumno && (
+  <ModalWrapper onClose={() => { setEliminandoAlumno(null); setErrorEliminarAlumno('') }}>
+    <div className="gu-modal--confirm">
+      <p className="gu-confirm-texto">
+        ¿Estás segura que querés eliminar a <strong>{eliminandoAlumno.nombre} {eliminandoAlumno.apellido}</strong>?
+      </p>
+      {errorEliminarAlumno && <p className="gu-error">{errorEliminarAlumno}</p>}
+      <div className="gu-modal-botones">
+        <button className="gu-modal-btn gu-modal-btn--cancelar" onClick={() => { setEliminandoAlumno(null); setErrorEliminarAlumno('') }}>Cancelar</button>
+        <button className="gu-modal-btn gu-modal-btn--eliminar" onClick={() => handleEliminarAlumno(eliminandoAlumno)}>Confirmar</button>
+      </div>
+    </div>
+  </ModalWrapper>
+)}
+
+{/* ── Modal restablecer contraseña de Alumno ── */}
+{reseteandoPin && (
+  <ModalWrapper onClose={cerrarModalPin}>
+    <button className="gu-modal-cerrar" onClick={cerrarModalPin}>✕</button>
+    <h2 className="gu-modal-titulo">Restablecer contraseña de {reseteandoPin.nombre} {reseteandoPin.apellido}</h2>
+    <div className="gu-modal-grid">
+      <div className="gu-modal-campo">
+        <label>Nueva Contraseña *</label>
+        <input type="password" placeholder="••••••••" value={pinForm.pin}
+          onChange={(e) => setPinForm(prev => ({ ...prev, pin: e.target.value }))} />
+        {pinErrores.pin && <span className="gu-error">{pinErrores.pin}</span>}
+      </div>
+      <div className="gu-modal-campo">
+        <label>Confirmar Contraseña *</label>
+        <input type="password" placeholder="••••••••" value={pinForm.confirmar}
+          onChange={(e) => setPinForm(prev => ({ ...prev, confirmar: e.target.value }))} />
+        {pinErrores.confirmar && <span className="gu-error">{pinErrores.confirmar}</span>}
+      </div>
+    </div>
+    <div className="gu-modal-botones">
+      <button className="gu-modal-btn gu-modal-btn--cancelar" onClick={cerrarModalPin}>Cancelar</button>
+      <button className="gu-modal-btn gu-modal-btn--guardar" onClick={handleResetearPin}>Guardar</button>
+    </div>
+  </ModalWrapper>
+)}
 
 {/* ── Toast deshacer ── */}
       {/* Mensaje flotante temporal (Toast) que aparece tras eliminar un usuario.

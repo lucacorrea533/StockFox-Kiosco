@@ -207,7 +207,13 @@
 .gu-badge--inactivo  { background: rgba(92,45,10,0.12); color: var(--marron-oscuro); }
 
 /* ── Acciones en tabla ── */
-.gu-acciones { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.gu-acciones {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+}
 
 .gu-btn {
   border: none;
@@ -228,12 +234,13 @@
 .gu-btn-toggle {
   border: none;
   border-radius: 6px;
-  padding: 0.3rem 0.75rem;
-  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.75rem;
   font-family: 'Lexend', sans-serif;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
+  white-space: nowrap;
 }
 .gu-btn-toggle:hover { opacity: 0.8; }
 .gu-btn-toggle--activo   { background: rgba(92,45,10,0.15); color: var(--marron-oscuro); }

@@ -159,15 +159,14 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Usuarios
-        fields = ["id_usuario", "nombre", "apellido", "usuario", "rol"]
-
+        fields = ["id_usuario", "nombre", "apellido", "usuario", "rol", "activo"]
 
 class AlumnoSerializer(serializers.ModelSerializer):
     curso = serializers.SerializerMethodField()
 
     class Meta:
         model = Alumnos
-        fields = ["id_alumno", "nombre", "apellido", "usuario", "anio", "division", "curso"]
+        fields = ["id_alumno", "nombre", "apellido", "usuario", "anio", "division", "curso", "activo"]
 
     def get_curso(self, obj):
         return f"{obj.anio}°{obj.division}°"
